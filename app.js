@@ -14,8 +14,19 @@ const resetButton = document.getElementById("resetButton");
 const statusMessage = document.getElementById("statusMessage");
 const lookGroups = document.getElementById("lookGroups");
 const lookCount = document.getElementById("lookCount");
+const recipeFields = document.getElementById("recipeFields");
+const recipeSim = document.getElementById("recipeSim");
+const recipeName = document.getElementById("recipeName");
+const recipeAuthor = document.getElementById("recipeAuthor");
+const recipeNotes = document.getElementById("recipeNotes");
+const importText = document.getElementById("importText");
+const importButton = document.getElementById("importButton");
+const importFile = document.getElementById("importFile");
+const xmpTarget = document.getElementById("xmpTarget");
+const xmpHint = document.getElementById("xmpHint");
 
 const LUT_N = 33;
+const LUT_CACHE_MAX = 40;
 const PREVIEW_MAX_SIDE = 1400;
 const THUMB_MAX_SIDE = 220;
 // Limite de surface des canvas sur iOS Safari (~16,7 Mpx).
@@ -24,6 +35,19 @@ const EXPORT_MAX_PIXELS = 16000000;
 // --- Catalogue des looks -------------------------------------------------
 
 const LOOKS = [{ id: "original", name: "Original", desc: "Naturel", group: "base", recipe: null }];
+
+(window.CUSTOM_RECIPES || []).forEach(({ name, text }, i) => {
+  const parsed = FR.parseText(text);
+  if (!parsed) return;
+  const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, parsed.values, { name }));
+  LOOKS.push({
+    id: `custom-${i}`,
+    name,
+    desc: FR.simById(recipe.filmSim).name,
+    group: "custom",
+    recipe
+  });
+});
 
 FR.STARTERS.forEach((recipe, i) => {
   LOOKS.push({
@@ -41,12 +65,13 @@ FR.SIMS.forEach((sim) => {
     name: sim.name,
     desc: sim.mono ? "Noir & blanc" : "Simulation de film",
     group: "sims",
-    recipe: FR.normalize({ filmSim: sim.id })
+    recipe: FR.normalize({ name: sim.name, filmSim: sim.id })
   });
 });
 
 const GROUPS = [
   { id: "base", title: null },
+  { id: "custom", title: "Mes recettes" },
   { id: "recipes", title: "Recettes" },
   { id: "sims", title: "Simulations de film" }
 ];
@@ -57,6 +82,10 @@ const lutCache = new Map();
 let originalImage = null;
 let previewSource = null; // ImageData de l'aperçu (réduit)
 let currentLookId = "original";
+// Recette en cours d'édition ; elle n'est appliquée que si `applied` est vrai.
+let recipe = FR.normalize({ name: "Ma recette" });
+let applied = false;
+let modified = false;
 let imageUrl = null;
 let renderPending = false;
 let thumbJob = 0;
@@ -67,12 +96,14 @@ function getStrength() {
   return Number(intensity.value) / 100;
 }
 
-function getLookData(look) {
-  if (!lutCache.has(look.id)) {
-    const derived = FR.derive(look.recipe, { drInCurve: true });
-    lutCache.set(look.id, { derived, lut: FR.buildLut(derived, LUT_N) });
+function getLookData(lookRecipe) {
+  const derived = FR.derive(lookRecipe, { drInCurve: true });
+  const key = JSON.stringify(derived);
+  if (!lutCache.has(key)) {
+    if (lutCache.size >= LUT_CACHE_MAX) lutCache.delete(lutCache.keys().next().value);
+    lutCache.set(key, FR.buildLut(derived, LUT_N));
   }
-  return lutCache.get(look.id);
+  return { derived, lut: lutCache.get(key) };
 }
 
 // Flou large et peu coûteux (réduction puis agrandissement) pour la clarté.
@@ -94,13 +125,13 @@ function makeBlur(imageData) {
   return bctx.getImageData(0, 0, w, h).data;
 }
 
-// Applique un look à une ImageData et renvoie une nouvelle ImageData.
-function renderLook(src, look, strength) {
+// Applique une recette (ou rien si null) à une ImageData et renvoie une nouvelle ImageData.
+function renderRecipe(src, lookRecipe, strength) {
   const { width: w, height: h } = src;
   const out = new ImageData(new Uint8ClampedArray(src.data), w, h);
-  if (!look.recipe || strength <= 0) return out;
+  if (!lookRecipe || strength <= 0) return out;
 
-  const { derived, lut } = getLookData(look);
+  const { derived, lut } = getLookData(lookRecipe);
   FR.applyLut(src.data, out.data, w, h, lut, LUT_N, 0);
 
   const blur = derived.clarity ? makeBlur(out) : null;
@@ -117,6 +148,10 @@ function renderLook(src, look, strength) {
     }
   }
   return out;
+}
+
+function activeRecipe() {
+  return applied ? recipe : null;
 }
 
 function drawToImageData(drawable, srcW, srcH, maxSide, maxPixels) {
@@ -166,7 +201,7 @@ function drawSampleScene() {
   return c;
 }
 
-// --- Interface -----------------------------------------------------------
+// --- Grille des looks ----------------------------------------------------
 
 function buildLookGrid() {
   GROUPS.forEach((group) => {
@@ -221,12 +256,99 @@ function renderThumbnails(drawable, w, h) {
       const canvas = card.querySelector("canvas");
       canvas.width = src.width;
       canvas.height = src.height;
-      canvas.getContext("2d").putImageData(renderLook(src, lookById.get(card.dataset.look), 1), 0, 0);
+      canvas.getContext("2d").putImageData(renderRecipe(src, lookById.get(card.dataset.look).recipe, 1), 0, 0);
     }
     if (index < cards.length) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
 }
+
+// --- Éditeur de recette --------------------------------------------------
+
+const fieldRows = [];
+
+function buildRecipeEditor() {
+  FR.FIELDS.forEach((field) => {
+    const row = document.createElement("label");
+    row.className = "recipe-row";
+
+    const label = document.createElement("span");
+    label.className = "recipe-label";
+    label.textContent = field.label;
+    row.appendChild(label);
+
+    let control;
+    let output = null;
+
+    if (field.type === "select") {
+      control = document.createElement("select");
+      field.options.forEach(([value, text]) => control.add(new Option(text, value)));
+    } else if (field.type === "number") {
+      const wrap = document.createElement("span");
+      wrap.className = "recipe-range";
+      control = document.createElement("input");
+      control.type = "range";
+      control.min = field.min;
+      control.max = field.max;
+      control.step = field.step;
+      output = document.createElement("output");
+      wrap.append(control, output);
+      row.appendChild(wrap);
+    } else {
+      control = document.createElement("input");
+      control.type = "text";
+      control.maxLength = 120;
+      control.placeholder = field.placeholder || "";
+    }
+
+    if (!output) row.appendChild(control);
+    control.addEventListener("input", () => {
+      recipe[field.key] = field.type === "number" ? Number(control.value) : control.value;
+      onRecipeEdited();
+    });
+    recipeFields.appendChild(row);
+    fieldRows.push({ field, row, control, output });
+  });
+
+  recipeName.addEventListener("input", () => {
+    recipe.name = recipeName.value;
+    updatePreviewLabel();
+  });
+  recipeAuthor.addEventListener("input", () => { recipe.author = recipeAuthor.value; });
+  recipeNotes.addEventListener("input", () => { recipe.notes = recipeNotes.value; });
+}
+
+function updateRecipeEditor() {
+  recipeName.value = recipe.name;
+  recipeAuthor.value = recipe.author;
+  recipeNotes.value = recipe.notes;
+  recipeSim.textContent = FR.simById(recipe.filmSim).name.toUpperCase();
+
+  fieldRows.forEach(({ field, row, control, output }) => {
+    row.hidden = Boolean(field.when && !field.when(recipe));
+    control.value = recipe[field.key];
+    if (output) output.textContent = FR.formatValue(field, recipe);
+  });
+}
+
+function onRecipeEdited() {
+  recipe = FR.normalize(recipe);
+  applied = true;
+  modified = true;
+  updateRecipeEditor();
+  schedulePreview();
+}
+
+function loadRecipe(newRecipe) {
+  recipe = FR.normalize(newRecipe);
+  applied = true;
+  modified = false;
+  currentLookId = null;
+  updateRecipeEditor();
+  schedulePreview();
+}
+
+// --- Aperçu --------------------------------------------------------------
 
 function schedulePreview() {
   if (renderPending) return;
@@ -237,18 +359,22 @@ function schedulePreview() {
   });
 }
 
+function updatePreviewLabel() {
+  const name = applied ? recipe.name || "Recette" : "Original";
+  photoLabel.textContent = (modified ? `${name} · modifiée` : name).toUpperCase();
+  photoLabel.hidden = !originalImage;
+}
+
 function updatePreview() {
   const strength = getStrength();
-  const look = lookById.get(currentLookId);
 
   intensityValue.textContent = `${Math.round(strength * 100)}%`;
 
   if (previewSource) {
-    photoPreview.getContext("2d").putImageData(renderLook(previewSource, look, strength), 0, 0);
+    photoPreview.getContext("2d").putImageData(renderRecipe(previewSource, activeRecipe(), strength), 0, 0);
   }
 
-  photoLabel.textContent = look.name.toUpperCase();
-  photoLabel.hidden = !originalImage;
+  updatePreviewLabel();
 
   lookGroups.querySelectorAll(".look-card").forEach((card) => {
     const selected = card.dataset.look === currentLookId;
@@ -258,12 +384,23 @@ function updatePreview() {
 }
 
 function selectLook(id) {
+  const look = lookById.get(id);
   currentLookId = id;
+  modified = false;
+  if (look.recipe) {
+    recipe = FR.normalize(look.recipe);
+    applied = true;
+  } else {
+    applied = false;
+  }
+  updateRecipeEditor();
   schedulePreview();
   statusMessage.textContent = originalImage
-    ? `Look « ${lookById.get(id).name} » appliqué à l’aperçu.`
+    ? `Look « ${look.name} » appliqué à l’aperçu.`
     : "Importe une photo pour voir ce rendu.";
 }
+
+// --- Import de photo -----------------------------------------------------
 
 function loadFile(file) {
   if (!file) return;
@@ -291,12 +428,11 @@ function loadFile(file) {
     placeholder.hidden = true;
     exportButton.disabled = false;
 
-    currentLookId = "original";
     intensity.value = 100;
 
     updatePreview();
     renderThumbnails(newImage, w, h);
-    statusMessage.textContent = "Photo chargée. Choisis un look pour commencer.";
+    statusMessage.textContent = "Photo chargée. Choisis un look ou règle la recette.";
   };
 
   newImage.onerror = () => {
@@ -336,14 +472,88 @@ document.addEventListener("drop", (event) => {
 intensity.addEventListener("input", schedulePreview);
 
 resetButton.addEventListener("click", () => {
-  currentLookId = "original";
   intensity.value = 100;
-  schedulePreview();
+  selectLook("original");
 
   statusMessage.textContent = originalImage
     ? "Aperçu réinitialisé."
     : "Choisis une photo pour commencer.";
 });
+
+// --- Import / export de recette ------------------------------------------
+
+function applyImported(text) {
+  const result = FR.parseAny(text);
+  if (!result) {
+    statusMessage.textContent = "Aucun réglage reconnu dans cette recette.";
+    return;
+  }
+  loadRecipe(Object.assign({}, FR.DEFAULT_RECIPE, { name: "Recette importée" }, result.values));
+  statusMessage.textContent = `Recette importée (${result.found.length} réglages reconnus).`;
+}
+
+importButton.addEventListener("click", () => applyImported(importText.value));
+
+importFile.addEventListener("change", async () => {
+  const file = importFile.files?.[0];
+  importFile.value = "";
+  if (!file) return;
+  const text = await file.text();
+  importText.value = text;
+  applyImported(text);
+});
+
+function downloadBlob(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Garder l'URL disponible un moment pour laisser le navigateur
+  // démarrer le téléchargement, notamment sur mobile.
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+async function copyText(text, message) {
+  try {
+    await navigator.clipboard.writeText(text);
+    statusMessage.textContent = message;
+  } catch {
+    importText.value = text;
+    importText.closest("details").open = true;
+    statusMessage.textContent = "Copie impossible : le texte est affiché dans « Importer une recette ».";
+  }
+}
+
+FR.XMP_TARGETS.forEach((target) => xmpTarget.add(new Option(target.name, target.id)));
+function updateXmpHint() {
+  xmpHint.textContent = FR.XMP_TARGETS.find((t) => t.id === xmpTarget.value).hint;
+}
+xmpTarget.addEventListener("change", updateXmpHint);
+updateXmpHint();
+
+document.getElementById("xmpButton").addEventListener("click", () => {
+  downloadBlob(new Blob([FR.toXmp(recipe, xmpTarget.value)], { type: "application/rdf+xml" }), FR.fileName(recipe, ".xmp"));
+  statusMessage.textContent = "Preset Lightroom téléchargé.";
+});
+
+document.getElementById("cubeButton").addEventListener("click", () => {
+  downloadBlob(new Blob([FR.toCube(recipe, LUT_N)], { type: "text/plain" }), FR.fileName(recipe, `-${LUT_N}.cube`));
+  statusMessage.textContent = "LUT téléchargée.";
+});
+
+document.getElementById("copyTextButton").addEventListener("click", () => {
+  copyText(FR.toText(recipe), "Recette copiée dans le presse-papiers.");
+});
+
+document.getElementById("copyCodeButton").addEventListener("click", () => {
+  copyText(FR.toShareCode(recipe), "Code de partage copié dans le presse-papiers.");
+});
+
+// --- Export de la photo --------------------------------------------------
 
 function renderExport() {
   return new Promise((resolve, reject) => {
@@ -354,7 +564,7 @@ function renderExport() {
 
     const { naturalWidth: w, naturalHeight: h } = originalImage;
     const src = drawToImageData(originalImage, w, h, Infinity, EXPORT_MAX_PIXELS);
-    const out = renderLook(src, lookById.get(currentLookId), getStrength());
+    const out = renderRecipe(src, activeRecipe(), getStrength());
 
     const canvas = document.createElement("canvas");
     canvas.width = out.width;
@@ -381,24 +591,12 @@ exportButton.addEventListener("click", async () => {
     // Laisser le navigateur afficher le message avant le calcul.
     await new Promise((r) => setTimeout(r, 30));
     const blob = await renderExport();
-    const exportUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const slug = lookById.get(currentLookId).name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const name = applied ? recipe.name : "original";
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "photo";
 
-    link.href = exportUrl;
-    link.download = `fuji-looks-${slug}.jpg`;
-    link.style.display = "none";
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
+    downloadBlob(blob, `fuji-looks-${slug}.jpg`);
     statusMessage.textContent =
       "Export préparé. Si le téléchargement ne démarre pas, ouvre l’image ou utilise le menu de partage de Safari.";
-
-    // Garder l'URL disponible un moment pour laisser le navigateur
-    // démarrer le téléchargement, notamment sur mobile.
-    setTimeout(() => URL.revokeObjectURL(exportUrl), 60000);
   } catch (error) {
     statusMessage.textContent = "Export impossible. Essaie avec une photo plus petite.";
     console.error(error);
@@ -408,5 +606,7 @@ exportButton.addEventListener("click", async () => {
 });
 
 buildLookGrid();
+buildRecipeEditor();
+updateRecipeEditor();
 renderThumbnails(drawSampleScene(), 300, 200);
 updatePreview();

@@ -28,7 +28,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -225,6 +227,7 @@ h1 span {
 }
 
 .looks-section,
+.recipe-section,
 .adjust-section {
   margin-top: 38px;
 }
@@ -322,6 +325,152 @@ h2 {
   color: var(--muted);
   font-size: 11px;
   line-height: 1.5;
+}
+
+.recipe-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.field-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+.field-text input,
+.field-text select,
+.recipe-section textarea,
+.recipe-row select,
+.recipe-row input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.recipe-section textarea {
+  resize: vertical;
+}
+
+.recipe-fields {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.recipe-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.recipe-row:first-child {
+  border-top: 0;
+}
+
+.recipe-row[hidden] {
+  display: none;
+}
+
+.recipe-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.recipe-row select,
+.recipe-row input[type="text"] {
+  padding: 8px 10px;
+  background: var(--surface-2);
+}
+
+.recipe-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recipe-range input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.recipe-range output {
+  min-width: 44px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.recipe-panel {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.recipe-panel summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.recipe-panel[open] summary {
+  margin-bottom: 12px;
+}
+
+.recipe-panel .hint {
+  margin: 8px 0 12px;
+}
+
+.recipe-panel code {
+  color: var(--text);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  border-color: var(--accent);
 }
 
 .intensity-value {
