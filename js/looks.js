@@ -7,6 +7,7 @@ const FAV_KEY = "fuji-looks.favorites";
 let favorites = new Set(Array.isArray(load(FAV_KEY)) ? load(FAV_KEY) : []);
 let lookQuery = "";
 let lookFilter = "all"; // all | color | mono
+let lookMoment = ""; // "" ou une clé de MOMENTS
 
 function normalizeText(text) {
   return String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -17,6 +18,7 @@ function lookMatches(look) {
   const sim = FR.simById(look.recipe.filmSim);
   if (lookFilter === "color" && sim.mono) return false;
   if (lookFilter === "mono" && !sim.mono) return false;
+  if (lookMoment && look.moment !== lookMoment) return false;
   if (!lookQuery) return true;
   const haystack = normalizeText([look.name, look.desc, sim.name, look.recipe.author].join(" "));
   return normalizeText(lookQuery).split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
@@ -51,11 +53,17 @@ function applyLookFilter() {
   // Recherche sans résultat dans l'onglet ouvert : on passe au premier onglet qui en a.
   const active = lookTabs.querySelector('[aria-selected="true"]')?.id.replace("tab-", "");
   const activeCount = active ? Number(document.querySelector(`#tab-${active} small`).textContent) : 0;
-  if ((lookQuery || lookFilter !== "all") && !activeCount && firstWithMatches) showTab(firstWithMatches);
+  if ((lookQuery || lookFilter !== "all" || lookMoment) && !activeCount && firstWithMatches) showTab(firstWithMatches);
 }
 
 lookSearch.addEventListener("input", () => {
   lookQuery = lookSearch.value.trim();
+  applyLookFilter();
+});
+
+Object.entries(MOMENTS).forEach(([key, m]) => lookMomentSelect.add(new Option(`${m.icon} ${m.label}`, key)));
+lookMomentSelect.addEventListener("change", () => {
+  lookMoment = lookMomentSelect.value;
   applyLookFilter();
 });
 

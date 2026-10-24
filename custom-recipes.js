@@ -1,7 +1,8 @@
 /*
  * Recettes personnelles, au format texte Fujifilm.
  * Elles sont lues par FR.parseText (parser du Fuji Recipe Converter).
- * Pour en ajouter une : copier un bloc { name, text } (notes facultatives) et coller la recette.
+ * Pour en ajouter une : copier un bloc { name, text } et coller la recette.
+ * Facultatif : notes, et moment conseillé (golden, midday, overcast, indoor, night).
  */
 window.CUSTOM_RECIPES = [
   {
@@ -344,5 +345,243 @@ High ISO NR: -4
 Clarity: -2
 ISO: Auto, up to ISO 6400
 Exposure Compensation: -1/3 to +1/3 (typically)`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Kodak Portra 400 v2",
+    moment: "golden",
+    notes: "Dans le fichier source, réglages identiques à Kodak Ultramax 400 sauf la Dynamic Range : à vérifier.",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR400
+White Balance: Auto
+WB Shift Red: +1
+WB Shift Blue: -5
+Grain Effect: Strong
+Grain Size: Large
+Color Chrome Effect: Weak
+Color Chrome FX Blue: Off
+Color: +4
+Sharpness: 0
+Highlight: +1.0
+Shadow: +1.0
+Noise Reduction: -4
+Clarity: +3`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Timeless Negative",
+    moment: "indoor",
+    text: `Film Simulation: Nostalgic Neg.
+Dynamic Range: DR400
+White Balance: Auto
+WB Shift Red: +2
+WB Shift Blue: -3
+Grain Effect: Weak
+Grain Size: Small
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Off
+Color: -3
+Sharpness: 0
+Highlight: +2.0
+Shadow: -2.0
+Noise Reduction: -4
+Clarity: -2`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "1970's Summer",
+    moment: "midday",
+    text: `Film Simulation: Nostalgic Neg.
+Dynamic Range: DR400
+White Balance: Colour Temperature (K)
+Colour Temperature: 6500 K
+WB Shift Red: -1
+WB Shift Blue: -4
+Grain Effect: Strong
+Grain Size: Large
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Strong
+Color: -2
+Sharpness: -2
+Highlight: -2.0
+Shadow: -2.0
+Noise Reduction: -4
+Clarity: -3`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "CineStill 800T",
+    moment: "night",
+    text: `Film Simulation: ETERNA / Cinema
+Dynamic Range: DR400
+White Balance: Fluorescent 3 (Cool White)
+WB Shift Red: -6
+WB Shift Blue: -4
+Grain Effect: Strong
+Grain Size: Large
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Weak
+Color: +4
+Sharpness: -3
+Highlight: 0.0
+Shadow: +2.0
+Noise Reduction: -4
+Clarity: -5`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Superia Xtra 400",
+    moment: "night",
+    text: `Film Simulation: Classic Neg.
+Dynamic Range: DR400
+White Balance: Auto
+WB Shift Red: +3
+WB Shift Blue: -5
+Grain Effect: Strong
+Grain Size: Small
+Color Chrome Effect: Off
+Color Chrome FX Blue: Weak
+Color: +4
+Sharpness: -1
+Highlight: 0.0
+Shadow: -1.0
+Noise Reduction: -4
+Clarity: -2`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Kodak Ultramax 400",
+    moment: "overcast",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR100
+White Balance: Auto
+WB Shift Red: +1
+WB Shift Blue: -5
+Grain Effect: Strong
+Grain Size: Large
+Color Chrome Effect: Weak
+Color Chrome FX Blue: Off
+Color: +4
+Sharpness: 0
+Highlight: +1.0
+Shadow: +1.0
+Noise Reduction: -4
+Clarity: +3`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "California Summer",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR400
+White Balance: Colour Temperature (K)
+Colour Temperature: 6700 K
+WB Shift Red: -1
+WB Shift Blue: -6
+Grain Effect: Weak
+Grain Size: Small
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Weak
+Color: +4
+Sharpness: -2
+Highlight: -2.0
+Shadow: -1.0
+Noise Reduction: -4
+Clarity: -4`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Kodak Gold 200",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR400
+White Balance: Daylight
+WB Shift Red: +4
+WB Shift Blue: -5
+Grain Effect: Strong
+Grain Size: Small
+Color Chrome Effect: Weak
+Color Chrome FX Blue: Off
+Color: +3
+Sharpness: -2
+Highlight: -1.5
+Shadow: +0.5
+Noise Reduction: -4
+Clarity: -2`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Pacific Blues",
+    text: `Film Simulation: Classic Neg.
+Dynamic Range: DR400
+White Balance: Colour Temperature (K)
+Colour Temperature: 5800 K
+WB Shift Red: +1
+WB Shift Blue: -3
+Grain Effect: Strong
+Grain Size: Large
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Weak
+Color: +4
+Sharpness: -2
+Highlight: -2.0
+Shadow: +3.0
+Noise Reduction: -4
+Clarity: -3`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Reggie's Portra",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR100
+White Balance: Auto
+WB Shift Red: +6
+WB Shift Blue: -8
+Grain Effect: Weak
+Grain Size: Small
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Weak
+Color: +2
+Sharpness: -2
+Highlight: -1.0
+Shadow: -1.0
+Noise Reduction: -4
+Clarity: 0`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Vibrant Arizona",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR100
+White Balance: Auto
+WB Shift Red: +2
+WB Shift Blue: -4
+Grain Effect: Weak
+Grain Size: Small
+Color Chrome Effect: Off
+Color Chrome FX Blue: Off
+Color: +4
+Sharpness: -2
+Highlight: 0.0
+Shadow: 0.0
+Noise Reduction: -4
+Clarity: -3`
+  },
+  {
+    // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
+    name: "Kodachrome 64 (X-Trans V)",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR200
+White Balance: Daylight
+WB Shift Red: +2
+WB Shift Blue: -5
+Grain Effect: Weak
+Grain Size: Small
+Color Chrome Effect: Weak
+Color Chrome FX Blue: Off
+Color: +2
+Sharpness: +1
+Highlight: 0.0
+Shadow: +0.5
+Noise Reduction: -4
+Clarity: +3`
   }
 ];

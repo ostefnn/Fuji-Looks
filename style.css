@@ -1666,3 +1666,18 @@ body:not(.has-photo) .edit-section {
   font-size: 11px;
   line-height: 1.45;
 }
+
+.moment-select {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fp1-group .field-text .hint {
+  margin: 4px 0 0;
+}

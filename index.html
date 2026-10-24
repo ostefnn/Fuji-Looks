@@ -88,6 +88,9 @@
             <button type="button" class="chip" data-filter="color" aria-pressed="false">Couleur</button>
             <button type="button" class="chip" data-filter="mono" aria-pressed="false">N&amp;B</button>
           </div>
+          <select id="lookMoment" class="moment-select" aria-label="Moment conseillé">
+            <option value="">Tous les moments</option>
+          </select>
         </div>
         <div class="tabs" role="tablist" id="lookTabs" aria-label="Catégories de looks"></div>
         <div class="look-strip" id="lookGroups"></div>
@@ -303,6 +306,17 @@
             <button type="button" class="secondary-button" id="cubeButton">LUT 3D (.cube)</button>
           </div>
 
+          <div class="export-group fp1-group">
+            <div class="field-text">
+              <span>Vers ton boîtier : profil X RAW Studio (.FP1)</span>
+              <p class="hint" id="fp1Status"></p>
+            </div>
+            <label class="secondary-button" for="fp1TemplateFile">Charger le modèle de mon boîtier</label>
+            <input id="fp1TemplateFile" type="file" accept=".fp1,.FP1,.xml,application/xml" hidden>
+            <button type="button" class="secondary-button" id="fp1Button" disabled>Profil .FP1</button>
+          </div>
+          <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Fuji Looks reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
+
           <div class="button-row">
             <button type="button" class="secondary-button" id="copyTextButton">Copier la recette</button>
             <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
@@ -386,6 +400,7 @@
   <script src="js/exif.js"></script>
   <script src="js/edit.js"></script>
   <script src="js/recipe-card.js"></script>
+  <script src="js/fp1.js"></script>
   <script src="js/cameras.js"></script>
   <script src="js/share.js"></script>
   <script src="js/creations.js"></script>

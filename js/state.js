@@ -28,6 +28,7 @@ const xmpHint = document.getElementById("xmpHint");
 const lookTabs = document.getElementById("lookTabs");
 const lookSearch = document.getElementById("lookSearch");
 const lookFilters = document.getElementById("lookFilters");
+const lookMomentSelect = document.getElementById("lookMoment");
 const compareButton = document.getElementById("compareButton");
 const changePhotoButton = document.getElementById("changePhotoButton");
 const revertButton = document.getElementById("revertButton");

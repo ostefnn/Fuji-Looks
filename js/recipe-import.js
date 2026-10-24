@@ -45,7 +45,11 @@ async function importRecipeFile(file) {
   try {
     const text = await file.text();
     importText.value = text;
-    applyImport(parseAnyRecipe(text), `« ${file.name} » ne ressemble pas à un fichier de recette.`);
+    const imported = applyImport(parseAnyRecipe(text), `« ${file.name} » ne ressemble pas à un fichier de recette.`);
+    // Un .FP1 venant d'un boîtier sert aussi de modèle pour l'export .FP1, s'il n'y en a pas encore.
+    if (imported && !fp1Template && /<ConversionProfile[\s>]/i.test(text) && saveFp1Template(text)) {
+      showStatus(`Recette importée. Ce fichier sert aussi de modèle .FP1 pour ton ${fp1Template.device}.`);
+    }
   } catch {
     setImportStatus(`Impossible de lire « ${file.name} ».`, true);
   }

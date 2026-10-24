@@ -36,6 +36,7 @@ const APP_SHELL = [
   "js/exif.js",
   "js/edit.js",
   "js/recipe-card.js",
+  "js/fp1.js",
   "js/cameras.js",
   "js/share.js",
   "js/creations.js",
