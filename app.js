@@ -10,7 +10,9 @@ const photoFrame = document.getElementById("photoFrame");
 const intensity = document.getElementById("intensity");
 const intensityValue = document.getElementById("intensityValue");
 const exportButton = document.getElementById("exportButton");
-const resetButton = document.getElementById("resetButton");
+const undoButton = document.getElementById("undoButton");
+const redoButton = document.getElementById("redoButton");
+const frameOptions = document.getElementById("frameOptions");
 const statusMessage = document.getElementById("statusMessage");
 const lookGroups = document.getElementById("lookGroups");
 const lookCount = document.getElementById("lookCount");
@@ -44,6 +46,7 @@ const libraryFile = document.getElementById("libraryFile");
 
 const LIB_KEY = "fuji-looks.library.v1";
 const DRAFT_KEY = "fuji-looks.draft.v1";
+const FRAME_KEY = "fuji-looks.frame";
 
 const LUT_N = 33;
 const LUT_CACHE_MAX = 40;
@@ -52,7 +55,10 @@ const PREVIEW_MAX_SIDE = 2048;
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 8;
 const ZOOM_STEP = 1.5;
-const THUMB_MAX_SIDE = 220;
+// Vignettes : recadrage 4:3 zoomé au centre de la photo pour mieux distinguer les looks.
+const THUMB_W = 240;
+const THUMB_H = 180;
+const THUMB_ZOOM = 0.55;
 // Limite de surface des canvas sur iOS Safari (~16,7 Mpx).
 const EXPORT_MAX_PIXELS = 16000000;
 
@@ -159,6 +165,12 @@ let renderPending = false;
 let thumbJob = 0;
 let comparing = false;
 let toastTimer = 0;
+let hoverLookId = null;
+let hoverTimer = 0;
+let intensityState = "100"; // valeur d'intensité connue de l'historique
+let sourceExif = null; // segment EXIF de la photo d'origine (JPEG uniquement)
+let sourceToken = 0;
+let pendingShare = null;
 const view = { zoom: 1, x: 0, y: 0 };
 
 // --- Moteur de rendu -----------------------------------------------------
@@ -213,7 +225,8 @@ function grainScale(width, sourceW, sourceH, derived) {
 
 // Applique une recette (ou rien si null) à une ImageData et renvoie une nouvelle ImageData.
 // `source` = dimensions de la photo d'origine, pour la taille du grain.
-function renderRecipe(src, lookRecipe, strength, source = { w: src.width, h: src.height }) {
+// `grainWidth` = largeur équivalente de la photo entière (différente pour une vignette recadrée).
+function renderRecipe(src, lookRecipe, strength, source = { w: src.width, h: src.height }, grainWidth = src.width) {
   const { width: w, height: h } = src;
   const out = new ImageData(new Uint8ClampedArray(src.data), w, h);
   if (!lookRecipe || strength <= 0) return out;
@@ -222,7 +235,7 @@ function renderRecipe(src, lookRecipe, strength, source = { w: src.width, h: src
   FR.applyLut(src.data, out.data, w, h, lut, LUT_N, 0);
 
   const blur = derived.clarity ? makeBlur(out) : null;
-  FR.applySpatial(out.data, w, h, derived, blur, 0, grainScale(w, source.w, source.h, derived));
+  FR.applySpatial(out.data, w, h, derived, blur, 0, grainScale(grainWidth, source.w, source.h, derived));
 
   if (strength < 1) {
     const a = src.data;
@@ -312,7 +325,27 @@ function createLookCard(look) {
   desc.textContent = look.desc;
 
   card.append(thumb, name, desc);
-  card.addEventListener("click", () => selectLook(look.id));
+  card.addEventListener("click", () => {
+    clearTimeout(hoverTimer);
+    hoverLookId = null;
+    selectLook(look.id);
+  });
+  // Survol à la souris : le look s'affiche sur la grande photo avant de cliquer.
+  card.addEventListener("pointerenter", (event) => {
+    if (event.pointerType !== "mouse" || !previewSource) return;
+    clearTimeout(hoverTimer);
+    hoverTimer = setTimeout(() => {
+      hoverLookId = look.id;
+      schedulePreview();
+    }, 90);
+  });
+  card.addEventListener("pointerleave", () => {
+    clearTimeout(hoverTimer);
+    if (hoverLookId) {
+      hoverLookId = null;
+      schedulePreview();
+    }
+  });
   return card;
 }
 
@@ -384,10 +417,23 @@ function showStatus(message) {
 
 // Rendu progressif des vignettes pour ne pas bloquer l'interface.
 let thumbSource = null;
+function thumbnailSource(drawable, w, h) {
+  const baseW = Math.min(w, (h * THUMB_W) / THUMB_H);
+  const cropW = baseW * THUMB_ZOOM;
+  const cropH = (cropW * THUMB_H) / THUMB_W;
+  const canvas = document.createElement("canvas");
+  canvas.width = THUMB_W;
+  canvas.height = THUMB_H;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(drawable, (w - cropW) / 2, (h - cropH) / 2, cropW, cropH, 0, 0, THUMB_W, THUMB_H);
+  return { data: ctx.getImageData(0, 0, THUMB_W, THUMB_H), grainWidth: (THUMB_W * w) / cropW };
+}
+
 function renderThumbnails(drawable, w, h) {
   thumbSource = [drawable, w, h];
   const job = ++thumbJob;
-  const src = drawToImageData(drawable, w, h, THUMB_MAX_SIDE);
+  const { data: src, grainWidth } = thumbnailSource(drawable, w, h);
   const cards = [...lookGroups.querySelectorAll(".look-card")];
   let index = 0;
 
@@ -399,7 +445,7 @@ function renderThumbnails(drawable, w, h) {
       const canvas = card.querySelector("canvas");
       canvas.width = src.width;
       canvas.height = src.height;
-      canvas.getContext("2d").putImageData(renderRecipe(src, lookById.get(card.dataset.look).recipe, 1, { w, h }), 0, 0);
+      canvas.getContext("2d").putImageData(renderRecipe(src, lookById.get(card.dataset.look).recipe, 1, { w, h }, grainWidth), 0, 0);
     }
     if (index < cards.length) requestAnimationFrame(step);
   }
@@ -447,6 +493,7 @@ function buildRecipeEditor() {
         button.textContent = i ? "+" : "−";
         button.setAttribute("aria-label", `${i ? "Augmenter" : "Diminuer"} ${field.label}`);
         button.addEventListener("click", () => {
+          commit(`field:${field.key}`);
           recipe[field.key] += i ? field.step : -field.step;
           onRecipeEdited();
         });
@@ -463,6 +510,7 @@ function buildRecipeEditor() {
     control.id = `f-${field.key}`;
     if (!output) row.appendChild(control);
     control.addEventListener("input", () => {
+      commit(`field:${field.key}`);
       recipe[field.key] = field.type === "number" ? Number(control.value) : control.value;
       onRecipeEdited();
     });
@@ -471,15 +519,18 @@ function buildRecipeEditor() {
   });
 
   recipeName.addEventListener("input", () => {
+    commit("meta:name");
     recipe.name = recipeName.value;
     updatePreviewLabel();
     saveDraft();
   });
   recipeAuthor.addEventListener("input", () => {
+    commit("meta:author");
     recipe.author = recipeAuthor.value;
     saveDraft();
   });
   recipeNotes.addEventListener("input", () => {
+    commit("meta:notes");
     recipe.notes = recipeNotes.value;
     saveDraft();
   });
@@ -494,6 +545,7 @@ function baselineRecipe() {
 function updateRecipeEditor() {
   const baseline = modified ? baselineRecipe() : null;
   revertButton.hidden = !baseline;
+  if (baseline) revertButton.textContent = `Revenir à « ${lookById.get(currentLookId).name} »`;
   recipeName.value = recipe.name;
   recipeAuthor.value = recipe.author;
   recipeNotes.value = recipe.notes;
@@ -527,10 +579,72 @@ function onRecipeEdited() {
   schedulePreview();
 }
 
-// Comme « Reset » dans le convertisseur : recette par défaut (PROVIA, tout à 0).
-document.getElementById("defaultsButton").addEventListener("click", () => {
-  loadRecipe(FR.DEFAULT_RECIPE);
-  showStatus("Réglages remis par défaut.");
+// --- Historique (Annuler / Rétablir) ----------------------------------------
+
+const HISTORY_MAX = 100;
+const undoStack = [];
+const redoStack = [];
+let lastCommit = { key: null, time: 0 };
+
+function snapshot() {
+  return { recipe: { ...recipe }, applied, modified, lookId: currentLookId, intensity: intensityState };
+}
+
+// À appeler juste avant une modification. Les modifications répétées d'un même réglage
+// (glissement d'un curseur, saisie) sont regroupées en une seule étape.
+function commit(key = null) {
+  const now = performance.now();
+  if (key && key === lastCommit.key && now - lastCommit.time < 1000) {
+    lastCommit.time = now;
+    return;
+  }
+  lastCommit = { key, time: now };
+  undoStack.push(snapshot());
+  if (undoStack.length > HISTORY_MAX) undoStack.shift();
+  redoStack.length = 0;
+  updateHistoryButtons();
+}
+
+function restoreSnapshot(state) {
+  recipe = FR.normalize(state.recipe);
+  applied = state.applied;
+  modified = state.modified;
+  currentLookId = state.lookId;
+  intensity.value = state.intensity;
+  intensityState = state.intensity;
+  updateRecipeEditor();
+  schedulePreview();
+}
+
+function stepHistory(from, to) {
+  if (!from.length) return;
+  to.push(snapshot());
+  restoreSnapshot(from.pop());
+  lastCommit = { key: null, time: 0 };
+  updateHistoryButtons();
+}
+
+function updateHistoryButtons() {
+  undoButton.disabled = !undoStack.length;
+  redoButton.disabled = !redoStack.length;
+}
+
+undoButton.addEventListener("click", () => stepHistory(undoStack, redoStack));
+redoButton.addEventListener("click", () => stepHistory(redoStack, undoStack));
+
+document.addEventListener("keydown", (event) => {
+  if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+  const target = event.target;
+  // Dans un champ texte, on laisse l'annulation native du navigateur.
+  if (target && (target.tagName === "TEXTAREA" || (target.tagName === "INPUT" && target.type === "text"))) return;
+  const key = event.key.toLowerCase();
+  if (key === "z" && !event.shiftKey) {
+    event.preventDefault();
+    stepHistory(undoStack, redoStack);
+  } else if ((key === "z" && event.shiftKey) || key === "y") {
+    event.preventDefault();
+    stepHistory(redoStack, undoStack);
+  }
 });
 
 revertButton.addEventListener("click", () => {
@@ -538,6 +652,7 @@ revertButton.addEventListener("click", () => {
 });
 
 function loadRecipe(newRecipe) {
+  commit();
   recipe = FR.normalize(newRecipe);
   applied = true;
   modified = false;
@@ -558,9 +673,22 @@ function schedulePreview() {
 }
 
 function updatePreviewLabel() {
-  const name = applied && !comparing ? recipe.name || "Recette" : "Original";
-  photoLabel.textContent = (modified && !comparing ? `${name} · modifiée` : name).toUpperCase();
+  let text;
+  if (comparing) text = "Original";
+  else if (hoverLookId) text = `${lookById.get(hoverLookId).name} · aperçu`;
+  else {
+    const name = applied ? recipe.name || "Recette" : "Original";
+    text = modified ? `${name} · modifiée` : name;
+  }
+  photoLabel.textContent = text.toUpperCase();
   photoLabel.hidden = !originalImage;
+}
+
+// Recette affichée : l'original pendant la comparaison, le look survolé, sinon la recette en cours.
+function shownRecipe() {
+  if (comparing) return null;
+  if (hoverLookId) return lookById.get(hoverLookId)?.recipe || null;
+  return activeRecipe();
 }
 
 function updatePreview() {
@@ -569,8 +697,19 @@ function updatePreview() {
   intensityValue.textContent = `${Math.round(strength * 100)}%`;
 
   if (previewSource) {
-    const shown = comparing ? null : activeRecipe();
-    photoPreview.getContext("2d").putImageData(renderRecipe(previewSource, shown, strength, sourceSize), 0, 0);
+    const shown = shownRecipe();
+    const out = renderRecipe(previewSource, shown, strength, sourceSize);
+    const framed = frameStyle !== "none" ? composeFrame(out, frameStyle, shown) : null;
+    const w = framed ? framed.width : out.width;
+    const h = framed ? framed.height : out.height;
+    if (photoPreview.width !== w || photoPreview.height !== h) {
+      photoPreview.width = w;
+      photoPreview.height = h;
+      applyView();
+    }
+    const ctx = photoPreview.getContext("2d");
+    if (framed) ctx.drawImage(framed, 0, 0);
+    else ctx.putImageData(out, 0, 0);
   }
 
   updatePreviewLabel();
@@ -588,6 +727,7 @@ function markSelectedCard() {
 
 function selectLook(id) {
   const look = lookById.get(id);
+  if (id !== currentLookId || modified) commit();
   currentLookId = id;
   modified = false;
   if (look.recipe) {
@@ -677,6 +817,8 @@ function setSource(drawable, w, h) {
   resetZoom();
 
   intensity.value = 100;
+  intensityState = "100";
+  sourceToken++;
   updatePreview();
   renderThumbnails(drawable, w, h);
 }
@@ -692,6 +834,7 @@ async function loadFile(file) {
   if (isHeicFile(file)) showStatus("Ouverture de la photo iPhone…");
   try {
     const img = await loadImage(file);
+    sourceExif = await readExif(file);
     setSource(img, img.naturalWidth, img.naturalHeight);
     showStatus("Photo chargée. Maintiens « Avant / Après » pour comparer.");
   } catch {
@@ -727,7 +870,11 @@ document.addEventListener("drop", (event) => {
   else importRecipeFile(file);
 });
 
-intensity.addEventListener("input", schedulePreview);
+intensity.addEventListener("input", () => {
+  commit("intensity");
+  intensityState = intensity.value;
+  schedulePreview();
+});
 
 // Avant / Après : maintenir le bouton (ou l'image) affiche l'original ;
 // au clavier, le bouton bascule entre les deux.
@@ -911,12 +1058,6 @@ compareButton.addEventListener("click", (event) => {
   if (event.detail === 0) setComparing(!comparing);
 });
 
-resetButton.addEventListener("click", () => {
-  intensity.value = 100;
-  selectLook("original");
-
-  if (originalImage) showStatus("Retour à la photo originale.");
-});
 
 // --- Import de recette -----------------------------------------------------
 
@@ -1231,6 +1372,7 @@ saveButton.addEventListener("click", () => {
     item = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), savedAt: Date.now(), recipe: saved };
     library.unshift(item);
   }
+  commit();
   recipe = saved;
   applied = true;
   modified = false;
@@ -1278,6 +1420,7 @@ libraryFile.addEventListener("change", async () => {
 });
 
 sampleButton.addEventListener("click", () => {
+  sourceExif = null;
   setSource(drawSampleScene(), 900, 600);
   showStatus("Image d’exemple chargée.");
 });
@@ -1291,31 +1434,74 @@ function renderExport() {
       return;
     }
 
-    const src = drawToImageData(originalImage, sourceSize.w, sourceSize.h, Infinity, EXPORT_MAX_PIXELS);
+    // Le cadre ajoute des pixels : on garde de la marge sous la limite des canvas iOS.
+    const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * 0.8;
+    const src = drawToImageData(originalImage, sourceSize.w, sourceSize.h, Infinity, maxPixels);
     const out = renderRecipe(src, activeRecipe(), getStrength(), sourceSize);
 
-    const canvas = document.createElement("canvas");
-    canvas.width = out.width;
-    canvas.height = out.height;
-    canvas.getContext("2d").putImageData(out, 0, 0);
+    let canvas;
+    if (frameStyle !== "none") {
+      canvas = composeFrame(out, frameStyle, activeRecipe());
+    } else {
+      canvas = document.createElement("canvas");
+      canvas.width = out.width;
+      canvas.height = out.height;
+      canvas.getContext("2d").putImageData(out, 0, 0);
+    }
 
-    canvas.toBlob((blob) => {
-      if (blob) {
-        resolve(blob);
-      } else {
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
         reject(new Error("La création de l’image a échoué."));
+        return;
       }
+      resolve(sourceExif ? await withExif(blob, sourceExif, canvas.width, canvas.height) : blob);
     }, "image/jpeg", 0.94);
   });
 }
 
+function exportKey() {
+  return JSON.stringify([sourceToken, applied ? recipe : null, intensityState, frameStyle]);
+}
+
+// Sur mobile, la feuille de partage permet « Enregistrer l'image » dans Photos.
+// Ailleurs (ou si le partage n'est pas possible), on télécharge le fichier.
+async function deliverPhoto(file) {
+  const canShare = matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] });
+  if (canShare) {
+    try {
+      await navigator.share({ files: [file] });
+      return "shared";
+    } catch (err) {
+      if (err.name === "AbortError") return "cancelled";
+      // Le calcul a pris trop de temps : le navigateur exige un nouveau geste.
+      if (err.name === "NotAllowedError") return "needs-tap";
+    }
+  }
+  downloadBlob(file, file.name);
+  return "downloaded";
+}
+
+const EXPORT_LABEL = exportButton.innerHTML;
+
 exportButton.addEventListener("click", async () => {
   if (!originalImage) return;
 
-  const label = exportButton.innerHTML;
+  // Photo déjà prête, en attente d'un geste pour ouvrir le partage.
+  if (pendingShare && pendingShare.key === exportKey()) {
+    const result = await deliverPhoto(pendingShare.file);
+    pendingShare = null;
+    exportButton.innerHTML = EXPORT_LABEL;
+    if (result === "shared") showStatus("Photo partagée.");
+    else if (result === "downloaded") showStatus("Photo exportée.");
+    return;
+  }
+
+  pendingShare = null;
   exportButton.disabled = true;
   exportButton.setAttribute("aria-busy", "true");
   exportButton.textContent = "Préparation…";
+  let result = null;
+  let file = null;
 
   try {
     // Laisser le navigateur afficher le message avant le calcul.
@@ -1323,18 +1509,255 @@ exportButton.addEventListener("click", async () => {
     const blob = await renderExport();
     const name = applied ? recipe.name : "original";
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "photo";
-
-    downloadBlob(blob, `fuji-looks-${slug}.jpg`);
-    showStatus("Photo exportée.");
+    file = new File([blob], `fuji-looks-${slug}.jpg`, { type: "image/jpeg" });
+    result = await deliverPhoto(file);
   } catch (error) {
     showStatus("Export impossible. Essaie avec une photo plus petite.");
     console.error(error);
   } finally {
     exportButton.disabled = false;
     exportButton.removeAttribute("aria-busy");
-    exportButton.innerHTML = label;
+    exportButton.innerHTML = EXPORT_LABEL;
+  }
+
+  if (result === "needs-tap") {
+    pendingShare = { key: exportKey(), file };
+    exportButton.innerHTML = 'Enregistrer la photo <span aria-hidden="true">↗</span>';
+    showStatus("Photo prête : touche « Enregistrer la photo ».");
+  } else if (result === "shared") {
+    showStatus("Photo partagée.");
+  } else if (result === "downloaded") {
+    showStatus(sourceExif ? "Photo exportée (données EXIF conservées)." : "Photo exportée.");
   }
 });
+
+// --- Cadre façon tirage ---------------------------------------------------------
+
+let frameStyle = ["none", "white", "black"].includes(load(FRAME_KEY)) ? load(FRAME_KEY) : "none";
+
+const FRAME_THEMES = {
+  white: { bg: "#f5f3ee", text: "#1c1c1c", muted: "#6f6c66" },
+  black: { bg: "#111214", text: "#f1f0ec", muted: "#9b9a96" }
+};
+
+function signedValue(v, decimals = 0) {
+  const n = Number(v);
+  const text = decimals ? n.toFixed(decimals).replace(/\.0$/, "") : String(Math.round(n));
+  return n > 0 ? `+${text}` : n < 0 ? `−${text.slice(1)}` : "0";
+}
+
+function capitalize(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+// Réglages de la recette, avec les noms des menus Fujifilm.
+function frameTokens(r) {
+  const wbName = r.whiteBalance === "kelvin" ? `${r.kelvin}K` : FR.wbById(r.whiteBalance).name;
+  const tokens = [
+    FR.formatValue(FR.fieldByKey("dynamicRange"), r),
+    `WB ${wbName} ${signedValue(r.wbShiftRed)}R ${signedValue(r.wbShiftBlue)}B`,
+    r.grainEffect === "off" ? "Grain Off" : `Grain ${capitalize(r.grainEffect)} ${capitalize(r.grainSize)}`,
+    `Color Chrome ${capitalize(r.colorChromeEffect)}`,
+    `FX Blue ${capitalize(r.colorChromeFxBlue)}`
+  ];
+  if (FR.simById(r.filmSim).mono) tokens.push(`Mono WC ${signedValue(r.monoWC)} MG ${signedValue(r.monoMG)}`);
+  else tokens.push(`Color ${signedValue(r.color)}`);
+  tokens.push(
+    `Highlight ${signedValue(r.highlight, 1)}`,
+    `Shadow ${signedValue(r.shadow, 1)}`,
+    `Sharpness ${signedValue(r.sharpness)}`,
+    `NR ${signedValue(r.noiseReduction)}`,
+    `Clarity ${signedValue(r.clarity)}`
+  );
+  return tokens;
+}
+
+function wrapTokens(ctx, tokens, maxWidth) {
+  const lines = [];
+  let line = "";
+  tokens.forEach((token) => {
+    const next = line ? `${line}  ·  ${token}` : token;
+    if (line && ctx.measureText(next).width > maxWidth) {
+      lines.push(line);
+      line = token;
+    } else {
+      line = next;
+    }
+  });
+  if (line) lines.push(line);
+  return lines;
+}
+
+// Bordure avec, en bas, le nom de la recette, la simulation et les réglages.
+// Toutes les tailles sont proportionnelles à la photo : l'aperçu et l'export sont identiques.
+function composeFrame(imageData, style, frameRecipe) {
+  const theme = FRAME_THEMES[style];
+  const W = imageData.width;
+  const H = imageData.height;
+  const long = Math.max(W, H);
+  const pad = Math.round(long * 0.035);
+  const titleSize = Math.max(10, Math.round(long * 0.024));
+  const textSize = Math.max(8, Math.round(long * 0.0145));
+  const font = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  let lines = [];
+  if (frameRecipe) {
+    ctx.font = `${textSize}px ${font}`;
+    lines = wrapTokens(ctx, frameTokens(frameRecipe), W);
+    if (frameRecipe.author) lines.push(`Recette : ${frameRecipe.author}`);
+  }
+  const band = frameRecipe ? Math.round(pad * 0.9 + titleSize * 1.25 + lines.length * textSize * 1.55 + pad * 0.9) : pad;
+
+  canvas.width = W + pad * 2;
+  canvas.height = H + pad + band;
+  ctx.fillStyle = theme.bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const photo = document.createElement("canvas");
+  photo.width = W;
+  photo.height = H;
+  photo.getContext("2d").putImageData(imageData, 0, 0);
+  ctx.drawImage(photo, pad, pad);
+
+  if (frameRecipe) {
+    let y = H + pad + Math.round(pad * 0.9) + titleSize;
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = theme.text;
+    ctx.font = `600 ${titleSize}px ${font}`;
+    ctx.textAlign = "left";
+    ctx.fillText(frameRecipe.name || "Recette", pad, y, W * 0.62);
+    ctx.fillStyle = theme.muted;
+    ctx.font = `500 ${Math.round(titleSize * 0.8)}px ${font}`;
+    ctx.textAlign = "right";
+    ctx.fillText(FR.simById(frameRecipe.filmSim).name.toUpperCase(), pad + W, y, W * 0.36);
+
+    ctx.textAlign = "left";
+    ctx.font = `${textSize}px ${font}`;
+    y += Math.round(titleSize * 0.25);
+    lines.forEach((line, i) => {
+      y += Math.round(textSize * 1.55);
+      ctx.fillStyle = frameRecipe.author && i === lines.length - 1 ? theme.muted : theme.text;
+      ctx.fillText(line, pad, y);
+    });
+  }
+  return canvas;
+}
+
+function updateFrameOptions() {
+  frameOptions.querySelectorAll("[data-frame]").forEach((button) => {
+    const active = button.dataset.frame === frameStyle;
+    button.setAttribute("aria-checked", String(active));
+    button.tabIndex = active ? 0 : -1;
+  });
+}
+
+frameOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-frame]");
+  if (!button) return;
+  frameStyle = button.dataset.frame;
+  store(FRAME_KEY, frameStyle);
+  updateFrameOptions();
+  schedulePreview();
+  if (!originalImage && frameStyle !== "none") showStatus("Importe une photo pour voir le cadre.");
+});
+
+frameOptions.addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+  const buttons = [...frameOptions.querySelectorAll("[data-frame]")];
+  const current = buttons.findIndex((b) => b.dataset.frame === frameStyle);
+  const next = buttons[(current + (event.key === "ArrowRight" ? 1 : buttons.length - 1)) % buttons.length];
+  next.focus();
+  next.click();
+});
+
+// --- EXIF : on recopie les métadonnées de la photo d'origine dans l'export ------
+
+// Renvoie le segment APP1 « Exif » d'un JPEG (ou null).
+async function readExif(file) {
+  if (!/jpe?g$/i.test(file.type || "") && !/\.jpe?g$/i.test(file.name || "")) return null;
+  try {
+    const buffer = await file.slice(0, 256 * 1024).arrayBuffer();
+    const view = new DataView(buffer);
+    if (view.getUint16(0) !== 0xffd8) return null;
+    let offset = 2;
+    while (offset + 4 <= view.byteLength) {
+      const marker = view.getUint16(offset);
+      if ((marker & 0xff00) !== 0xff00 || marker === 0xffda) break;
+      const size = view.getUint16(offset + 2);
+      if (marker === 0xffe1 && offset + 10 <= view.byteLength &&
+          String.fromCharCode(...new Uint8Array(buffer, offset + 4, 6)) === "Exif\0\0") {
+        if (offset + 2 + size > view.byteLength) return null;
+        return new Uint8Array(buffer.slice(offset, offset + 2 + size));
+      }
+      offset += 2 + size;
+    }
+  } catch {
+    // EXIF illisible : export sans métadonnées.
+  }
+  return null;
+}
+
+// Adapte l'EXIF à la photo exportée : orientation déjà appliquée, pas de miniature
+// (elle montrerait la photo sans le look), espace sRGB et nouvelles dimensions.
+function patchExif(segment, width, height) {
+  const exif = segment.slice();
+  const view = new DataView(exif.buffer);
+  const tiff = 10;
+  const little = view.getUint16(tiff) === 0x4949;
+  const u16 = (o) => view.getUint16(o, little);
+  const u32 = (o) => view.getUint32(o, little);
+  const inRange = (o, n) => o >= tiff && o + n <= exif.length;
+
+  function walk(ifdOffset, visit) {
+    const base = tiff + ifdOffset;
+    if (!inRange(base, 2)) return null;
+    const count = u16(base);
+    if (!inRange(base + 2, count * 12 + 4)) return null;
+    for (let i = 0; i < count; i++) visit(base + 2 + i * 12);
+    return base + 2 + count * 12; // position du pointeur vers l'IFD suivant
+  }
+
+  function setNumber(entry, value) {
+    const type = u16(entry + 2);
+    if (type === 3) view.setUint16(entry + 8, value, little);
+    else if (type === 4) view.setUint32(entry + 8, value, little);
+  }
+
+  let exifIfd = null;
+  const next = walk(u32(tiff + 4), (entry) => {
+    const tag = u16(entry);
+    if (tag === 0x0112) setNumber(entry, 1); // Orientation : normale
+    if (tag === 0x8769) exifIfd = u32(entry + 8);
+  });
+  if (next === null) return null;
+  view.setUint32(next, 0, little); // supprime l'IFD1 (miniature)
+
+  if (exifIfd !== null) {
+    walk(exifIfd, (entry) => {
+      const tag = u16(entry);
+      if (tag === 0xa001) setNumber(entry, 1); // ColorSpace : sRGB
+      if (tag === 0xa002) setNumber(entry, width);
+      if (tag === 0xa003) setNumber(entry, height);
+    });
+  }
+  return exif;
+}
+
+async function withExif(blob, segment, width, height) {
+  try {
+    const exif = patchExif(segment, width, height);
+    if (!exif) return blob;
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    let rest = 2;
+    // Retire le segment JFIF ajouté par le navigateur : l'EXIF doit suivre directement le début du fichier.
+    if (bytes[2] === 0xff && bytes[3] === 0xe0) rest = 4 + ((bytes[4] << 8) | bytes[5]);
+    return new Blob([bytes.subarray(0, 2), exif, bytes.subarray(rest)], { type: "image/jpeg" });
+  } catch {
+    return blob;
+  }
+}
 
 // --- Démarrage ---------------------------------------------------------------
 
@@ -1350,6 +1773,7 @@ function restoreDraft() {
 syncLibraryLooks();
 restoreDraft();
 buildLookGrid();
+updateFrameOptions();
 buildRecipeEditor();
 renderLibraryList();
 updateRecipeEditor();
