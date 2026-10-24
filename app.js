@@ -24,6 +24,10 @@ const importButton = document.getElementById("importButton");
 const importFile = document.getElementById("importFile");
 const xmpTarget = document.getElementById("xmpTarget");
 const xmpHint = document.getElementById("xmpHint");
+const lookTabs = document.getElementById("lookTabs");
+const compareButton = document.getElementById("compareButton");
+const changePhotoButton = document.getElementById("changePhotoButton");
+const revertButton = document.getElementById("revertButton");
 
 const LUT_N = 33;
 const LUT_CACHE_MAX = 40;
@@ -69,12 +73,12 @@ FR.SIMS.forEach((sim) => {
   });
 });
 
+// Onglets ; « Original » est repris en tête de chaque onglet pour revenir facilement à la photo.
 const GROUPS = [
-  { id: "base", title: null },
   { id: "custom", title: "Mes recettes" },
   { id: "recipes", title: "Recettes" },
-  { id: "sims", title: "Simulations de film" }
-];
+  { id: "sims", title: "Simulations" }
+].filter((group) => LOOKS.some((look) => look.group === group.id));
 
 const lookById = new Map(LOOKS.map((look) => [look.id, look]));
 const lutCache = new Map();
@@ -89,6 +93,8 @@ let modified = false;
 let imageUrl = null;
 let renderPending = false;
 let thumbJob = 0;
+let comparing = false;
+let toastTimer = 0;
 
 // --- Moteur de rendu -----------------------------------------------------
 
@@ -203,42 +209,89 @@ function drawSampleScene() {
 
 // --- Grille des looks ----------------------------------------------------
 
+function createLookCard(look) {
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "look-card";
+  card.dataset.look = look.id;
+
+  const thumb = document.createElement("canvas");
+  thumb.className = "look-swatch";
+  thumb.setAttribute("aria-hidden", "true");
+
+  const name = document.createElement("span");
+  name.className = "look-name";
+  name.textContent = look.name;
+  name.title = look.name;
+
+  const desc = document.createElement("span");
+  desc.className = "look-desc";
+  desc.textContent = look.desc;
+
+  card.append(thumb, name, desc);
+  card.addEventListener("click", () => selectLook(look.id));
+  return card;
+}
+
 function buildLookGrid() {
+  const original = lookById.get("original");
+
   GROUPS.forEach((group) => {
     const looks = LOOKS.filter((look) => look.group === group.id);
-    if (group.title) {
-      const title = document.createElement("h3");
-      title.className = "look-group-title";
-      title.textContent = group.title;
-      lookGroups.appendChild(title);
-    }
+
+    const tab = document.createElement("button");
+    tab.type = "button";
+    tab.className = "tab";
+    tab.id = `tab-${group.id}`;
+    tab.setAttribute("role", "tab");
+    tab.setAttribute("aria-controls", `panel-${group.id}`);
+    tab.textContent = group.title;
+    const count = document.createElement("small");
+    count.textContent = looks.length;
+    tab.appendChild(count);
+    tab.addEventListener("click", () => showTab(group.id));
+    lookTabs.appendChild(tab);
+
     const grid = document.createElement("div");
     grid.className = "look-grid";
-    looks.forEach((look) => {
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "look-card";
-      card.dataset.look = look.id;
-
-      const thumb = document.createElement("canvas");
-      thumb.className = "look-swatch";
-      thumb.setAttribute("aria-hidden", "true");
-
-      const name = document.createElement("span");
-      name.className = "look-name";
-      name.textContent = look.name;
-
-      const desc = document.createElement("span");
-      desc.className = "look-desc";
-      desc.textContent = look.desc;
-
-      card.append(thumb, name, desc);
-      card.addEventListener("click", () => selectLook(look.id));
-      grid.appendChild(card);
-    });
+    grid.id = `panel-${group.id}`;
+    grid.setAttribute("role", "tabpanel");
+    grid.setAttribute("aria-labelledby", tab.id);
+    grid.append(createLookCard(original), ...looks.map(createLookCard));
     lookGroups.appendChild(grid);
   });
-  lookCount.textContent = `${String(LOOKS.length).padStart(2, "0")} STYLES`;
+
+  if (GROUPS.length) showTab(GROUPS[0].id);
+
+  lookCount.textContent = `${LOOKS.length - 1} STYLES`;
+}
+
+function showTab(groupId) {
+  GROUPS.forEach(({ id }) => {
+    const active = id === groupId;
+    const tab = document.getElementById(`tab-${id}`);
+    tab.setAttribute("aria-selected", String(active));
+    tab.tabIndex = active ? 0 : -1;
+    document.getElementById(`panel-${id}`).hidden = !active;
+  });
+}
+
+// Navigation au clavier entre les onglets (flèches gauche / droite).
+lookTabs.addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+  const tabs = [...lookTabs.querySelectorAll(".tab")];
+  const current = tabs.indexOf(document.activeElement);
+  if (current < 0) return;
+  const next = tabs[(current + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+  next.focus();
+  next.click();
+});
+
+function showStatus(message) {
+  statusMessage.textContent = message;
+  statusMessage.classList.add("visible");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => statusMessage.classList.remove("visible"), 3200);
 }
 
 // Rendu progressif des vignettes pour ne pas bloquer l'interface.
@@ -318,7 +371,15 @@ function buildRecipeEditor() {
   recipeNotes.addEventListener("input", () => { recipe.notes = recipeNotes.value; });
 }
 
+// Recette de référence du look choisi, pour repérer les réglages modifiés.
+function baselineRecipe() {
+  const look = currentLookId && lookById.get(currentLookId);
+  return look && look.recipe ? FR.normalize(look.recipe) : null;
+}
+
 function updateRecipeEditor() {
+  const baseline = modified ? baselineRecipe() : null;
+  revertButton.hidden = !baseline;
   recipeName.value = recipe.name;
   recipeAuthor.value = recipe.author;
   recipeNotes.value = recipe.notes;
@@ -328,6 +389,7 @@ function updateRecipeEditor() {
     row.hidden = Boolean(field.when && !field.when(recipe));
     control.value = recipe[field.key];
     if (output) output.textContent = FR.formatValue(field, recipe);
+    row.classList.toggle("changed", Boolean(baseline && baseline[field.key] !== recipe[field.key]));
   });
 }
 
@@ -338,6 +400,10 @@ function onRecipeEdited() {
   updateRecipeEditor();
   schedulePreview();
 }
+
+revertButton.addEventListener("click", () => {
+  if (currentLookId) selectLook(currentLookId);
+});
 
 function loadRecipe(newRecipe) {
   recipe = FR.normalize(newRecipe);
@@ -360,8 +426,8 @@ function schedulePreview() {
 }
 
 function updatePreviewLabel() {
-  const name = applied ? recipe.name || "Recette" : "Original";
-  photoLabel.textContent = (modified ? `${name} · modifiée` : name).toUpperCase();
+  const name = applied && !comparing ? recipe.name || "Recette" : "Original";
+  photoLabel.textContent = (modified && !comparing ? `${name} · modifiée` : name).toUpperCase();
   photoLabel.hidden = !originalImage;
 }
 
@@ -371,7 +437,8 @@ function updatePreview() {
   intensityValue.textContent = `${Math.round(strength * 100)}%`;
 
   if (previewSource) {
-    photoPreview.getContext("2d").putImageData(renderRecipe(previewSource, activeRecipe(), strength), 0, 0);
+    const shown = comparing ? null : activeRecipe();
+    photoPreview.getContext("2d").putImageData(renderRecipe(previewSource, shown, strength), 0, 0);
   }
 
   updatePreviewLabel();
@@ -395,9 +462,7 @@ function selectLook(id) {
   }
   updateRecipeEditor();
   schedulePreview();
-  statusMessage.textContent = originalImage
-    ? `Look « ${look.name} » appliqué à l’aperçu.`
-    : "Importe une photo pour voir ce rendu.";
+  if (!originalImage) showStatus("Importe une photo pour voir ce rendu sur ton image.");
 }
 
 // --- Import de photo -----------------------------------------------------
@@ -406,7 +471,7 @@ function loadFile(file) {
   if (!file) return;
 
   if (!file.type.startsWith("image/")) {
-    statusMessage.textContent = "Choisis un fichier image valide.";
+    showStatus("Choisis un fichier image valide.");
     return;
   }
 
@@ -427,16 +492,19 @@ function loadFile(file) {
     photoPreview.hidden = false;
     placeholder.hidden = true;
     exportButton.disabled = false;
+    compareButton.hidden = false;
+    changePhotoButton.hidden = false;
+    document.body.classList.add("has-photo");
 
     intensity.value = 100;
 
     updatePreview();
     renderThumbnails(newImage, w, h);
-    statusMessage.textContent = "Photo chargée. Choisis un look ou règle la recette.";
+    showStatus("Photo chargée. Maintiens « Avant / Après » pour comparer.");
   };
 
   newImage.onerror = () => {
-    statusMessage.textContent = "Impossible de lire cette image. Essaie un autre fichier.";
+    showStatus("Impossible de lire cette image. Essaie un autre fichier.");
     URL.revokeObjectURL(imageUrl);
     imageUrl = null;
   };
@@ -471,13 +539,37 @@ document.addEventListener("drop", (event) => {
 
 intensity.addEventListener("input", schedulePreview);
 
+// Avant / Après : maintenir le bouton (ou l'image) affiche l'original ;
+// au clavier, le bouton bascule entre les deux.
+function setComparing(value) {
+  if (comparing === value) return;
+  comparing = value;
+  compareButton.setAttribute("aria-pressed", String(value));
+  schedulePreview();
+}
+
+[compareButton, photoPreview].forEach((element) => {
+  element.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    element.setPointerCapture?.(event.pointerId);
+    setComparing(true);
+  });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach((type) => {
+    element.addEventListener(type, () => setComparing(false));
+  });
+  element.addEventListener("contextmenu", (event) => event.preventDefault());
+});
+
+compareButton.addEventListener("click", (event) => {
+  // event.detail vaut 0 pour une activation clavier (Entrée / Espace).
+  if (event.detail === 0) setComparing(!comparing);
+});
+
 resetButton.addEventListener("click", () => {
   intensity.value = 100;
   selectLook("original");
 
-  statusMessage.textContent = originalImage
-    ? "Aperçu réinitialisé."
-    : "Choisis une photo pour commencer.";
+  if (originalImage) showStatus("Retour à la photo originale.");
 });
 
 // --- Import / export de recette ------------------------------------------
@@ -485,11 +577,11 @@ resetButton.addEventListener("click", () => {
 function applyImported(text) {
   const result = FR.parseAny(text);
   if (!result) {
-    statusMessage.textContent = "Aucun réglage reconnu dans cette recette.";
+    showStatus("Aucun réglage reconnu dans cette recette.");
     return;
   }
   loadRecipe(Object.assign({}, FR.DEFAULT_RECIPE, { name: "Recette importée" }, result.values));
-  statusMessage.textContent = `Recette importée (${result.found.length} réglages reconnus).`;
+  showStatus(`Recette importée (${result.found.length} réglages reconnus).`);
 }
 
 importButton.addEventListener("click", () => applyImported(importText.value));
@@ -520,11 +612,11 @@ function downloadBlob(blob, fileName) {
 async function copyText(text, message) {
   try {
     await navigator.clipboard.writeText(text);
-    statusMessage.textContent = message;
+    showStatus(message);
   } catch {
     importText.value = text;
     importText.closest("details").open = true;
-    statusMessage.textContent = "Copie impossible : le texte est affiché dans « Importer une recette ».";
+    showStatus("Copie impossible : le texte est affiché dans « Importer une recette ».");
   }
 }
 
@@ -537,12 +629,12 @@ updateXmpHint();
 
 document.getElementById("xmpButton").addEventListener("click", () => {
   downloadBlob(new Blob([FR.toXmp(recipe, xmpTarget.value)], { type: "application/rdf+xml" }), FR.fileName(recipe, ".xmp"));
-  statusMessage.textContent = "Preset Lightroom téléchargé.";
+  showStatus("Preset Lightroom téléchargé.");
 });
 
 document.getElementById("cubeButton").addEventListener("click", () => {
   downloadBlob(new Blob([FR.toCube(recipe, LUT_N)], { type: "text/plain" }), FR.fileName(recipe, `-${LUT_N}.cube`));
-  statusMessage.textContent = "LUT téléchargée.";
+  showStatus("LUT téléchargée.");
 });
 
 document.getElementById("copyTextButton").addEventListener("click", () => {
@@ -584,8 +676,10 @@ function renderExport() {
 exportButton.addEventListener("click", async () => {
   if (!originalImage) return;
 
+  const label = exportButton.innerHTML;
   exportButton.disabled = true;
-  statusMessage.textContent = "Préparation de la photo…";
+  exportButton.setAttribute("aria-busy", "true");
+  exportButton.textContent = "Préparation…";
 
   try {
     // Laisser le navigateur afficher le message avant le calcul.
@@ -595,13 +689,14 @@ exportButton.addEventListener("click", async () => {
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "photo";
 
     downloadBlob(blob, `fuji-looks-${slug}.jpg`);
-    statusMessage.textContent =
-      "Export préparé. Si le téléchargement ne démarre pas, ouvre l’image ou utilise le menu de partage de Safari.";
+    showStatus("Photo exportée.");
   } catch (error) {
-    statusMessage.textContent = "Export impossible. Essaie avec une photo plus petite.";
+    showStatus("Export impossible. Essaie avec une photo plus petite.");
     console.error(error);
   } finally {
     exportButton.disabled = false;
+    exportButton.removeAttribute("aria-busy");
+    exportButton.innerHTML = label;
   }
 });
 

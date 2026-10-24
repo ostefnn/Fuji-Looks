@@ -1,134 +1,137 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0d0f12">
-  <meta name="description" content="Explore des rendus photo créatifs avec Fuji Looks.">
+  <meta name="description" content="Applique des recettes Fujifilm à tes photos, directement dans ton navigateur.">
   <title>Fuji Looks — Photo Studio</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Fuji Looks, accueil">
+    <a class="brand" href="./" aria-label="Fuji Looks, accueil">
       <span class="brand-mark">F.</span>
       <span>FUJI <strong>LOOKS</strong></span>
     </a>
-    <button class="icon-button" id="resetButton" aria-label="Réinitialiser">↺</button>
+    <div class="topbar-actions">
+      <label class="ghost-button" for="photoInput" id="changePhotoButton" hidden>
+        <span aria-hidden="true">＋</span> <span>Changer <span class="wide-only">de photo</span></span>
+      </label>
+      <button type="button" class="ghost-button" id="resetButton" title="Revenir à l’original" aria-label="Réinitialiser">
+        <span aria-hidden="true">↺</span> <span class="wide-only">Réinitialiser</span>
+      </button>
+    </div>
   </header>
 
-  <main>
-    <section class="intro">
-      <p class="eyebrow">YOUR CREATIVE DARKROOM</p>
-      <h1>Find your<br><span>look.</span></h1>
-      <p class="subtitle">Une photo. Une ambiance. Ton regard.</p>
-    </section>
+  <section class="intro" id="intro">
+    <p class="eyebrow">YOUR CREATIVE DARKROOM</p>
+    <h1>Find your <span>look.</span></h1>
+    <p class="subtitle">Importe une photo, choisis une recette Fujifilm, ajuste-la et exporte.</p>
+  </section>
 
-    <section class="photo-section">
+  <main class="studio">
+    <!-- Colonne image : reste visible pendant qu'on choisit et règle les looks -->
+    <section class="stage" aria-label="Aperçu">
       <div class="photo-frame" id="photoFrame">
-        <div class="photo-placeholder" id="placeholder">
-          <div class="placeholder-icon">✳</div>
-          <p>Ton prochain chef-d’œuvre commence ici.</p>
-          <span>Glisse une photo ici ou importe-la pour commencer</span>
-        </div>
+        <label class="photo-placeholder" id="placeholder" for="photoInput">
+          <span class="placeholder-icon" aria-hidden="true">＋</span>
+          <strong>Glisse une photo ici</strong>
+          <span>ou touche pour en choisir une</span>
+        </label>
         <canvas id="photoPreview" role="img" aria-label="Aperçu de ta photo" hidden></canvas>
         <div class="drop-overlay" aria-hidden="true">Dépose ta photo ici</div>
         <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>
+        <button type="button" class="compare-button" id="compareButton" aria-pressed="false" hidden
+          title="Maintiens pour voir l’original">Avant / Après</button>
       </div>
-
-      <label class="upload-button" for="photoInput">
-        <span>＋</span> Choisir une photo
-      </label>
       <input id="photoInput" type="file" accept="image/*" hidden>
 
-      <p class="privacy-note">◇ Tes photos restent sur ton appareil dans cette version.</p>
-    </section>
-
-    <section class="looks-section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">CURATED FOR YOUR EYES</p>
-          <h2>Explore les looks</h2>
+      <div class="stage-controls">
+        <div class="intensity-row">
+          <label for="intensity">Intensité</label>
+          <input id="intensity" type="range" min="0" max="100" value="100">
+          <output id="intensityValue" for="intensity">100%</output>
         </div>
-        <span class="count" id="lookCount"></span>
+        <button class="export-button" id="exportButton" disabled>
+          Exporter la photo <span aria-hidden="true">↗</span>
+        </button>
       </div>
-
-      <div id="lookGroups"></div>
-      <p class="hint">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
+      <p class="privacy-note">Tes photos restent sur ton appareil : rien n’est envoyé en ligne.</p>
     </section>
 
-    <section class="recipe-section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">FUJIFILM RECIPE</p>
-          <h2>Réglages de la recette</h2>
+    <!-- Colonne réglages -->
+    <div class="panel">
+      <section class="looks-section" aria-labelledby="looksTitle">
+        <div class="section-heading">
+          <h2 id="looksTitle">Looks</h2>
+          <span class="count" id="lookCount"></span>
         </div>
-        <span class="count" id="recipeSim"></span>
-      </div>
+        <div class="tabs" role="tablist" id="lookTabs" aria-label="Catégories de looks"></div>
+        <div class="look-strip" id="lookGroups"></div>
+      </section>
 
-      <div class="recipe-meta">
-        <label class="field-text">
-          <span>Nom</span>
-          <input id="recipeName" type="text" maxlength="120">
-        </label>
-        <label class="field-text">
-          <span>Auteur</span>
-          <input id="recipeAuthor" type="text" maxlength="120" placeholder="Optionnel">
-        </label>
-        <label class="field-text field-wide">
-          <span>Notes</span>
-          <textarea id="recipeNotes" rows="2" maxlength="2000" placeholder="Optionnel"></textarea>
-        </label>
-      </div>
-
-      <div class="recipe-fields" id="recipeFields"></div>
-      <p class="hint">Modifier un réglage applique la recette à l’aperçu. Les noms correspondent aux menus des boîtiers Fujifilm.</p>
-
-      <details class="recipe-panel">
-        <summary>Importer une recette</summary>
-        <p class="hint">Colle une recette (texte, code de partage <code>FR1.…</code>) ou charge un profil X RAW Studio (.FP1/.FP2/.FP3).</p>
-        <textarea id="importText" rows="6" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
-        <div class="button-row">
-          <button type="button" class="secondary-button" id="importButton">Appliquer le texte</button>
-          <label class="secondary-button" for="importFile">Charger un fichier</label>
-          <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json" hidden>
+      <section class="recipe-section" aria-labelledby="recipeTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="recipeTitle">Réglages de la recette</h2>
+            <p class="section-sub" id="recipeSim"></p>
+          </div>
+          <button type="button" class="text-button" id="revertButton" hidden>Annuler les modifications</button>
         </div>
-      </details>
 
-      <details class="recipe-panel">
-        <summary>Exporter la recette</summary>
-        <label class="field-text">
-          <span>Preset Lightroom pour</span>
-          <select id="xmpTarget"></select>
-        </label>
-        <p class="hint" id="xmpHint"></p>
-        <div class="button-row">
-          <button type="button" class="secondary-button" id="xmpButton">Preset Lightroom (.xmp)</button>
-          <button type="button" class="secondary-button" id="cubeButton">LUT 3D (.cube)</button>
-          <button type="button" class="secondary-button" id="copyTextButton">Copier la recette</button>
-          <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
-        </div>
-      </details>
-    </section>
+        <div class="recipe-fields" id="recipeFields"></div>
 
-    <section class="adjust-section">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">MAKE IT YOURS</p>
-          <h2>Intensité</h2>
-        </div>
-        <span id="intensityValue" class="intensity-value">100%</span>
-      </div>
-      <input id="intensity" type="range" min="0" max="100" value="100" aria-label="Intensité du rendu">
-      <div class="range-labels"><span>Subtil</span><span>Intense</span></div>
-    </section>
+        <details class="recipe-panel">
+          <summary>Nom, auteur et notes</summary>
+          <div class="recipe-meta">
+            <label class="field-text">
+              <span>Nom</span>
+              <input id="recipeName" type="text" maxlength="120">
+            </label>
+            <label class="field-text">
+              <span>Auteur</span>
+              <input id="recipeAuthor" type="text" maxlength="120" placeholder="Optionnel">
+            </label>
+            <label class="field-text field-wide">
+              <span>Notes</span>
+              <textarea id="recipeNotes" rows="2" maxlength="2000" placeholder="Optionnel"></textarea>
+            </label>
+          </div>
+        </details>
 
-    <section class="export-section">
-      <button class="export-button" id="exportButton" disabled>Exporter ma photo <span>↗</span></button>
-      <p id="statusMessage" class="status-message" role="status">Importe une photo pour activer l’export.</p>
-    </section>
+        <details class="recipe-panel">
+          <summary>Importer une recette</summary>
+          <p class="hint">Colle une recette (texte ou code de partage <code>FR1.…</code>) ou charge un profil X RAW Studio (.FP1/.FP2/.FP3).</p>
+          <textarea id="importText" rows="6" aria-label="Recette à importer" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
+          <div class="button-row">
+            <button type="button" class="secondary-button" id="importButton">Appliquer</button>
+            <label class="secondary-button" for="importFile">Charger un fichier</label>
+            <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json" hidden>
+          </div>
+        </details>
+
+        <details class="recipe-panel">
+          <summary>Exporter la recette</summary>
+          <label class="field-text">
+            <span>Preset Lightroom pour</span>
+            <select id="xmpTarget"></select>
+          </label>
+          <p class="hint" id="xmpHint"></p>
+          <div class="button-row">
+            <button type="button" class="secondary-button" id="xmpButton">Preset Lightroom (.xmp)</button>
+            <button type="button" class="secondary-button" id="cubeButton">LUT 3D (.cube)</button>
+            <button type="button" class="secondary-button" id="copyTextButton">Copier la recette</button>
+            <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
+          </div>
+        </details>
+
+        <p class="hint credits">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
+      </section>
+    </div>
   </main>
+
+  <p id="statusMessage" class="toast" role="status" aria-live="polite"></p>
 
   <footer>
     <span>FUJI LOOKS</span>
