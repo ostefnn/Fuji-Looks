@@ -58,6 +58,60 @@
       <p class="hint">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
     </section>
 
+    <section class="recipe-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">FUJIFILM RECIPE</p>
+          <h2>Réglages de la recette</h2>
+        </div>
+        <span class="count" id="recipeSim"></span>
+      </div>
+
+      <div class="recipe-meta">
+        <label class="field-text">
+          <span>Nom</span>
+          <input id="recipeName" type="text" maxlength="120">
+        </label>
+        <label class="field-text">
+          <span>Auteur</span>
+          <input id="recipeAuthor" type="text" maxlength="120" placeholder="Optionnel">
+        </label>
+        <label class="field-text field-wide">
+          <span>Notes</span>
+          <textarea id="recipeNotes" rows="2" maxlength="2000" placeholder="Optionnel"></textarea>
+        </label>
+      </div>
+
+      <div class="recipe-fields" id="recipeFields"></div>
+      <p class="hint">Modifier un réglage applique la recette à l’aperçu. Les noms correspondent aux menus des boîtiers Fujifilm.</p>
+
+      <details class="recipe-panel">
+        <summary>Importer une recette</summary>
+        <p class="hint">Colle une recette (texte, code de partage <code>FR1.…</code>) ou charge un profil X RAW Studio (.FP1/.FP2/.FP3).</p>
+        <textarea id="importText" rows="6" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
+        <div class="button-row">
+          <button type="button" class="secondary-button" id="importButton">Appliquer le texte</button>
+          <label class="secondary-button" for="importFile">Charger un fichier</label>
+          <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json" hidden>
+        </div>
+      </details>
+
+      <details class="recipe-panel">
+        <summary>Exporter la recette</summary>
+        <label class="field-text">
+          <span>Preset Lightroom pour</span>
+          <select id="xmpTarget"></select>
+        </label>
+        <p class="hint" id="xmpHint"></p>
+        <div class="button-row">
+          <button type="button" class="secondary-button" id="xmpButton">Preset Lightroom (.xmp)</button>
+          <button type="button" class="secondary-button" id="cubeButton">LUT 3D (.cube)</button>
+          <button type="button" class="secondary-button" id="copyTextButton">Copier la recette</button>
+          <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
+        </div>
+      </details>
+    </section>
+
     <section class="adjust-section">
       <div class="section-heading">
         <div>
@@ -83,6 +137,9 @@
 
   <script src="vendor/fuji-recipe-converter/data.js"></script>
   <script src="vendor/fuji-recipe-converter/engine.js"></script>
+  <script src="vendor/fuji-recipe-converter/export.js"></script>
+  <script src="vendor/fuji-recipe-converter/parser.js"></script>
+  <script src="custom-recipes.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
