@@ -79,7 +79,11 @@ function loadScriptFont() {
 const SIGNATURE_KEY = "fuji-looks.signature";
 const savedSignature = load(SIGNATURE_KEY) || {};
 let signatureName = typeof savedSignature.name === "string" ? savedSignature.name.slice(0, 32) : "";
-let signatureStyle = ["logo", "monogram", "script"].includes(savedSignature.style) ? savedSignature.style : "logo";
+let signatureStyle = ["logo", "monogram", "script"].includes(savedSignature.style) ? savedSignature.style : "monogram";
+// Taille relative au grand côté de la photo : [sous les infos, seule dans le cadre].
+// Volontairement discrète : la signature ne doit pas concurrencer la photo.
+const SIGNATURE_SIZES = { small: [0.017, 0.021], medium: [0.023, 0.028], large: [0.03, 0.037] };
+let signatureSize = SIGNATURE_SIZES[savedSignature.size] ? savedSignature.size : "small";
 
 // « Olivier Steffen » → « OS », « ostefnn » → « O ».
 function signatureInitials(name) {
@@ -131,40 +135,42 @@ function drawSignature(ctx, x, y, size, theme, measureOnly = false) {
     ctx.font = `${Math.round(size * 1.35)}px ${SCRIPT_FONT}`;
     width = ctx.measureText(name).width;
     if (!measureOnly) {
-      ctx.fillStyle = theme.text;
+      ctx.fillStyle = theme.muted;
       ctx.fillText(name, x, y + size * 0.5);
     }
   } else {
     const gap = Math.round(size * 0.38);
     const label = name.toUpperCase();
-    const labelSize = Math.round(size * (signatureStyle === "logo" ? 0.4 : 0.36));
-    const spacing = labelSize * (signatureStyle === "logo" ? 0.22 : 0.3);
-    ctx.font = `${signatureStyle === "logo" ? 600 : 500} ${labelSize}px ${FRAME_FONT}`;
+    const labelSize = Math.max(7, Math.round(size * 0.42));
+    const spacing = labelSize * 0.32;
+    ctx.font = `500 ${labelSize}px ${FRAME_FONT}`;
     const labelW = spacedWidth(ctx, label, spacing);
     width = size + gap + labelW;
     if (!measureOnly) {
       if (signatureStyle === "logo") {
+        ctx.globalAlpha = 0.85;
         ctx.fillStyle = "#e45b52";
         roundedRect(ctx, x, y, size, size, Math.round(size * 0.24));
         ctx.fill();
+        ctx.globalAlpha = 1;
         ctx.fillStyle = "#ffffff";
         ctx.font = `800 ${Math.round(size * (initials.length > 1 ? 0.42 : 0.56))}px ${FRAME_FONT}`;
         ctx.textAlign = "center";
         ctx.fillText(`${initials}.`, x + size / 2, y + size * 0.53);
       } else {
-        ctx.strokeStyle = theme.text;
-        ctx.lineWidth = Math.max(1, size * 0.05);
+        ctx.strokeStyle = theme.muted;
+        ctx.lineWidth = Math.max(1, size * 0.035);
         ctx.beginPath();
         ctx.arc(x + size / 2, y + size / 2, size / 2 - ctx.lineWidth, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.fillStyle = theme.text;
+        ctx.fillStyle = theme.muted;
         ctx.font = `italic ${Math.round(size * (initials.length > 1 ? 0.4 : 0.5))}px ${SERIF_FONT}`;
         ctx.textAlign = "center";
         ctx.fillText(initials, x + size / 2, y + size * 0.54);
       }
       ctx.textAlign = "left";
-      ctx.font = `${signatureStyle === "logo" ? 600 : 500} ${labelSize}px ${FRAME_FONT}`;
-      ctx.fillStyle = signatureStyle === "logo" ? theme.text : theme.muted;
+      ctx.font = `500 ${labelSize}px ${FRAME_FONT}`;
+      ctx.fillStyle = theme.muted;
       drawSpaced(ctx, label, x + size + gap, y + size / 2, spacing);
     }
   }
@@ -228,7 +234,8 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
   // Signature : sur sa propre ligne en bas du cartouche (imprimée en bordure sur la pellicule).
   const hasSignature = Boolean(signatureName.trim());
   // Seule dans le cadre, la signature est un peu plus grande (elle est alors centrée).
-  const sigSize = Math.max(14, Math.round(long * (showTitle || lines.length ? 0.044 : 0.056)));
+  const [withInfo, alone] = SIGNATURE_SIZES[signatureSize];
+  const sigSize = Math.max(12, Math.round(long * (showTitle || lines.length ? withInfo : alone)));
   const sigBlock = hasSignature && !cfg.film ? sigSize + (showTitle || lines.length ? Math.round(textSize * 1.2) : 0) : 0;
   const content = (showTitle ? titleSize * 1.25 : 0) + (showTitle && lines.length ? titleSize * 0.25 : 0) +
     lines.length * textSize * 1.55 + sigBlock;
@@ -304,21 +311,37 @@ function updateFrameOptions() {
   signatureStyleOptions.querySelectorAll("[data-signature]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.signature === signatureStyle));
   });
+  signatureSizeRow.hidden = signatureStyleRow.hidden;
+  signatureSizeOptions.querySelectorAll("[data-size]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.size === signatureSize));
+  });
 }
 
 const signatureRow = document.getElementById("signatureRow");
 const signatureStyleRow = document.getElementById("signatureStyleRow");
 const signatureInput = document.getElementById("signatureInput");
 const signatureStyleOptions = document.getElementById("signatureStyleOptions");
+const signatureSizeRow = document.getElementById("signatureSizeRow");
+const signatureSizeOptions = document.getElementById("signatureSizeOptions");
+
+signatureSizeOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-size]");
+  if (!button) return;
+  signatureSize = button.dataset.size;
+  saveSignature();
+  updateFrameOptions();
+  schedulePreview();
+});
 
 function saveSignature() {
-  store(SIGNATURE_KEY, { name: signatureName, style: signatureStyle });
+  store(SIGNATURE_KEY, { name: signatureName, style: signatureStyle, size: signatureSize });
 }
 
 signatureInput.addEventListener("input", () => {
   signatureName = signatureInput.value.slice(0, 32);
   saveSignature();
   signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();
+  signatureSizeRow.hidden = signatureStyleRow.hidden;
   schedulePreview();
 });
 
