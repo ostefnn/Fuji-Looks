@@ -1,6 +1,91 @@
 /* Fuji Looks — Grille des looks : onglets, cartes, vignettes, aperçu au survol. */
 // --- Grille des looks ----------------------------------------------------
 
+// --- Favoris, recherche et filtres -------------------------------------------
+
+const FAV_KEY = "fuji-looks.favorites";
+let favorites = new Set(Array.isArray(load(FAV_KEY)) ? load(FAV_KEY) : []);
+let lookQuery = "";
+let lookFilter = "all"; // all | color | mono
+
+function normalizeText(text) {
+  return String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function lookMatches(look) {
+  if (!look.recipe) return true; // « Original » reste toujours visible
+  const sim = FR.simById(look.recipe.filmSim);
+  if (lookFilter === "color" && sim.mono) return false;
+  if (lookFilter === "mono" && !sim.mono) return false;
+  if (!lookQuery) return true;
+  const haystack = normalizeText([look.name, look.desc, sim.name, look.recipe.author].join(" "));
+  return normalizeText(lookQuery).split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
+}
+
+function toggleFavorite(lookId) {
+  if (favorites.has(lookId)) favorites.delete(lookId);
+  else favorites.add(lookId);
+  store(FAV_KEY, [...favorites]);
+  const name = lookById.get(lookId)?.name || "Look";
+  showStatus(favorites.has(lookId) ? `« ${name} » ajouté aux favoris.` : `« ${name} » retiré des favoris.`);
+  buildLookGrid();
+  if (thumbSource) renderThumbnails(...thumbSource);
+}
+
+// Masque les looks qui ne correspondent pas et met à jour les compteurs des onglets.
+function applyLookFilter() {
+  let firstWithMatches = null;
+  GROUPS.forEach(({ id }) => {
+    const panel = document.getElementById(`panel-${id}`);
+    let count = 0;
+    panel.querySelectorAll(".look-item").forEach((item) => {
+      const look = lookById.get(item.dataset.look);
+      const visible = lookMatches(look);
+      item.hidden = !visible;
+      if (visible && look.recipe) count++;
+    });
+    panel.querySelector(".look-empty").hidden = count > 0;
+    document.querySelector(`#tab-${id} small`).textContent = count;
+    if (count && !firstWithMatches) firstWithMatches = id;
+  });
+  // Recherche sans résultat dans l'onglet ouvert : on passe au premier onglet qui en a.
+  const active = lookTabs.querySelector('[aria-selected="true"]')?.id.replace("tab-", "");
+  const activeCount = active ? Number(document.querySelector(`#tab-${active} small`).textContent) : 0;
+  if ((lookQuery || lookFilter !== "all") && !activeCount && firstWithMatches) showTab(firstWithMatches);
+}
+
+lookSearch.addEventListener("input", () => {
+  lookQuery = lookSearch.value.trim();
+  applyLookFilter();
+});
+
+lookFilters.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-filter]");
+  if (!button) return;
+  lookFilter = button.dataset.filter;
+  lookFilters.querySelectorAll("[data-filter]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+  applyLookFilter();
+});
+
+function createLookItem(look) {
+  const item = document.createElement("div");
+  item.className = "look-item";
+  item.dataset.look = look.id;
+  item.appendChild(createLookCard(look));
+  if (look.recipe) {
+    const fav = document.createElement("button");
+    const on = favorites.has(look.id);
+    fav.type = "button";
+    fav.className = "fav-button";
+    fav.textContent = on ? "★" : "☆";
+    fav.setAttribute("aria-pressed", String(on));
+    fav.setAttribute("aria-label", `${on ? "Retirer" : "Ajouter"} ${look.name} ${on ? "des" : "aux"} favoris`);
+    fav.addEventListener("click", () => toggleFavorite(look.id));
+    item.appendChild(fav);
+  }
+  return item;
+}
+
 function createLookCard(look) {
   const card = document.createElement("button");
   card.type = "button";
@@ -50,10 +135,14 @@ function buildLookGrid() {
   const activeTab = lookTabs.querySelector('[aria-selected="true"]')?.id.replace("tab-", "");
   lookTabs.textContent = "";
   lookGroups.textContent = "";
-  GROUPS = ALL_GROUPS.filter((group) => LOOKS.some((look) => look.group === group.id));
+  const favLooks = LOOKS.filter((look) => favorites.has(look.id));
+  GROUPS = [
+    ...(favLooks.length ? [{ id: "fav", title: "★ Favoris" }] : []),
+    ...ALL_GROUPS.filter((group) => LOOKS.some((look) => look.group === group.id))
+  ];
 
   GROUPS.forEach((group) => {
-    const looks = LOOKS.filter((look) => look.group === group.id);
+    const looks = group.id === "fav" ? favLooks : LOOKS.filter((look) => look.group === group.id);
 
     const tab = document.createElement("button");
     tab.type = "button";
@@ -73,12 +162,18 @@ function buildLookGrid() {
     grid.id = `panel-${group.id}`;
     grid.setAttribute("role", "tabpanel");
     grid.setAttribute("aria-labelledby", tab.id);
-    grid.append(createLookCard(original), ...looks.map(createLookCard));
+    const empty = document.createElement("p");
+    empty.className = "look-empty";
+    empty.textContent = "Aucun look ne correspond dans cet onglet.";
+    empty.hidden = true;
+    grid.append(createLookItem(original), ...looks.map(createLookItem), empty);
     lookGroups.appendChild(grid);
   });
 
   if (GROUPS.length) showTab(GROUPS.some((g) => g.id === activeTab) ? activeTab : GROUPS[0].id);
   markSelectedCard();
+  updateCompat();
+  applyLookFilter();
 
   lookCount.textContent = `${LOOKS.length - 1} STYLES`;
 }

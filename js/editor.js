@@ -110,6 +110,7 @@ function updateRecipeEditor() {
   });
 
   renderXmpDetails();
+  updateCompat();
   saveDraft();
 }
 

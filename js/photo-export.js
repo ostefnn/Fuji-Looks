@@ -10,7 +10,7 @@ function renderExport() {
 
     // Le cadre ajoute des pixels : on garde de la marge sous la limite des canvas iOS.
     const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * 0.8;
-    const src = drawToImageData(originalImage, sourceSize.w, sourceSize.h, Infinity, maxPixels);
+    const src = buildEditedSource(Infinity, maxPixels);
     const out = renderRecipe(src, activeRecipe(), getStrength(), sourceSize);
 
     let canvas;
@@ -34,7 +34,7 @@ function renderExport() {
 }
 
 function exportKey() {
-  return JSON.stringify([sourceToken, applied ? recipe : null, intensityState, frameStyle]);
+  return JSON.stringify([sourceToken, applied ? recipe : null, intensityState, frameStyle, edit]);
 }
 
 // Sur mobile, la feuille de partage permet « Enregistrer l'image » dans Photos.

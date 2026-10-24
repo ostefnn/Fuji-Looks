@@ -59,7 +59,9 @@ async function loadImage(blob) {
 
 function setSource(drawable, w, h) {
   originalImage = drawable;
+  originalSize = { w, h };
   sourceSize = { w, h };
+  resetEdit();
 
   previewSource = drawToImageData(drawable, w, h, PREVIEW_MAX_SIDE);
   photoPreview.width = previewSource.width;

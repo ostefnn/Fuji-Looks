@@ -12,6 +12,8 @@ function restoreDraft() {
 
 syncLibraryLooks();
 restoreDraft();
+buildCameraSelect();
+updateEditControls();
 buildLookGrid();
 updateFrameOptions();
 buildRecipeEditor();

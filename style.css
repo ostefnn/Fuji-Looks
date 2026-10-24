@@ -858,16 +858,17 @@ footer {
     flex: none;
   }
 
-  /* Le message s'affiche sous la colonne réglages pour ne pas masquer l'export. */
+  /* Le message s'affiche au centre de l'en-tête, libre sur grand écran : il ne masque rien. */
   .toast {
-    left: auto;
-    right: max(var(--gutter), calc((100vw - 1240px) / 2));
-    width: 420px;
-    transform: translateY(12px);
+    top: 12px;
+    bottom: auto;
+    max-width: min(460px, 100vw - 640px);
+    padding: 9px 16px;
+    transform: translate(-50%, -12px);
   }
 
   .toast.visible {
-    transform: none;
+    transform: translate(-50%, 0);
   }
 }
 
@@ -1101,4 +1102,236 @@ footer {
 
 .frame-hint {
   margin-top: 10px;
+}
+
+/* --- Compatibilité boîtier --------------------------------------------- */
+
+.compat {
+  margin-bottom: 12px;
+}
+
+.compat-camera {
+  max-width: 260px;
+}
+
+.compat-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.compat-list:empty {
+  display: none;
+}
+
+.compat-list li {
+  margin-top: 4px;
+  padding: 7px 10px 7px 30px;
+  border-radius: 9px;
+  position: relative;
+}
+
+.compat-list li::before {
+  position: absolute;
+  left: 10px;
+  font-weight: 700;
+}
+
+.compat-error {
+  background: rgba(255, 107, 97, .13);
+  color: #ffb0a9;
+}
+
+.compat-error::before {
+  content: "✕";
+}
+
+.compat-warning {
+  background: rgba(255, 196, 77, .12);
+  color: #ffd98a;
+}
+
+.compat-warning::before {
+  content: "!";
+}
+
+.compat-ok {
+  background: rgba(98, 196, 120, .12);
+  color: #9fe0ae;
+}
+
+.compat-ok::before {
+  content: "✓";
+}
+
+.look-card.incompatible .look-swatch {
+  opacity: .45;
+}
+
+.look-card.incompatible .look-name::before {
+  content: "⚠ ";
+  color: #ffd98a;
+}
+
+/* --- Recherche, filtres et favoris -------------------------------------- */
+
+.look-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.look-search {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+}
+
+.chip {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.look-item {
+  position: relative;
+  display: flex;
+  flex: 0 0 116px;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.look-item .look-card {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.fav-button {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(13, 15, 18, .62);
+  color: #f4f4f0;
+  font-size: 14px;
+  line-height: 1;
+  opacity: .85;
+}
+
+.fav-button[aria-pressed="true"] {
+  color: #ffcf5a;
+  opacity: 1;
+}
+
+.look-empty {
+  align-self: center;
+  margin: 0;
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (min-width: 960px) {
+  .look-item {
+    flex: none;
+  }
+
+  .look-empty {
+    grid-column: 1 / -1;
+  }
+
+  .look-item .fav-button {
+    opacity: 0;
+    transition: opacity .15s;
+  }
+
+  .look-item:hover .fav-button,
+  .look-item .fav-button:focus-visible,
+  .look-item .fav-button[aria-pressed="true"] {
+    opacity: 1;
+  }
+}
+
+/* --- Retouche ------------------------------------------------------------ */
+
+.edit-section {
+  margin-top: 26px;
+}
+
+body:not(.has-photo) .edit-section {
+  display: none;
+}
+
+.edit-row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.edit-row .chips {
+  grid-column: 2 / -1;
+}
+
+.chips-wrap {
+  flex-wrap: wrap;
+}
+
+.edit-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.edit-row input[type="range"] {
+  width: 100%;
+}
+
+.edit-row output {
+  min-width: 56px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.edit-section .chip {
+  min-height: 34px;
+}
+
+.text-button:disabled {
+  opacity: .4;
+  cursor: default;
 }

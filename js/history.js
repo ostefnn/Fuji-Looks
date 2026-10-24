@@ -7,7 +7,7 @@ const redoStack = [];
 let lastCommit = { key: null, time: 0 };
 
 function snapshot() {
-  return { recipe: { ...recipe }, applied, modified, lookId: currentLookId, intensity: intensityState };
+  return { recipe: { ...recipe }, applied, modified, lookId: currentLookId, intensity: intensityState, edit: { ...edit } };
 }
 
 // À appeler juste avant une modification. Les modifications répétées d'un même réglage
@@ -32,6 +32,11 @@ function restoreSnapshot(state) {
   currentLookId = state.lookId;
   intensity.value = state.intensity;
   intensityState = state.intensity;
+  if (JSON.stringify(state.edit) !== JSON.stringify(edit)) {
+    edit = { ...state.edit };
+    updateEditControls();
+    rebuildSource();
+  }
   updateRecipeEditor();
   schedulePreview();
 }

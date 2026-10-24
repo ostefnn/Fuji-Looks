@@ -26,8 +26,8 @@
   </header>
 
   <section class="intro" id="intro">
-    <p class="eyebrow">YOUR CREATIVE DARKROOM</p>
-    <h1>Find your <span>look.</span></h1>
+    <p class="eyebrow">TA CHAMBRE NOIRE CRÉATIVE</p>
+    <h1>Trouve ton <span>look.</span></h1>
     <p class="subtitle">Importe une photo, choisis une recette Fujifilm, ajuste-la et exporte.</p>
   </section>
 
@@ -74,8 +74,52 @@
           <h2 id="looksTitle">Looks</h2>
           <span class="count" id="lookCount"></span>
         </div>
+        <div class="look-toolbar">
+          <input type="search" id="lookSearch" class="look-search" placeholder="Rechercher un look, une simulation, un auteur…" aria-label="Rechercher un look" autocomplete="off">
+          <div class="chips" id="lookFilters" role="group" aria-label="Filtrer les looks">
+            <button type="button" class="chip" data-filter="all" aria-pressed="true">Tous</button>
+            <button type="button" class="chip" data-filter="color" aria-pressed="false">Couleur</button>
+            <button type="button" class="chip" data-filter="mono" aria-pressed="false">N&amp;B</button>
+          </div>
+        </div>
         <div class="tabs" role="tablist" id="lookTabs" aria-label="Catégories de looks"></div>
         <div class="look-strip" id="lookGroups"></div>
+      </section>
+
+      <section class="edit-section" id="editSection" aria-labelledby="editTitle">
+        <div class="section-heading">
+          <h2 id="editTitle">Retouche</h2>
+          <button type="button" class="text-button" id="editResetButton" disabled>Réinitialiser</button>
+        </div>
+        <div class="edit-row">
+          <span class="edit-label">Format</span>
+          <div class="chips chips-wrap" id="ratioOptions" role="group" aria-label="Format">
+            <button type="button" class="chip" data-ratio="original" aria-pressed="true">Original</button>
+            <button type="button" class="chip" data-ratio="1:1" aria-pressed="false">1:1</button>
+            <button type="button" class="chip" data-ratio="4:5" aria-pressed="false">4:5</button>
+            <button type="button" class="chip" data-ratio="3:2" aria-pressed="false">3:2</button>
+            <button type="button" class="chip" data-ratio="16:9" aria-pressed="false">16:9</button>
+            <button type="button" class="chip" data-ratio="9:16" aria-pressed="false">9:16</button>
+          </div>
+        </div>
+        <div class="edit-row">
+          <span class="edit-label">Rotation</span>
+          <div class="chips">
+            <button type="button" class="chip" id="rotateLeft" aria-label="Pivoter de 90° vers la gauche">⟲ 90°</button>
+            <button type="button" class="chip" id="rotateRight" aria-label="Pivoter de 90° vers la droite">⟳ 90°</button>
+          </div>
+        </div>
+        <div class="edit-row">
+          <label class="edit-label" for="straighten">Redresser</label>
+          <input type="range" id="straighten" min="-15" max="15" step="0.1" value="0">
+          <output id="straightenValue" for="straighten">0.0°</output>
+        </div>
+        <div class="edit-row">
+          <label class="edit-label" for="exposure">Exposition</label>
+          <input type="range" id="exposure" min="-2" max="2" step="0.1" value="0">
+          <output id="exposureValue" for="exposure">0.0 IL</output>
+        </div>
+        <p class="hint">Double-clic sur un curseur pour le remettre à 0. Le redressement recadre automatiquement pour éviter les coins vides.</p>
       </section>
 
       <section class="frame-section" aria-labelledby="frameTitle">
@@ -101,6 +145,14 @@
             <button type="button" class="text-button" id="revertButton" hidden>Revenir au look</button>
             <button type="button" class="secondary-button" id="saveButton" title="Enregistrer dans ta bibliothèque (sur cet appareil)">Enregistrer</button>
           </div>
+        </div>
+
+        <div class="compat">
+          <label class="field-text compat-camera">
+            <span>Mon boîtier</span>
+            <select id="cameraSelect"></select>
+          </label>
+          <ul class="compat-list" id="compatList" aria-live="polite"></ul>
         </div>
 
         <div class="recipe-fields" id="recipeFields"></div>
@@ -189,7 +241,7 @@
 
   <footer>
     <span>FUJI LOOKS</span>
-    <span>MADE FOR YOUR VISION</span>
+    <span>FAIT POUR TON REGARD</span>
   </footer>
 
   <script src="vendor/fuji-recipe-converter/data.js"></script>
@@ -212,6 +264,8 @@
   <script src="js/photo-export.js"></script>
   <script src="js/frame.js"></script>
   <script src="js/exif.js"></script>
+  <script src="js/edit.js"></script>
+  <script src="js/cameras.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
