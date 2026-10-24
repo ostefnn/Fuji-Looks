@@ -69,7 +69,7 @@ saveButton.addEventListener("click", () => {
   showTab("custom");
   schedulePreview();
   showStatus(store(LIB_KEY, library)
-    ? `« ${saved.name} » enregistrée dans « Mes recettes ».`
+    ? `« ${saved.name} » enregistrée dans « Recettes ».`
     : "Enregistrement impossible : le stockage du navigateur est indisponible.");
 });
 
