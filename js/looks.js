@@ -6,8 +6,7 @@
 const FAV_KEY = "fuji-looks.favorites";
 let favorites = new Set(Array.isArray(load(FAV_KEY)) ? load(FAV_KEY) : []);
 let lookQuery = "";
-let lookFilter = "all"; // all | color | mono
-let lookSim = ""; // "" ou l'identifiant d'une Film Simulation
+let lookSim = ""; // "" (toutes), "color", "mono" ou l'identifiant d'une Film Simulation
 let lookSensor = ""; // "" ou un capteur (X-Trans V, X-Trans IV…), pour le catalogue seulement
 
 function normalizeText(text) {
@@ -17,10 +16,8 @@ function normalizeText(text) {
 function lookMatches(look) {
   if (!look.recipe) return true; // « Original » reste toujours visible
   const sim = FR.simById(look.recipe.filmSim);
-  if (lookFilter === "color" && sim.mono) return false;
-  if (lookFilter === "mono" && !sim.mono) return false;
-  if (lookSim && sim.id !== lookSim) return false;
-  if (lookSensor && look.group === "catalog" && !look.sensors.includes(lookSensor)) return false;
+  if (lookSim === "color" ? sim.mono : lookSim === "mono" ? !sim.mono : lookSim && sim.id !== lookSim) return false;
+  if (lookSensor && look.group === "catalog" && !(look.sensors || []).includes(lookSensor)) return false;
   if (!lookQuery) return true;
   const haystack = normalizeText([look.name, look.desc, sim.name, look.recipe.author, (look.sensors || []).join(" ")].join(" "));
   return normalizeText(lookQuery).split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
@@ -55,7 +52,7 @@ function applyLookFilter() {
   // Recherche sans résultat dans l'onglet ouvert : on passe au premier onglet qui en a.
   const active = lookTabs.querySelector('[aria-selected="true"]')?.id.replace("tab-", "");
   const activeCount = active ? Number(document.querySelector(`#tab-${active} small`).textContent) : 0;
-  if ((lookQuery || lookFilter !== "all" || lookSim || lookSensor) && !activeCount && firstWithMatches) showTab(firstWithMatches);
+  if ((lookQuery || lookSim || lookSensor) && !activeCount && firstWithMatches) showTab(firstWithMatches);
 }
 
 lookSearch.addEventListener("input", () => {
@@ -80,13 +77,6 @@ lookSimSelect.addEventListener("change", () => {
   applyLookFilter();
 });
 
-lookFilters.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-filter]");
-  if (!button) return;
-  lookFilter = button.dataset.filter;
-  lookFilters.querySelectorAll("[data-filter]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
-  applyLookFilter();
-});
 
 function createLookItem(look) {
   const item = document.createElement("div");

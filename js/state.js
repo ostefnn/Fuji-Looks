@@ -27,7 +27,6 @@ const xmpTarget = document.getElementById("xmpTarget");
 const xmpHint = document.getElementById("xmpHint");
 const lookTabs = document.getElementById("lookTabs");
 const lookSearch = document.getElementById("lookSearch");
-const lookFilters = document.getElementById("lookFilters");
 const lookSimSelect = document.getElementById("lookSim");
 const lookSensorSelect = document.getElementById("lookSensor");
 const compareButton = document.getElementById("compareButton");
