@@ -93,6 +93,9 @@ function baselineRecipe() {
 function updateRecipeEditor() {
   const baseline = modified ? baselineRecipe() : null;
   revertButton.hidden = !baseline;
+  const sourceLook = currentLookId && lookById.get(currentLookId);
+  recipeSource.hidden = !(sourceLook && sourceLook.sourceUrl);
+  if (sourceLook && sourceLook.sourceUrl) recipeSource.href = sourceLook.sourceUrl;
   if (baseline) revertButton.textContent = `Revenir à « ${lookById.get(currentLookId).name} »`;
   recipeName.value = recipe.name;
   recipeAuthor.value = recipe.author;

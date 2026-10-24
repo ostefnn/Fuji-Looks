@@ -91,6 +91,9 @@
           <select id="lookMoment" class="moment-select" aria-label="Moment conseillé">
             <option value="">Tous les moments</option>
           </select>
+          <select id="lookSensor" class="moment-select" aria-label="Capteur">
+            <option value="">Tous les capteurs</option>
+          </select>
         </div>
         <div class="tabs" role="tablist" id="lookTabs" aria-label="Catégories de looks"></div>
         <div class="look-strip" id="lookGroups"></div>
@@ -226,6 +229,7 @@
           <div>
             <h2 id="recipeTitle">Réglages de la recette</h2>
             <p class="section-sub" id="recipeSim"></p>
+            <a class="source-link" id="recipeSource" href="#" target="_blank" rel="noopener" hidden>Voir la recette originale ↗</a>
           </div>
           <div class="heading-actions">
             <button type="button" class="text-button" id="revertButton" hidden>Revenir au look</button>
@@ -337,7 +341,7 @@
           </div>
         </details>
 
-        <p class="hint credits">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT) : mêmes simulations, même moteur de couleur, mêmes exports. Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
+        <p class="hint credits">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT) : mêmes simulations, même moteur de couleur, mêmes exports. Catalogue : bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT), recettes de <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a> — chaque recette renvoie vers son article. Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
       </section>
     </div>
   </main>
@@ -382,6 +386,7 @@
   <script src="vendor/fuji-recipe-converter/parser.js"></script>
   <script src="vendor/qrcode/qrcode.js"></script>
   <script src="custom-recipes.js"></script>
+  <script src="js/kata-catalog.js"></script>
   <script src="js/pipeline.js"></script>
   <script src="js/state.js"></script>
   <script src="js/catalog.js"></script>

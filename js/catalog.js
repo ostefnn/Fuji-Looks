@@ -54,6 +54,25 @@ FR.STARTERS.forEach((recipe, i) => {
   });
 });
 
+// Catalogue : 340 recettes de la bibliothèque Kata (réglages + lien vers l'article d'origine).
+const SENSORS = ["X-Trans V", "X-Trans IV", "X-Trans III", "X-Trans II", "X-Trans I", "GFX", "Bayer"];
+(window.KATA_RECIPES || []).forEach(({ recipe: values, sensors, url }) => {
+  const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, values));
+  const slug = values.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  // Identifiant stable tiré du nom (les favoris y sont liés) ; suffixe si deux noms ne diffèrent que par la casse.
+  let id = `kata-${slug}`;
+  for (let n = 2; LOOKS.some((look) => look.id === id); n++) id = `kata-${slug}-${n}`;
+  LOOKS.push({
+    id,
+    name: recipe.name,
+    desc: `${FR.simById(recipe.filmSim).name} · ${sensors[0] || "?"}`,
+    group: "catalog",
+    sensors,
+    sourceUrl: url,
+    recipe
+  });
+});
+
 FR.SIMS.forEach((sim) => {
   LOOKS.push({
     id: `sim-${sim.id}`,
@@ -68,6 +87,7 @@ FR.SIMS.forEach((sim) => {
 // « Recettes » : bibliothèque, puis recettes perso, puis exemples du convertisseur.
 const ALL_GROUPS = [
   { id: "custom", title: "Recettes" },
+  { id: "catalog", title: "Catalogue" },
   { id: "sims", title: "Simulations" }
 ];
 let GROUPS = [];

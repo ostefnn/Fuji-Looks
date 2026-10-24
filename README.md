@@ -6,7 +6,7 @@ Applique des recettes Fujifilm à tes photos, directement dans ton navigateur. R
 
 ## Fonctionnalités
 
-- **Looks** : tes recettes, des recettes de départ et les 20 simulations de film Fujifilm, avec recherche, filtres Couleur / N&B, **moment conseillé** (golden hour, mi-journée, temps couvert, intérieur, nuit) et favoris. Survole un look à la souris pour le voir sur ta photo avant de cliquer.
+- **Looks** : tes recettes, un **catalogue de 340 recettes** (filtrable par capteur, avec un lien vers chaque article d'origine), des recettes de départ et les 20 simulations de film Fujifilm, avec recherche, filtres Couleur / N&B, **moment conseillé** (golden hour, mi-journée, temps couvert, intérieur, nuit) et favoris. Survole un look à la souris pour le voir sur ta photo avant de cliquer.
 - **Réglages de la recette** : tous les réglages sous leurs noms Fujifilm (Film Simulation, Dynamic Range, White Balance, Grain, Color Chrome, Highlight, Shadow, Clarity…), avec Annuler / Rétablir (Ctrl+Z / Ctrl+Maj+Z).
 - **Balance des blancs simulée** : le mode de la recette (Daylight, Incandescent, Kelvin…) est appliqué comme sur le boîtier, pour une photo prise en lumière du jour. Un interrupteur revient au comportement du convertisseur (décalage R/B seulement) ; l'aperçu est alors identique au sien, pixel pour pixel.
 - **Compatibilité boîtier** : choisis ton appareil (X-Trans III à V) pour savoir si une recette est reproductible.
@@ -56,6 +56,7 @@ puis ouvre http://localhost:8000/. Ouvrir `index.html` directement fonctionne au
 |---|---|
 | `index.html`, `style.css` | Page et styles |
 | `custom-recipes.js` | Recettes perso au format texte |
+| `js/kata-catalog.js` | Catalogue de 340 recettes (données générées depuis Kata) |
 | `js/pipeline.js` | Rendu recette → LUT 3D → pixels (partagé avec le worker) |
 | `js/export-worker.js` | Calcul de l'export en arrière-plan |
 | `js/*.js` | Un fichier par partie de l'interface (looks, éditeur, zoom, cadre, EXIF…) chargés dans l'ordre de `index.html` |
@@ -73,5 +74,6 @@ Le code de Fuji Looks est sous licence [MIT](LICENSE). Le code tiers dans `vendo
 - Lecture de captures d'écran : Tesseract.js (Apache-2.0). Photos HEIC : heic-to (LGPL-3.0). QR codes : QR Code Generator de Kazuhiko Arase (MIT). Police manuscrite : Great Vibes (SIL OFL 1.1). Détails dans [`vendor/THIRD-PARTY-NOTICES.md`](vendor/THIRD-PARTY-NOTICES.md).
 - Recettes Kodachrome 64, Kodachrome 25, Kodachrome II, Vintage Color v2, Fujicolor NPH et Kodak T-Max P3200 : [Fuji X Weekly](https://fujixweekly.com).
 - Recettes au format .FP1 et classement par moment : [quiode/fujifilm-recipes](https://github.com/quiode/fujifilm-recipes) (MIT ; recettes d'origine Fuji X Weekly).
+- Catalogue : instantané de la bibliothèque [Kata](https://github.com/parth181195/kata) (MIT, commit `0c47ee2`), recettes de [Fuji X Weekly](https://fujixweekly.com). Seuls les réglages sont repris ; chaque recette renvoie vers son article. Si tu utilises ces recettes, pense à soutenir l'auteur ([App Patron](https://fujixweekly.com/2021/10/22/why-should-you-become-a-fuji-x-weekly-app-patron/)).
 
 Projet indépendant, non affilié à FUJIFILM Corporation ni à Adobe. Les rendus sont des approximations du traitement des boîtiers Fujifilm.

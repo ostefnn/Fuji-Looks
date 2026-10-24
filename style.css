@@ -1681,3 +1681,12 @@ body:not(.has-photo) .edit-section {
 .fp1-group .field-text .hint {
   margin: 4px 0 0;
 }
+
+.source-link {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
