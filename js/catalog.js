@@ -21,7 +21,7 @@ FR.STARTERS.forEach((recipe, i) => {
     id: `recipe-${i}`,
     name: recipe.name,
     desc: FR.simById(recipe.filmSim).name,
-    group: "recipes",
+    group: "custom", // exemples du convertisseur, à la suite de tes recettes
     recipe
   });
 });
@@ -36,10 +36,10 @@ FR.SIMS.forEach((sim) => {
   });
 });
 
-// Onglets ; « Original » est repris en tête de chaque onglet pour revenir facilement à la photo.
+// Deux onglets (plus ★ Favoris s'il y en a) ; « Original » est repris en tête de chaque onglet.
+// « Recettes » : bibliothèque, puis recettes perso, puis exemples du convertisseur.
 const ALL_GROUPS = [
-  { id: "custom", title: "Mes recettes" },
-  { id: "recipes", title: "Recettes" },
+  { id: "custom", title: "Recettes" },
   { id: "sims", title: "Simulations" }
 ];
 let GROUPS = [];
@@ -70,7 +70,7 @@ let library = (Array.isArray(load(LIB_KEY)) ? load(LIB_KEY) : [])
   .filter((item) => item && item.recipe)
   .map((item) => ({ id: String(item.id), savedAt: item.savedAt, recipe: FR.normalize(item.recipe) }));
 
-// Les recettes de la bibliothèque passent en tête de « Mes recettes ».
+// Les recettes de la bibliothèque passent en tête de l’onglet « Recettes ».
 function syncLibraryLooks() {
   for (let i = LOOKS.length - 1; i >= 0; i--) {
     if (LOOKS[i].id.startsWith("lib-")) {
