@@ -80,6 +80,9 @@ const SIGNATURE_KEY = "fuji-looks.signature";
 const savedSignature = load(SIGNATURE_KEY) || {};
 let signatureName = typeof savedSignature.name === "string" ? savedSignature.name.slice(0, 32) : "";
 let signatureStyle = ["logo", "monogram", "script"].includes(savedSignature.style) ? savedSignature.style : "logo";
+// Taille relative au grand côté de la photo : [sous les infos, seule dans le cadre].
+const SIGNATURE_SIZES = { small: [0.024, 0.03], medium: [0.032, 0.04], large: [0.044, 0.056] };
+let signatureSize = SIGNATURE_SIZES[savedSignature.size] ? savedSignature.size : "small";
 
 // « Olivier Steffen » → « OS », « ostefnn » → « O ».
 function signatureInitials(name) {
@@ -228,7 +231,8 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
   // Signature : sur sa propre ligne en bas du cartouche (imprimée en bordure sur la pellicule).
   const hasSignature = Boolean(signatureName.trim());
   // Seule dans le cadre, la signature est un peu plus grande (elle est alors centrée).
-  const sigSize = Math.max(14, Math.round(long * (showTitle || lines.length ? 0.044 : 0.056)));
+  const [withInfo, alone] = SIGNATURE_SIZES[signatureSize];
+  const sigSize = Math.max(12, Math.round(long * (showTitle || lines.length ? withInfo : alone)));
   const sigBlock = hasSignature && !cfg.film ? sigSize + (showTitle || lines.length ? Math.round(textSize * 1.2) : 0) : 0;
   const content = (showTitle ? titleSize * 1.25 : 0) + (showTitle && lines.length ? titleSize * 0.25 : 0) +
     lines.length * textSize * 1.55 + sigBlock;
@@ -304,21 +308,37 @@ function updateFrameOptions() {
   signatureStyleOptions.querySelectorAll("[data-signature]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.signature === signatureStyle));
   });
+  signatureSizeRow.hidden = signatureStyleRow.hidden;
+  signatureSizeOptions.querySelectorAll("[data-size]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.size === signatureSize));
+  });
 }
 
 const signatureRow = document.getElementById("signatureRow");
 const signatureStyleRow = document.getElementById("signatureStyleRow");
 const signatureInput = document.getElementById("signatureInput");
 const signatureStyleOptions = document.getElementById("signatureStyleOptions");
+const signatureSizeRow = document.getElementById("signatureSizeRow");
+const signatureSizeOptions = document.getElementById("signatureSizeOptions");
+
+signatureSizeOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-size]");
+  if (!button) return;
+  signatureSize = button.dataset.size;
+  saveSignature();
+  updateFrameOptions();
+  schedulePreview();
+});
 
 function saveSignature() {
-  store(SIGNATURE_KEY, { name: signatureName, style: signatureStyle });
+  store(SIGNATURE_KEY, { name: signatureName, style: signatureStyle, size: signatureSize });
 }
 
 signatureInput.addEventListener("input", () => {
   signatureName = signatureInput.value.slice(0, 32);
   saveSignature();
   signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();
+  signatureSizeRow.hidden = signatureStyleRow.hidden;
   schedulePreview();
 });
 
