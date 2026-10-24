@@ -61,6 +61,10 @@ puis ouvre http://localhost:8000/. Ouvrir `index.html` directement fonctionne au
 | `sw.js`, `manifest.webmanifest`, `icons/` | Application installable et hors connexion |
 | `vendor/` | Code tiers, voir ci-dessous |
 
+## Licence
+
+Le code de Fuji Looks est sous licence [MIT](LICENSE). Le code tiers dans `vendor/` garde sa propre licence (voir Crédits).
+
 ## Crédits
 
 - Moteur de couleur, simulations, imports et exports : [Fuji Recipe Converter](https://github.com/sadziu/Fuji-Recipe-Converter) (MIT), copié sans modification dans `vendor/fuji-recipe-converter/`. L'aperçu de Fuji Looks est identique au sien, pixel pour pixel.
