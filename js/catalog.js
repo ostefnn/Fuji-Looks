@@ -42,8 +42,8 @@ FR.STARTERS.forEach((recipe, i) => {
   LOOKS.push({
     id: `recipe-${i}`,
     name: recipe.name,
-    desc: FR.simById(recipe.filmSim).name,
-    group: "custom", // exemples du convertisseur, à la suite de tes recettes
+    desc: `${FR.simById(recipe.filmSim).name} · Exemple`,
+    group: "catalog", // exemples du convertisseur : « Recettes » ne garde que les tiennes
     recipe
   });
 });

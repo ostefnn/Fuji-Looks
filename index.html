@@ -32,11 +32,7 @@
     </div>
   </header>
 
-  <section class="intro" id="intro">
-    <p class="eyebrow">TA CHAMBRE NOIRE CRÉATIVE</p>
-    <h1>Trouve ton <span>look.</span></h1>
-    <p class="subtitle">Importe une photo, choisis une recette Fujifilm, ajuste-la et exporte.</p>
-  </section>
+  <h1 class="visually-hidden">Fuji Looks : recettes Fujifilm pour tes photos</h1>
 
   <main class="studio">
     <!-- Colonne image : reste visible pendant qu'on choisit et règle les looks -->
@@ -46,6 +42,7 @@
           <span class="placeholder-icon" aria-hidden="true">＋</span>
           <strong>Glisse une photo ici</strong>
           <span>ou touche pour en choisir une (JPEG, PNG, HEIC…)</span>
+          <span class="placeholder-steps">Choisis un look, ajuste la recette, exporte.</span>
         </label>
         <button type="button" class="sample-button" id="sampleButton">Essayer avec l’image d’exemple</button>
         <canvas id="photoPreview" role="img" aria-label="Aperçu de ta photo" hidden></canvas>
@@ -83,14 +80,11 @@
         </div>
         <div class="look-toolbar">
           <input type="search" id="lookSearch" class="look-search" placeholder="Rechercher un look…" title="Nom, simulation ou auteur" aria-label="Rechercher un look" autocomplete="off">
-          <div class="chips" id="lookFilters" role="group" aria-label="Filtrer les looks">
-            <button type="button" class="chip" data-filter="all" aria-pressed="true">Tous</button>
-            <button type="button" class="chip" data-filter="color" aria-pressed="false">Couleur</button>
-            <button type="button" class="chip" data-filter="mono" aria-pressed="false">N&amp;B</button>
-          </div>
           <div class="look-selects">
-            <select id="lookSim" class="look-select" aria-label="Film Simulation">
+            <select id="lookSim" class="look-select" aria-label="Filtrer par Film Simulation">
               <option value="">Toutes les simulations</option>
+              <option value="color">Couleur</option>
+              <option value="mono">Noir &amp; blanc</option>
             </select>
             <select id="lookSensor" class="look-select" aria-label="Capteur" title="Capteur (onglet Catalogue)" hidden>
               <option value="">Tous les capteurs</option>

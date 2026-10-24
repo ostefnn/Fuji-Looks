@@ -128,43 +128,13 @@ label[for] {
   border-color: var(--muted);
 }
 
-/* --- Intro (masquée une fois la photo chargée) -------------------------- */
-
-.intro {
-  width: min(100% - 2 * var(--gutter), 1240px);
-  margin: 0 auto;
-  padding: 28px 0 8px;
-}
-
-.has-photo .intro {
-  display: none;
-}
-
-.eyebrow {
-  margin: 0 0 10px;
-  color: var(--accent);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-h1 {
-  margin: 0;
-  font-size: clamp(38px, 10vw, 60px);
-  line-height: 1;
-  letter-spacing: -2.5px;
-  font-weight: 750;
-}
-
-h1 span {
-  color: var(--accent);
-}
-
-.subtitle {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* --- Mise en page studio ------------------------------------------------ */
@@ -210,6 +180,21 @@ body:not(.has-photo) .stage {
   aspect-ratio: auto;
   height: min(42vh, 75vw);
   background: #08090b;
+  transition: height .22s ease;
+}
+
+/* Mobile : pendant le réglage de la recette, l'aperçu se fait plus petit (voir main.js). */
+.compact-stage .photo-frame {
+  height: min(27vh, 52vw);
+}
+
+.compact-stage .stage {
+  padding-top: 6px;
+  padding-bottom: 8px;
+}
+
+.compact-stage .intensity-row label {
+  display: none;
 }
 
 .photo-placeholder {
@@ -248,7 +233,7 @@ body:not(.has-photo) .stage {
   font-size: 16px;
 }
 
-.photo-placeholder span:last-child {
+.photo-placeholder span:not(.placeholder-icon) {
   color: var(--muted);
   font-size: 13px;
 }
@@ -592,13 +577,18 @@ h2 {
   object-fit: cover;
 }
 
+/* Nom sur deux lignes au plus : « Kodak Portra 400 v2 » reste lisible en entier. */
 .look-name {
+  display: -webkit-box;
   overflow: hidden;
+  min-height: 2.5em;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .look-desc {
@@ -1195,7 +1185,7 @@ footer {
 }
 
 .look-search {
-  flex: 1 1 200px;
+  flex: 1 1 180px;
   min-width: 0;
   padding: 9px 12px;
   border: 1px solid var(--border);
@@ -1652,14 +1642,14 @@ body:not(.has-photo) #editSection {
 
 .look-selects {
   display: flex;
-  flex: 1 1 100%;
+  flex: 1 1 180px;
   gap: 8px;
 }
 
 .look-select {
   flex: 1 1 0;
   min-width: 0;
-  min-height: 38px;
+  min-height: 40px;
   padding: 0 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -1935,4 +1925,11 @@ body:not(.has-photo) #editSection {
 
 .acc-sub small {
   color: var(--accent);
+}
+
+.photo-placeholder .placeholder-steps {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  opacity: .75;
 }
