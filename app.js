@@ -60,10 +60,10 @@ const EXPORT_MAX_PIXELS = 16000000;
 
 const LOOKS = [{ id: "original", name: "Original", desc: "Naturel", group: "base", recipe: null }];
 
-(window.CUSTOM_RECIPES || []).forEach(({ name, text }, i) => {
+(window.CUSTOM_RECIPES || []).forEach(({ name, author = "", text }, i) => {
   const parsed = FR.parseText(text);
   if (!parsed) return;
-  const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, parsed.values, { name }));
+  const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, parsed.values, { name, author }));
   LOOKS.push({
     id: `custom-${i}`,
     name,
