@@ -1371,27 +1371,16 @@ body:not(.has-photo) .edit-section {
     #0e0d0c;
 }
 
-/* --- Signature ----------------------------------------------------------- */
+/* --- Signature (discrète, en pied de page) ------------------------------ */
 
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  line-height: 1.1;
-}
-
-.brand-by {
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: none;
-}
-
-.footer-link {
-  color: var(--text);
+.footer-by {
+  margin-left: 6px;
+  color: inherit;
+  letter-spacing: .5px;
   text-decoration: none;
+  opacity: .55;
 }
 
-.footer-link:hover {
-  color: var(--accent);
+.footer-by:hover {
+  opacity: 1;
 }
