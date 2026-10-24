@@ -75,7 +75,6 @@ Exposure Compensation: 0 to +2/3 (typically), +1/3 suggested`
   },
   {
     name: "Kodachrome 64",
-    author: "Fuji X Weekly",
     text: `Film Simulation: Classic Chrome
 Dynamic Range: DR200
 Highlight: 0
@@ -93,7 +92,6 @@ Exposure Compensation: 0 to +2/3 (typically)`
   },
   {
     name: "Kodachrome 25",
-    author: "Fuji X Weekly",
     text: `Film Simulation: Classic Chrome
 Dynamic Range: DR400
 Highlight: +0.5
@@ -111,7 +109,6 @@ Exposure Compensation: 0 to +2/3 (typically)`
   },
   {
     name: "Kodachrome II",
-    author: "Fuji X Weekly",
     text: `Film Simulation: Classic Chrome
 Dynamic Range: DR200
 Highlight: +1
@@ -129,7 +126,6 @@ Exposure Compensation: +1/3 to +2/3 (typically)`
   },
   {
     name: "Vintage Color v2",
-    author: "Fuji X Weekly",
     text: `Film Simulation: Classic Negative
 Dynamic Range: DR400
 Highlight: +2
@@ -147,7 +143,6 @@ Exposure Compensation: 0 to +1 (typically)`
   },
   {
     name: "Fujicolor NPH",
-    author: "Fuji X Weekly",
     text: `Film Simulation: Provia
 Dynamic Range: DR100
 Highlight: -1
@@ -166,7 +161,6 @@ Exposure Compensation: +1/3 to +2/3 (typically)`
   {
     // Fonctionne aussi avec ACROS +Ye, +R ou +G : changer « Film Simulation » dans l'éditeur.
     name: "Kodak T-Max P3200",
-    author: "Fuji X Weekly",
     text: `Film Simulation: Acros
 Monochromatic Color WC: -1
 Monochromatic Color MG: -1
