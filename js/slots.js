@@ -10,8 +10,7 @@ let slots = (() => {
 })();
 
 const slotList = document.getElementById("slotList");
-const slotsCamera = document.getElementById("slotsCamera");
-const slotsCount = document.getElementById("slotsCount");
+const cameraMeta = document.getElementById("cameraMeta");
 
 function saveSlots() {
   store(SLOTS_KEY, slots);
@@ -20,8 +19,9 @@ function saveSlots() {
 function renderSlots() {
   slotList.textContent = "";
   const camera = CAMERAS.get(cameraId);
-  slotsCamera.textContent = camera ? camera.name.toUpperCase() : "";
-  slotsCount.textContent = `${slots.filter(Boolean).length} / ${SLOT_COUNT}`;
+  // Résumé dans l'en-tête replié : boîtier et emplacements remplis.
+  const filled = slots.filter(Boolean).length;
+  cameraMeta.textContent = [camera ? camera.name.toUpperCase() : "", filled ? `C1–C7 ${filled}/${SLOT_COUNT}` : ""].filter(Boolean).join(" · ");
   slots.forEach((slot, i) => {
     const li = document.createElement("li");
     li.className = "slot-row";

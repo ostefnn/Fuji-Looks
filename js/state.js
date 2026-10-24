@@ -46,6 +46,7 @@ const lutSize = document.getElementById("lutSize");
 const libraryList = document.getElementById("libraryList");
 const libraryEmpty = document.getElementById("libraryEmpty");
 const libraryCount = document.getElementById("libraryCount");
+const libraryMeta = document.getElementById("libraryMeta");
 const libraryFile = document.getElementById("libraryFile");
 
 const LIB_KEY = "fuji-looks.library.v1";

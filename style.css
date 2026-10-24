@@ -455,8 +455,7 @@ body:not(.has-photo) .stage-controls {
 
 /* --- Panneau de réglages ------------------------------------------------ */
 
-.looks-section,
-.recipe-section {
+.looks-section {
   margin-top: 26px;
 }
 
@@ -672,7 +671,7 @@ h2 {
 
 .field-text input,
 .field-text select,
-.recipe-section textarea,
+.acc textarea,
 .recipe-row select,
 .recipe-row input[type="text"] {
   width: 100%;
@@ -685,7 +684,7 @@ h2 {
   font-size: 14px;
 }
 
-.recipe-section textarea {
+.acc textarea {
   resize: vertical;
 }
 
@@ -1115,19 +1114,11 @@ footer {
   border-color: var(--border);
 }
 
-.frame-section {
-  margin-top: 26px;
-}
-
 .frame-hint {
   margin-top: 10px;
 }
 
 /* --- Compatibilité boîtier --------------------------------------------- */
-
-.compat {
-  margin-bottom: 12px;
-}
 
 .compat-camera {
   max-width: 260px;
@@ -1303,11 +1294,7 @@ footer {
 
 /* --- Retouche ------------------------------------------------------------ */
 
-.edit-section {
-  margin-top: 26px;
-}
-
-body:not(.has-photo) .edit-section {
+body:not(.has-photo) #editSection {
   display: none;
 }
 
@@ -1346,7 +1333,7 @@ body:not(.has-photo) .edit-section {
   font-variant-numeric: tabular-nums;
 }
 
-.edit-section .chip {
+#editSection .chip {
   min-height: 34px;
 }
 
@@ -1458,10 +1445,6 @@ body:not(.has-photo) .edit-section {
 }
 
 /* --- Partager : avant / après, planche contact, fiche ------------------- */
-
-.share-section {
-  margin-top: 26px;
-}
 
 .share-grid {
   display: grid;
@@ -1739,11 +1722,7 @@ body:not(.has-photo) .edit-section {
 
 /* --- Mon boîtier C1–C7 ----------------------------------------------------- */
 
-.slots-section {
-  margin-top: 26px;
-}
-
-.slots-panel .slot-list {
+.slot-list {
   margin: 10px 0 4px;
   padding: 0;
   border: 1px solid var(--border);
@@ -1840,4 +1819,120 @@ body:not(.has-photo) .edit-section {
 
 .slot-clear:hover {
   color: var(--text);
+}
+
+/* --- Accordéons du panneau ------------------------------------------------ */
+
+.acc {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 2px);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.looks-section + .acc {
+  margin-top: 22px;
+}
+
+.acc-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 0 16px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.acc-head::-webkit-details-marker {
+  display: none;
+}
+
+.acc-head h2 {
+  font-size: 17px;
+}
+
+.acc-meta {
+  margin-left: auto;
+  overflow: hidden;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acc-meta:empty {
+  margin-left: auto;
+}
+
+.acc-head::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin: -4px 2px 0 0;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform .2s ease;
+}
+
+.acc[open] > .acc-head::after {
+  margin-top: 4px;
+  transform: rotate(-135deg);
+}
+
+.acc-head:hover h2 {
+  color: var(--accent);
+}
+
+.acc-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: calc(var(--radius) + 2px);
+}
+
+.acc-body {
+  padding: 0 16px 16px;
+}
+
+.acc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 10px;
+}
+
+.acc-toolbar .hint {
+  margin: 0;
+}
+
+.acc-toolbar .heading-actions {
+  margin-left: auto;
+}
+
+.acc-toolbar .source-link {
+  margin-top: 0;
+}
+
+.acc-sub {
+  margin: 20px 0 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.acc-body > .acc-sub:first-child {
+  margin-top: 0;
+}
+
+.acc-sub small {
+  color: var(--accent);
 }

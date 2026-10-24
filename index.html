@@ -101,220 +101,193 @@
         <div class="look-strip" id="lookGroups"></div>
       </section>
 
-      <section class="edit-section" id="editSection" aria-labelledby="editTitle">
-        <div class="section-heading">
-          <h2 id="editTitle">Retouche</h2>
-          <div class="heading-actions">
-            <button type="button" class="chip" id="autoExposureButton" title="Corrige l’exposition, les hautes lumières et les ombres">✨ Auto</button>
-            <button type="button" class="text-button" id="editResetButton" disabled>Réinitialiser</button>
-          </div>
-        </div>
-        <div class="edit-row">
-          <span class="edit-label">Format</span>
-          <div class="chips chips-wrap" id="ratioOptions" role="group" aria-label="Format">
-            <button type="button" class="chip" data-ratio="original" aria-pressed="true">Original</button>
-            <button type="button" class="chip" data-ratio="1:1" aria-pressed="false">1:1</button>
-            <button type="button" class="chip" data-ratio="4:5" aria-pressed="false">4:5</button>
-            <button type="button" class="chip" data-ratio="3:2" aria-pressed="false">3:2</button>
-            <button type="button" class="chip" data-ratio="16:9" aria-pressed="false">16:9</button>
-            <button type="button" class="chip" data-ratio="9:16" aria-pressed="false">9:16</button>
-          </div>
-        </div>
-        <div class="edit-row">
-          <span class="edit-label">Rotation</span>
-          <div class="chips">
-            <button type="button" class="chip" id="rotateLeft" aria-label="Pivoter de 90° vers la gauche">⟲ 90°</button>
-            <button type="button" class="chip" id="rotateRight" aria-label="Pivoter de 90° vers la droite">⟳ 90°</button>
-          </div>
-        </div>
-        <div class="edit-row">
-          <label class="edit-label" for="straighten">Redresser</label>
-          <input type="range" id="straighten" min="-15" max="15" step="0.1" value="0">
-          <output id="straightenValue" for="straighten">0.0°</output>
-        </div>
-        <div class="edit-row">
-          <label class="edit-label" for="exposure">Exposition</label>
-          <input type="range" id="exposure" min="-2" max="2" step="0.1" value="0">
-          <output id="exposureValue" for="exposure">0.0 IL</output>
-        </div>
-        <div class="edit-row">
-          <label class="edit-label" for="highlightsEdit">Hautes lumières</label>
-          <input type="range" id="highlightsEdit" min="-100" max="100" step="1" value="0">
-          <output id="highlightsEditValue" for="highlightsEdit">0</output>
-        </div>
-        <div class="edit-row">
-          <label class="edit-label" for="shadowsEdit">Ombres</label>
-          <input type="range" id="shadowsEdit" min="-100" max="100" step="1" value="0">
-          <output id="shadowsEditValue" for="shadowsEdit">0</output>
-        </div>
-        <p class="hint">Double-clic sur un curseur pour le remettre à 0. Le redressement recadre automatiquement pour éviter les coins vides. Hautes lumières négatives : récupère un ciel trop clair ; ombres positives : débouche les zones sombres.</p>
-      </section>
-
-      <section class="frame-section" aria-labelledby="frameTitle">
-        <div class="section-heading">
-          <h2 id="frameTitle">Cadre</h2>
-          <span class="count">APERÇU &amp; EXPORT</span>
-        </div>
-        <div class="edit-row">
-          <span class="edit-label">Style</span>
-          <div class="chips chips-wrap" id="frameOptions" role="group" aria-label="Style de cadre">
-            <button type="button" class="chip" data-frame="none" aria-pressed="true">Aucun</button>
-            <button type="button" class="chip" data-frame="white" aria-pressed="false"><span class="swatch" style="background:#f5f3ee"></span>Blanc</button>
-            <button type="button" class="chip" data-frame="cream" aria-pressed="false"><span class="swatch" style="background:#ece2cc"></span>Crème</button>
-            <button type="button" class="chip" data-frame="black" aria-pressed="false"><span class="swatch" style="background:#111214"></span>Noir</button>
-            <button type="button" class="chip" data-frame="thin" aria-pressed="false"><span class="swatch swatch-thin"></span>Fin</button>
-            <button type="button" class="chip" data-frame="polaroid" aria-pressed="false"><span class="swatch swatch-polaroid"></span>Polaroid</button>
-            <button type="button" class="chip" data-frame="film" aria-pressed="false"><span class="swatch swatch-film"></span>Pellicule</button>
-          </div>
-        </div>
-        <div class="edit-row" id="frameInfoRow" hidden>
-          <span class="edit-label">Infos</span>
-          <div class="chips chips-wrap" id="frameInfoOptions" role="group" aria-label="Informations affichées">
-            <button type="button" class="chip" data-info="full" aria-pressed="true">Complètes</button>
-            <button type="button" class="chip" data-info="name" aria-pressed="false">Nom seul</button>
-            <button type="button" class="chip" data-info="none" aria-pressed="false">Aucune</button>
-          </div>
-        </div>
-        <div class="edit-row" id="signatureRow" hidden>
-          <label class="edit-label" for="signatureInput">Signature</label>
-          <input type="text" id="signatureInput" class="signature-input" maxlength="32" placeholder="Ton nom ou tes initiales" autocomplete="off">
-        </div>
-        <div class="edit-row" id="signatureStyleRow" hidden>
-          <span class="edit-label">Style</span>
-          <div class="chips chips-wrap" id="signatureStyleOptions" role="group" aria-label="Style de signature">
-            <button type="button" class="chip" data-signature="logo" aria-pressed="false"><span class="sig-chip-logo">F.</span>Logo</button>
-            <button type="button" class="chip" data-signature="monogram" aria-pressed="true"><span class="sig-chip-mono">F</span>Monogramme</button>
-            <button type="button" class="chip sig-chip-script" data-signature="script" aria-pressed="false">Manuscrit</button>
-          </div>
-        </div>
-        <div class="edit-row" id="signatureSizeRow" hidden>
-          <span class="edit-label">Taille</span>
-          <div class="chips" id="signatureSizeOptions" role="group" aria-label="Taille de la signature">
-            <button type="button" class="chip" data-size="small" aria-pressed="true">Petite</button>
-            <button type="button" class="chip" data-size="medium" aria-pressed="false">Moyenne</button>
-            <button type="button" class="chip" data-size="large" aria-pressed="false">Grande</button>
-          </div>
-        </div>
-        <p class="hint frame-hint">Visible dans l’aperçu et dans la photo exportée. « Complètes » ajoute tous les réglages de la recette, « Nom seul » le nom et la simulation. La signature s’ajoute en bas du cadre.</p>
-      </section>
-
-      <section class="share-section" aria-labelledby="shareTitle">
-        <div class="section-heading">
-          <h2 id="shareTitle">Partager</h2>
-          <span class="count">IMAGES PRÊTES À POSTER</span>
-        </div>
-        <div class="share-grid">
-          <div class="share-card">
-            <strong>Avant / Après</strong>
-            <p class="hint">L’original et la recette, dans une seule image.</p>
-            <div class="chips" id="beforeAfterLayout" role="group" aria-label="Disposition">
-              <button type="button" class="chip" data-layout="side" aria-pressed="true">Côte à côte</button>
-              <button type="button" class="chip" data-layout="split" aria-pressed="false">Coupé</button>
-            </div>
-            <button type="button" class="secondary-button" id="beforeAfterButton">Créer l’avant / après</button>
-          </div>
-          <div class="share-card">
-            <strong>Planche contact</strong>
-            <p class="hint">Ta photo dans 2 à 9 looks, côte à côte.</p>
-            <button type="button" class="secondary-button" id="contactButton">Choisir les looks</button>
-          </div>
-          <div class="share-card">
-            <strong>Fiche recette</strong>
-            <p class="hint">Tous les réglages et un QR code qui ouvre la recette.</p>
-            <button type="button" class="secondary-button" id="cardButton">Créer la fiche</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="slots-section" aria-labelledby="slotsTitle">
-        <div class="section-heading">
-          <h2 id="slotsTitle">Mon boîtier · C1–C7</h2>
-          <span class="count" id="slotsCamera"></span>
-        </div>
-        <p class="hint">Range tes recettes dans les 7 réglages perso du boîtier, puis garde la fiche ou exporte les .FP1.</p>
-        <details class="recipe-panel slots-panel" id="slotsPanel">
-          <summary>Emplacements <small id="slotsCount"></small></summary>
-          <ol class="slot-list" id="slotList"></ol>
-          <div class="button-row">
-            <button type="button" class="secondary-button" id="slotsCardButton">Fiche C1–C7 (image)</button>
-            <button type="button" class="secondary-button" id="slotsFp1Button">Exporter les .FP1</button>
-          </div>
-        </details>
-      </section>
-
-      <section class="recipe-section" aria-labelledby="recipeTitle">
-        <div class="section-heading">
-          <div>
-            <h2 id="recipeTitle">Réglages de la recette</h2>
-            <p class="section-sub" id="recipeSim"></p>
+      <details class="acc" id="recipePanel" open>
+        <summary class="acc-head">
+          <h2>Recette</h2>
+          <span class="acc-meta" id="recipeSim"></span>
+        </summary>
+        <div class="acc-body">
+          <div class="acc-toolbar">
             <a class="source-link" id="recipeSource" href="#" target="_blank" rel="noopener" hidden>Voir la recette originale ↗</a>
+            <div class="heading-actions">
+              <button type="button" class="text-button" id="revertButton" hidden>Revenir au look</button>
+              <button type="button" class="secondary-button" id="saveButton" title="Enregistrer dans ta bibliothèque (sur cet appareil)">Enregistrer</button>
+            </div>
           </div>
-          <div class="heading-actions">
-            <button type="button" class="text-button" id="revertButton" hidden>Revenir au look</button>
-            <button type="button" class="secondary-button" id="saveButton" title="Enregistrer dans ta bibliothèque (sur cet appareil)">Enregistrer</button>
-          </div>
-        </div>
-
-        <div class="compat">
-          <label class="field-text compat-camera">
-            <span>Mon boîtier</span>
-            <select id="cameraSelect"></select>
-          </label>
           <ul class="compat-list" id="compatList" aria-live="polite"></ul>
-        </div>
-
-        <div class="recipe-fields" id="recipeFields"></div>
-        <label class="switch-row">
-          <input type="checkbox" id="wbSimToggle" checked>
-          <span class="switch" aria-hidden="true"></span>
-          <span class="switch-text">
-            <strong>Simuler la balance des blancs</strong>
-            <small>Applique le mode de la recette (Daylight, Incandescent, Kelvin…) comme le boîtier, pour une photo prise en lumière du jour. Désactivé : identique au convertisseur, seul le décalage R/B est appliqué.</small>
-          </span>
-        </label>
-
-        <details class="recipe-panel">
-          <summary>Nom, auteur et notes</summary>
-          <div class="recipe-meta">
-            <label class="field-text">
-              <span>Nom</span>
-              <input id="recipeName" type="text" maxlength="120">
-            </label>
-            <label class="field-text">
-              <span>Auteur</span>
-              <input id="recipeAuthor" type="text" maxlength="120" placeholder="Optionnel">
-            </label>
-            <label class="field-text field-wide">
-              <span>Notes</span>
-              <textarea id="recipeNotes" rows="2" maxlength="2000" placeholder="Optionnel"></textarea>
-            </label>
-          </div>
-        </details>
-
-        <details class="recipe-panel" id="comparePanel">
-          <summary>Comparer avec une autre recette</summary>
-          <label class="field-text">
-            <span>Recette à comparer</span>
-            <select id="compareSelect"></select>
+          <div class="recipe-fields" id="recipeFields"></div>
+          <label class="switch-row">
+            <input type="checkbox" id="wbSimToggle" checked>
+            <span class="switch" aria-hidden="true"></span>
+            <span class="switch-text">
+              <strong>Simuler la balance des blancs</strong>
+              <small>Applique le mode de la recette (Daylight, Incandescent, Kelvin…) comme le boîtier, pour une photo prise en lumière du jour. Désactivé : identique au convertisseur, seul le décalage R/B est appliqué.</small>
+            </span>
           </label>
-          <div class="compare-result" id="compareResult"></div>
-          <button type="button" class="secondary-button" id="compareApply" hidden>Utiliser cette recette</button>
-        </details>
+          <details class="recipe-panel">
+            <summary>Nom, auteur et notes</summary>
+            <div class="recipe-meta">
+              <label class="field-text">
+                <span>Nom</span>
+                <input id="recipeName" type="text" maxlength="120">
+              </label>
+              <label class="field-text">
+                <span>Auteur</span>
+                <input id="recipeAuthor" type="text" maxlength="120" placeholder="Optionnel">
+              </label>
+              <label class="field-text field-wide">
+                <span>Notes</span>
+                <textarea id="recipeNotes" rows="2" maxlength="2000" placeholder="Optionnel"></textarea>
+              </label>
+            </div>
+          </details>
 
-        <details class="recipe-panel">
-          <summary>Importer une recette</summary>
-          <p class="hint">Colle une recette (texte, code de partage <code>FR1.…</code> ou lien de partage), charge un profil X RAW Studio (.FP1/.FP2/.FP3), un fichier <code>.recipe.json</code> ou une <strong>capture d’écran</strong> de recette (lue sur ton appareil). Tu peux aussi faire Ctrl+V n’importe où sur la page.</p>
-          <textarea id="importText" rows="6" aria-label="Recette à importer" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
-          <div class="button-row">
-            <button type="button" class="secondary-button" id="importButton">Appliquer</button>
-            <label class="secondary-button" for="importFile">Fichier ou capture d’écran</label>
-            <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json,image/*,.heic,.heif" hidden>
+          <details class="recipe-panel" id="comparePanel">
+            <summary>Comparer avec une autre recette</summary>
+            <label class="field-text">
+              <span>Recette à comparer</span>
+              <select id="compareSelect"></select>
+            </label>
+            <div class="compare-result" id="compareResult"></div>
+            <button type="button" class="secondary-button" id="compareApply" hidden>Utiliser cette recette</button>
+          </details>
+        </div>
+      </details>
+
+      <details class="acc" id="editSection">
+        <summary class="acc-head">
+          <h2>Retouche</h2>
+          <span class="acc-meta" id="editMeta"></span>
+        </summary>
+        <div class="acc-body">
+          <div class="acc-toolbar">
+            <span class="hint">Recadrage, redressement et lumière.</span>
+            <div class="heading-actions">
+              <button type="button" class="chip" id="autoExposureButton" title="Corrige l’exposition, les hautes lumières et les ombres">✨ Auto</button>
+              <button type="button" class="text-button" id="editResetButton" disabled>Réinitialiser</button>
+            </div>
           </div>
-          <p class="import-status" id="importStatus" role="status" aria-live="polite"></p>
-        </details>
+          <div class="edit-row">
+            <span class="edit-label">Format</span>
+            <div class="chips chips-wrap" id="ratioOptions" role="group" aria-label="Format">
+              <button type="button" class="chip" data-ratio="original" aria-pressed="true">Original</button>
+              <button type="button" class="chip" data-ratio="1:1" aria-pressed="false">1:1</button>
+              <button type="button" class="chip" data-ratio="4:5" aria-pressed="false">4:5</button>
+              <button type="button" class="chip" data-ratio="3:2" aria-pressed="false">3:2</button>
+              <button type="button" class="chip" data-ratio="16:9" aria-pressed="false">16:9</button>
+              <button type="button" class="chip" data-ratio="9:16" aria-pressed="false">9:16</button>
+            </div>
+          </div>
+          <div class="edit-row">
+            <span class="edit-label">Rotation</span>
+            <div class="chips">
+              <button type="button" class="chip" id="rotateLeft" aria-label="Pivoter de 90° vers la gauche">⟲ 90°</button>
+              <button type="button" class="chip" id="rotateRight" aria-label="Pivoter de 90° vers la droite">⟳ 90°</button>
+            </div>
+          </div>
+          <div class="edit-row">
+            <label class="edit-label" for="straighten">Redresser</label>
+            <input type="range" id="straighten" min="-15" max="15" step="0.1" value="0">
+            <output id="straightenValue" for="straighten">0.0°</output>
+          </div>
+          <div class="edit-row">
+            <label class="edit-label" for="exposure">Exposition</label>
+            <input type="range" id="exposure" min="-2" max="2" step="0.1" value="0">
+            <output id="exposureValue" for="exposure">0.0 IL</output>
+          </div>
+          <div class="edit-row">
+            <label class="edit-label" for="highlightsEdit">Hautes lumières</label>
+            <input type="range" id="highlightsEdit" min="-100" max="100" step="1" value="0">
+            <output id="highlightsEditValue" for="highlightsEdit">0</output>
+          </div>
+          <div class="edit-row">
+            <label class="edit-label" for="shadowsEdit">Ombres</label>
+            <input type="range" id="shadowsEdit" min="-100" max="100" step="1" value="0">
+            <output id="shadowsEditValue" for="shadowsEdit">0</output>
+          </div>
+          <p class="hint">Double-clic sur un curseur pour le remettre à 0. Le redressement recadre automatiquement pour éviter les coins vides. Hautes lumières négatives : récupère un ciel trop clair ; ombres positives : débouche les zones sombres.</p>
+        </div>
+      </details>
 
-        <details class="recipe-panel">
-          <summary>Exporter la recette</summary>
+      <details class="acc" id="framePanel">
+        <summary class="acc-head">
+          <h2>Cadre</h2>
+          <span class="acc-meta" id="frameMeta"></span>
+        </summary>
+        <div class="acc-body">
+          <div class="edit-row">
+            <span class="edit-label">Style</span>
+            <div class="chips chips-wrap" id="frameOptions" role="group" aria-label="Style de cadre">
+              <button type="button" class="chip" data-frame="none" aria-pressed="true">Aucun</button>
+              <button type="button" class="chip" data-frame="white" aria-pressed="false"><span class="swatch" style="background:#f5f3ee"></span>Blanc</button>
+              <button type="button" class="chip" data-frame="cream" aria-pressed="false"><span class="swatch" style="background:#ece2cc"></span>Crème</button>
+              <button type="button" class="chip" data-frame="black" aria-pressed="false"><span class="swatch" style="background:#111214"></span>Noir</button>
+              <button type="button" class="chip" data-frame="thin" aria-pressed="false"><span class="swatch swatch-thin"></span>Fin</button>
+              <button type="button" class="chip" data-frame="polaroid" aria-pressed="false"><span class="swatch swatch-polaroid"></span>Polaroid</button>
+              <button type="button" class="chip" data-frame="film" aria-pressed="false"><span class="swatch swatch-film"></span>Pellicule</button>
+            </div>
+          </div>
+          <div class="edit-row" id="frameInfoRow" hidden>
+            <span class="edit-label">Infos</span>
+            <div class="chips chips-wrap" id="frameInfoOptions" role="group" aria-label="Informations affichées">
+              <button type="button" class="chip" data-info="full" aria-pressed="true">Complètes</button>
+              <button type="button" class="chip" data-info="name" aria-pressed="false">Nom seul</button>
+              <button type="button" class="chip" data-info="none" aria-pressed="false">Aucune</button>
+            </div>
+          </div>
+          <div class="edit-row" id="signatureRow" hidden>
+            <label class="edit-label" for="signatureInput">Signature</label>
+            <input type="text" id="signatureInput" class="signature-input" maxlength="32" placeholder="Ton nom ou tes initiales" autocomplete="off">
+          </div>
+          <div class="edit-row" id="signatureStyleRow" hidden>
+            <span class="edit-label">Style</span>
+            <div class="chips chips-wrap" id="signatureStyleOptions" role="group" aria-label="Style de signature">
+              <button type="button" class="chip" data-signature="logo" aria-pressed="false"><span class="sig-chip-logo">F.</span>Logo</button>
+              <button type="button" class="chip" data-signature="monogram" aria-pressed="true"><span class="sig-chip-mono">F</span>Monogramme</button>
+              <button type="button" class="chip sig-chip-script" data-signature="script" aria-pressed="false">Manuscrit</button>
+            </div>
+          </div>
+          <div class="edit-row" id="signatureSizeRow" hidden>
+            <span class="edit-label">Taille</span>
+            <div class="chips" id="signatureSizeOptions" role="group" aria-label="Taille de la signature">
+              <button type="button" class="chip" data-size="small" aria-pressed="true">Petite</button>
+              <button type="button" class="chip" data-size="medium" aria-pressed="false">Moyenne</button>
+              <button type="button" class="chip" data-size="large" aria-pressed="false">Grande</button>
+            </div>
+          </div>
+          <p class="hint frame-hint">Visible dans l’aperçu et dans la photo exportée. « Complètes » ajoute tous les réglages de la recette, « Nom seul » le nom et la simulation. La signature s’ajoute en bas du cadre.</p>
+        </div>
+      </details>
+
+      <details class="acc" id="exportPanel">
+        <summary class="acc-head">
+          <h2>Exporter et partager</h2>
+          <span class="acc-meta"></span>
+        </summary>
+        <div class="acc-body">
+          <h3 class="acc-sub">Images à partager</h3>
+          <div class="share-grid">
+            <div class="share-card">
+              <strong>Avant / Après</strong>
+              <p class="hint">L’original et la recette, dans une seule image.</p>
+              <div class="chips" id="beforeAfterLayout" role="group" aria-label="Disposition">
+                <button type="button" class="chip" data-layout="side" aria-pressed="true">Côte à côte</button>
+                <button type="button" class="chip" data-layout="split" aria-pressed="false">Coupé</button>
+              </div>
+              <button type="button" class="secondary-button" id="beforeAfterButton">Créer l’avant / après</button>
+            </div>
+            <div class="share-card">
+              <strong>Planche contact</strong>
+              <p class="hint">Ta photo dans 2 à 9 looks, côte à côte.</p>
+              <button type="button" class="secondary-button" id="contactButton">Choisir les looks</button>
+            </div>
+            <div class="share-card">
+              <strong>Fiche recette</strong>
+              <p class="hint">Tous les réglages et un QR code qui ouvre la recette.</p>
+              <button type="button" class="secondary-button" id="cardButton">Créer la fiche</button>
+            </div>
+          </div>
+          <h3 class="acc-sub">Fichiers de la recette</h3>
           <label class="field-text">
             <span>Preset Lightroom pour</span>
             <select id="xmpTarget"></select>
@@ -337,18 +310,6 @@
             </label>
             <button type="button" class="secondary-button" id="cubeButton">LUT 3D (.cube)</button>
           </div>
-
-          <div class="export-group fp1-group">
-            <div class="field-text">
-              <span>Vers ton boîtier : profil X RAW Studio (.FP1)</span>
-              <p class="hint" id="fp1Status"></p>
-            </div>
-            <label class="secondary-button" for="fp1TemplateFile">Charger le modèle de mon boîtier</label>
-            <input id="fp1TemplateFile" type="file" accept=".fp1,.FP1,.xml,application/xml" hidden>
-            <button type="button" class="secondary-button" id="fp1Button" disabled>Profil .FP1</button>
-          </div>
-          <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Fuji Looks reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
-
           <div class="button-row">
             <button type="button" class="secondary-button" id="copyTextButton">Copier la recette</button>
             <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
@@ -356,22 +317,69 @@
             <button type="button" class="secondary-button" id="jsonButton">Télécharger .recipe.json</button>
             <button type="button" class="secondary-button" id="ofrButton" title="Format ouvert Open Fuji Recipe, lu par d’autres applications">Open Fuji Recipe (.json)</button>
           </div>
-        </details>
+        </div>
+      </details>
 
-        <details class="recipe-panel">
-          <summary>Bibliothèque <small id="libraryCount"></small></summary>
+      <details class="acc" id="cameraPanel">
+        <summary class="acc-head">
+          <h2>Mon boîtier</h2>
+          <span class="acc-meta" id="cameraMeta"></span>
+        </summary>
+        <div class="acc-body">
+          <label class="field-text compat-camera">
+            <span>Modèle</span>
+            <select id="cameraSelect"></select>
+          </label>
+          <p class="hint">Les recettes impossibles sur ce boîtier sont signalées dans les looks et dans « Recette ».</p>
+          <h3 class="acc-sub">Réglages perso C1–C7</h3>
+          <p class="hint">Range tes recettes dans les 7 emplacements, puis garde la fiche ou exporte les .FP1.</p>
+          <ol class="slot-list" id="slotList"></ol>
+          <div class="button-row">
+            <button type="button" class="secondary-button" id="slotsCardButton">Fiche C1–C7 (image)</button>
+            <button type="button" class="secondary-button" id="slotsFp1Button">Exporter les .FP1</button>
+          </div>
+          <h3 class="acc-sub">Profil X RAW Studio (.FP1)</h3>
+          <div class="export-group fp1-group">
+            <div class="field-text">
+              <span>Recette en cours vers le boîtier</span>
+              <p class="hint" id="fp1Status"></p>
+            </div>
+            <label class="secondary-button" for="fp1TemplateFile">Charger le modèle de mon boîtier</label>
+            <input id="fp1TemplateFile" type="file" accept=".fp1,.FP1,.xml,application/xml" hidden>
+            <button type="button" class="secondary-button" id="fp1Button" disabled>Profil .FP1</button>
+          </div>
+          <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Fuji Looks reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
+        </div>
+      </details>
+
+      <details class="acc" id="libraryPanel">
+        <summary class="acc-head">
+          <h2>Importer et bibliothèque</h2>
+          <span class="acc-meta" id="libraryMeta"></span>
+        </summary>
+        <div class="acc-body">
+          <h3 class="acc-sub">Importer une recette</h3>
+          <p class="hint">Colle une recette (texte, code de partage <code>FR1.…</code> ou lien de partage), charge un profil X RAW Studio (.FP1/.FP2/.FP3), un fichier <code>.recipe.json</code> ou une <strong>capture d’écran</strong> de recette (lue sur ton appareil). Tu peux aussi faire Ctrl+V n’importe où sur la page.</p>
+          <textarea id="importText" rows="6" aria-label="Recette à importer" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
+          <div class="button-row">
+            <button type="button" class="secondary-button" id="importButton">Appliquer</button>
+            <label class="secondary-button" for="importFile">Fichier ou capture d’écran</label>
+            <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json,image/*,.heic,.heif" hidden>
+          </div>
+          <p class="import-status" id="importStatus" role="status" aria-live="polite"></p>
+          <h3 class="acc-sub">Bibliothèque <small id="libraryCount"></small></h3>
           <p class="hint">Les recettes enregistrées restent sur cet appareil et apparaissent en tête de l’onglet « Recettes ». Sauvegarde-les pour les transférer ailleurs.</p>
           <ul class="library-list" id="libraryList"></ul>
-          <p class="hint" id="libraryEmpty">Aucune recette enregistrée pour l’instant. Utilise « Enregistrer » au-dessus des réglages.</p>
+          <p class="hint" id="libraryEmpty">Aucune recette enregistrée pour l’instant. Utilise « Enregistrer » dans « Recette ».</p>
           <div class="button-row">
             <button type="button" class="secondary-button" id="libraryExportButton">Sauvegarder la bibliothèque</button>
             <label class="secondary-button" for="libraryFile">Restaurer une sauvegarde</label>
             <input id="libraryFile" type="file" accept=".json,application/json" hidden>
           </div>
-        </details>
+        </div>
+      </details>
 
-        <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>, avec un lien vers l’article d’origine. Le rendu s’approche de celui du boîtier sans le reproduire exactement.</p>
-      </section>
+      <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>, avec un lien vers l’article d’origine. Le rendu s’approche de celui du boîtier sans le reproduire exactement.</p>
     </div>
   </main>
 

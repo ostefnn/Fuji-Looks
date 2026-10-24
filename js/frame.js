@@ -12,6 +12,7 @@ const FRAME_STYLES = {
 };
 const FRAME_INFO_KEY = "fuji-looks.frame-info";
 
+const frameMeta = document.getElementById("frameMeta");
 let frameStyle = FRAME_STYLES[load(FRAME_KEY)] ? load(FRAME_KEY) : "none";
 // Infos affichées : full (nom + simulation + réglages), name (nom + simulation) ou none.
 let frameInfo = ["full", "name", "none"].includes(load(FRAME_INFO_KEY)) ? load(FRAME_INFO_KEY) : "full";
@@ -304,6 +305,7 @@ function updateFrameOptions() {
   frameInfoOptions.querySelectorAll("[data-info]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.info === frameInfo));
   });
+  frameMeta.textContent = frameStyle === "none" ? "" : frameOptions.querySelector(`[data-frame="${frameStyle}"]`).textContent.trim().toUpperCase();
   frameInfoRow.hidden = frameStyle === "none";
   signatureRow.hidden = frameStyle === "none";
   signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();

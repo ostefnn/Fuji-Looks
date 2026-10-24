@@ -46,6 +46,7 @@ function renderLibraryList() {
   });
   libraryEmpty.hidden = library.length > 0;
   libraryCount.textContent = library.length ? String(library.length) : "";
+  libraryMeta.textContent = library.length ? `${library.length} RECETTE${library.length > 1 ? "S" : ""}` : "";
 }
 
 saveButton.addEventListener("click", () => {

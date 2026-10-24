@@ -6,6 +6,7 @@ let edit = { ...DEFAULT_EDIT };
 let originalSize = null; // dimensions de la photo importée, avant retouche
 
 const editSection = document.getElementById("editSection");
+const editMeta = document.getElementById("editMeta");
 const ratioOptions = document.getElementById("ratioOptions");
 const straightenInput = document.getElementById("straighten");
 const straightenValue = document.getElementById("straightenValue");
@@ -222,6 +223,7 @@ function updateEditControls() {
   shadowsInput.value = edit.shadows;
   shadowsValue.textContent = `${edit.shadows > 0 ? "+" : ""}${edit.shadows}`;
   editResetButton.disabled = isIdentityEdit();
+  editMeta.textContent = isIdentityEdit() ? "" : "MODIFIÉE";
 }
 
 function setEdit(changes, historyKey = null) {
