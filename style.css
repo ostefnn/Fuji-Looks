@@ -890,3 +890,188 @@ footer {
     transition: none !important;
   }
 }
+
+/* --- Fonctionnalités du convertisseur ----------------------------------- */
+
+.sample-button {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.sample-button:hover {
+  color: var(--text);
+}
+
+.heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px 12px;
+}
+
+.recipe-range {
+  gap: 6px;
+}
+
+.recipe-range output {
+  min-width: 52px;
+}
+
+.step-button {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.step-button:hover:not(:disabled) {
+  border-color: var(--muted);
+}
+
+.step-button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.secondary-button.danger {
+  color: #ff8a82;
+}
+
+.recipe-panel summary small {
+  margin-left: 6px;
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.import-status {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.import-status:empty {
+  display: none;
+}
+
+.import-status.is-error {
+  color: #ff8a82;
+}
+
+.xmp-details {
+  margin-top: 12px;
+}
+
+.xmp-details summary {
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.xmp-details table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.xmp-details th,
+.xmp-details td {
+  padding: 4px 6px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.xmp-details th {
+  width: 48%;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.xmp-details ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.export-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.export-group .field-text {
+  flex: 1 1 160px;
+}
+
+.library-list {
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.library-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.library-list li > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.library-list strong {
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-list span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.library-list .secondary-button {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.defaults-button {
+  margin-top: 6px;
+  color: var(--muted);
+}
