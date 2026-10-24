@@ -9,7 +9,7 @@ Applique des recettes Fujifilm à tes photos, directement dans ton navigateur. R
 - **Looks** : tes recettes, des recettes de départ et les 20 simulations de film Fujifilm, avec recherche, filtres Couleur / N&B et favoris. Survole un look à la souris pour le voir sur ta photo avant de cliquer.
 - **Réglages de la recette** : tous les réglages sous leurs noms Fujifilm (Film Simulation, Dynamic Range, White Balance, Grain, Color Chrome, Highlight, Shadow, Clarity…), avec Annuler / Rétablir (Ctrl+Z / Ctrl+Maj+Z).
 - **Compatibilité boîtier** : choisis ton appareil (X-Trans III à V) pour savoir si une recette est reproductible.
-- **Retouche** : format (1:1, 4:5, 3:2, 16:9, 9:16), rotation, redressement et exposition.
+- **Retouche** : format (1:1, 4:5, 3:2, 16:9, 9:16), rotation, redressement, exposition, hautes lumières / ombres et bouton **Auto**.
 - **Aperçu** : zoom, déplacement, Avant / Après (maintenir le bouton), intensité du look.
 - **Cadre** : Blanc, Crème, Noir, Fin, Polaroid ou Pellicule, avec au choix le nom de la recette, ses réglages ou rien.
 - **Export** : JPEG pleine résolution avec les métadonnées EXIF conservées. Sur iPhone / Android, l'écran « Photo prête » propose **Enregistrer dans Photos** (ou appui long sur l'image).

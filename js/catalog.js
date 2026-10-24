@@ -21,10 +21,10 @@ function parseAnyRecipe(text) {
   return result && (result.source === "text" || result.source === "screenshot") ? restoreExposureText(text, result) : result;
 }
 
-(window.CUSTOM_RECIPES || []).forEach(({ name, author = "", text }, i) => {
+(window.CUSTOM_RECIPES || []).forEach(({ name, author = "", notes = "", text }, i) => {
   const parsed = parseRecipeText(text);
   if (!parsed) return;
-  const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, parsed.values, { name, author }));
+  const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, parsed.values, { name, author, notes }));
   LOOKS.push({
     id: `custom-${i}`,
     name,
