@@ -18,9 +18,10 @@
       <label class="ghost-button" for="photoInput" id="changePhotoButton" hidden>
         <span aria-hidden="true">＋</span> <span>Changer <span class="wide-only">de photo</span></span>
       </label>
-      <button type="button" class="ghost-button" id="resetButton" title="Revenir à l’original" aria-label="Réinitialiser">
-        <span aria-hidden="true">↺</span> <span class="wide-only">Réinitialiser</span>
-      </button>
+      <div class="history-buttons" role="group" aria-label="Historique">
+        <button type="button" class="ghost-button icon-button" id="undoButton" title="Annuler (Ctrl+Z)" aria-label="Annuler" disabled>↶</button>
+        <button type="button" class="ghost-button icon-button" id="redoButton" title="Rétablir (Ctrl+Maj+Z)" aria-label="Rétablir" disabled>↷</button>
+      </div>
     </div>
   </header>
 
@@ -77,6 +78,19 @@
         <div class="look-strip" id="lookGroups"></div>
       </section>
 
+      <section class="frame-section" aria-labelledby="frameTitle">
+        <div class="section-heading">
+          <h2 id="frameTitle">Cadre</h2>
+          <span class="count">APERÇU &amp; EXPORT</span>
+        </div>
+        <div class="tabs" role="radiogroup" aria-labelledby="frameTitle" id="frameOptions">
+          <button type="button" class="tab" role="radio" data-frame="none">Aucun</button>
+          <button type="button" class="tab" role="radio" data-frame="white">Blanc</button>
+          <button type="button" class="tab" role="radio" data-frame="black">Noir</button>
+        </div>
+        <p class="hint frame-hint">Une bordure façon tirage avec le nom de la recette, la simulation et les réglages, visible dans l’aperçu et dans la photo exportée.</p>
+      </section>
+
       <section class="recipe-section" aria-labelledby="recipeTitle">
         <div class="section-heading">
           <div>
@@ -84,13 +98,12 @@
             <p class="section-sub" id="recipeSim"></p>
           </div>
           <div class="heading-actions">
-            <button type="button" class="text-button" id="revertButton" hidden>Annuler les modifications</button>
+            <button type="button" class="text-button" id="revertButton" hidden>Revenir au look</button>
             <button type="button" class="secondary-button" id="saveButton" title="Enregistrer dans ta bibliothèque (sur cet appareil)">Enregistrer</button>
           </div>
         </div>
 
         <div class="recipe-fields" id="recipeFields"></div>
-        <button type="button" class="text-button defaults-button" id="defaultsButton">Remettre les réglages par défaut</button>
 
         <details class="recipe-panel">
           <summary>Nom, auteur et notes</summary>
