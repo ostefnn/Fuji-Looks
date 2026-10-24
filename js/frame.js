@@ -65,6 +65,112 @@ function wrapTokens(ctx, tokens, maxWidth) {
 }
 
 const FRAME_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+const SERIF_FONT = 'Georgia, "Times New Roman", serif';
+const SCRIPT_FONT = '"Fuji Looks Script", "Snell Roundhand", "Apple Chancery", cursive';
+
+// La police manuscrite est chargée à la demande ; on redessine l'aperçu une fois prête.
+function loadScriptFont() {
+  if (!document.fonts || signatureStyle !== "script") return Promise.resolve();
+  return document.fonts.load('48px "Fuji Looks Script"', signatureName || "Signature").catch(() => {});
+}
+
+// --- Signature (logo personnel) ---------------------------------------------
+
+const SIGNATURE_KEY = "fuji-looks.signature";
+const savedSignature = load(SIGNATURE_KEY) || {};
+let signatureName = typeof savedSignature.name === "string" ? savedSignature.name.slice(0, 32) : "";
+let signatureStyle = ["logo", "monogram", "script"].includes(savedSignature.style) ? savedSignature.style : "logo";
+
+// « Olivier Steffen » → « OS », « ostefnn » → « O ».
+function signatureInitials(name) {
+  const words = name.trim().split(/[\s._-]+/).filter(Boolean);
+  const letters = words.length > 1 ? words.slice(0, 2).map((w) => w[0]) : [words[0] ? words[0][0] : ""];
+  return letters.join("").toUpperCase();
+}
+
+// Texte espacé lettre par lettre (capitales façon logo).
+function spacedWidth(ctx, text, spacing) {
+  return [...text].reduce((sum, ch) => sum + ctx.measureText(ch).width + spacing, 0) - spacing;
+}
+
+function drawSpaced(ctx, text, x, y, spacing) {
+  let cx = x;
+  [...text].forEach((ch) => {
+    ctx.fillText(ch, cx, y);
+    cx += ctx.measureText(ch).width + spacing;
+  });
+}
+
+function roundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+  else ctx.rect(x, y, w, h);
+}
+
+// Largeur de la signature pour une hauteur donnée (pour l'aligner à droite ou la centrer).
+function measureSignature(ctx, size) {
+  return drawSignature(ctx, 0, 0, size, null, true);
+}
+
+/*
+ * Dessine la signature à partir de (x, y) = coin haut gauche, sur une hauteur `size`.
+ *   logo      initiales dans le carré rouge arrondi façon « F. », puis le nom en capitales espacées
+ *   monogram  initiales en serif dans un cercle fin, puis le nom en petites capitales
+ *   script    le nom en écriture manuscrite
+ * Renvoie la largeur dessinée (ou seulement mesurée si measureOnly).
+ */
+function drawSignature(ctx, x, y, size, theme, measureOnly = false) {
+  const name = signatureName.trim();
+  const initials = signatureInitials(name);
+  ctx.save();
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  let width = 0;
+
+  if (signatureStyle === "script") {
+    ctx.font = `${Math.round(size * 1.35)}px ${SCRIPT_FONT}`;
+    width = ctx.measureText(name).width;
+    if (!measureOnly) {
+      ctx.fillStyle = theme.text;
+      ctx.fillText(name, x, y + size * 0.5);
+    }
+  } else {
+    const gap = Math.round(size * 0.38);
+    const label = name.toUpperCase();
+    const labelSize = Math.round(size * (signatureStyle === "logo" ? 0.4 : 0.36));
+    const spacing = labelSize * (signatureStyle === "logo" ? 0.22 : 0.3);
+    ctx.font = `${signatureStyle === "logo" ? 600 : 500} ${labelSize}px ${FRAME_FONT}`;
+    const labelW = spacedWidth(ctx, label, spacing);
+    width = size + gap + labelW;
+    if (!measureOnly) {
+      if (signatureStyle === "logo") {
+        ctx.fillStyle = "#e45b52";
+        roundedRect(ctx, x, y, size, size, Math.round(size * 0.24));
+        ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `800 ${Math.round(size * (initials.length > 1 ? 0.42 : 0.56))}px ${FRAME_FONT}`;
+        ctx.textAlign = "center";
+        ctx.fillText(`${initials}.`, x + size / 2, y + size * 0.53);
+      } else {
+        ctx.strokeStyle = theme.text;
+        ctx.lineWidth = Math.max(1, size * 0.05);
+        ctx.beginPath();
+        ctx.arc(x + size / 2, y + size / 2, size / 2 - ctx.lineWidth, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = theme.text;
+        ctx.font = `italic ${Math.round(size * (initials.length > 1 ? 0.4 : 0.5))}px ${SERIF_FONT}`;
+        ctx.textAlign = "center";
+        ctx.fillText(initials, x + size / 2, y + size * 0.54);
+      }
+      ctx.textAlign = "left";
+      ctx.font = `${signatureStyle === "logo" ? 600 : 500} ${labelSize}px ${FRAME_FONT}`;
+      ctx.fillStyle = signatureStyle === "logo" ? theme.text : theme.muted;
+      drawSpaced(ctx, label, x + size + gap, y + size / 2, spacing);
+    }
+  }
+  ctx.restore();
+  return width;
+}
 
 // Perforations et marquages en bordure, façon pellicule 35 mm.
 function drawFilmStrip(ctx, x, y, width, height, holesOnTop, edgeLeft, edgeRight) {
@@ -119,7 +225,13 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
     lines = wrapTokens(ctx, frameTokens(frameRecipe), W);
     if (frameRecipe.author) lines.push(`Recette : ${frameRecipe.author}`);
   }
-  const content = (showTitle ? titleSize * 1.25 : 0) + (showTitle && lines.length ? titleSize * 0.25 : 0) + lines.length * textSize * 1.55;
+  // Signature : sur sa propre ligne en bas du cartouche (imprimée en bordure sur la pellicule).
+  const hasSignature = Boolean(signatureName.trim());
+  // Seule dans le cadre, la signature est un peu plus grande (elle est alors centrée).
+  const sigSize = Math.max(14, Math.round(long * (showTitle || lines.length ? 0.044 : 0.056)));
+  const sigBlock = hasSignature && !cfg.film ? sigSize + (showTitle || lines.length ? Math.round(textSize * 1.2) : 0) : 0;
+  const content = (showTitle ? titleSize * 1.25 : 0) + (showTitle && lines.length ? titleSize * 0.25 : 0) +
+    lines.length * textSize * 1.55 + sigBlock;
   const band = content ? Math.round(pad * 0.9 * 2 + content) : 0;
   const bottomBorder = cfg.film ? strip : Math.round(long * cfg.bottom);
   const bottom = cfg.film ? strip + band : Math.max(bottomBorder, band);
@@ -140,7 +252,7 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
     const sim = frameRecipe ? FR.simById(frameRecipe.filmSim).name.toUpperCase() : "";
     const edge = frameRecipe && info !== "none" ? `${frameRecipe.name || "Recette"}  ▸  ${sim}` : "";
     drawFilmStrip(ctx, 0, 0, canvas.width, strip, true, edge, "▸ 24");
-    drawFilmStrip(ctx, 0, top + H, canvas.width, strip, false, "", "24A");
+    drawFilmStrip(ctx, 0, top + H, canvas.width, strip, false, hasSignature ? `© ${signatureName.trim().toUpperCase()}` : "", "24A");
   }
 
   if (content) {
@@ -167,6 +279,13 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
       ctx.fillStyle = frameRecipe.author && i === lines.length - 1 ? cfg.muted : cfg.text;
       ctx.fillText(line, side, y);
     });
+    if (sigBlock) {
+      // Seule dans le cartouche : centrée ; sous des infos : alignée à droite.
+      const sigW = measureSignature(ctx, sigSize);
+      const sigX = showTitle || lines.length ? side + W - sigW : side + (W - sigW) / 2;
+      const sigY = Math.round(bandTop + (bandHeight - content) / 2 + content - sigSize);
+      drawSignature(ctx, sigX, sigY, sigSize, cfg);
+    }
   }
   return canvas;
 }
@@ -179,7 +298,39 @@ function updateFrameOptions() {
     button.setAttribute("aria-pressed", String(button.dataset.info === frameInfo));
   });
   frameInfoRow.hidden = frameStyle === "none";
+  signatureRow.hidden = frameStyle === "none";
+  signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();
+  signatureInput.value = signatureName;
+  signatureStyleOptions.querySelectorAll("[data-signature]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.signature === signatureStyle));
+  });
 }
+
+const signatureRow = document.getElementById("signatureRow");
+const signatureStyleRow = document.getElementById("signatureStyleRow");
+const signatureInput = document.getElementById("signatureInput");
+const signatureStyleOptions = document.getElementById("signatureStyleOptions");
+
+function saveSignature() {
+  store(SIGNATURE_KEY, { name: signatureName, style: signatureStyle });
+}
+
+signatureInput.addEventListener("input", () => {
+  signatureName = signatureInput.value.slice(0, 32);
+  saveSignature();
+  signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();
+  schedulePreview();
+});
+
+signatureStyleOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-signature]");
+  if (!button) return;
+  signatureStyle = button.dataset.signature;
+  saveSignature();
+  updateFrameOptions();
+  schedulePreview();
+  loadScriptFont().then(schedulePreview);
+});
 
 frameOptions.addEventListener("click", (event) => {
   const button = event.target.closest("[data-frame]");
@@ -199,3 +350,5 @@ frameInfoOptions.addEventListener("click", (event) => {
   updateFrameOptions();
   schedulePreview();
 });
+
+loadScriptFont().then(schedulePreview);

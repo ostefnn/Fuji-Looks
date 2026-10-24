@@ -14,6 +14,7 @@ It bundles the following third-party work, unmodified, each under its own licenc
 | Tesseract English language data (`4.0.0_best_int`) | `vendor/tesseract/lang/eng.traineddata.gz` | Apache-2.0 (upstream tessdata); redistributed on npm as `@tesseract.js-data/eng` v1.0.0, declared MIT |
 | heic-to v1.6.5 (libheif 1.23.5 and libde265 compiled to WebAssembly) | `vendor/heic/heic-to.js` | LGPL-3.0 |
 | QR Code Generator for JavaScript v1.4.4 (Kazuhiko Arase), added by Fuji Looks | `vendor/qrcode/qrcode.js` | MIT |
+| Great Vibes (Google Fonts, via @fontsource/great-vibes 5.0.8), added by Fuji Looks | `vendor/fonts/great-vibes-*.woff2` (licence: `vendor/fonts/GreatVibes-OFL.txt`) | SIL OFL 1.1 |
 
 ## Lucide icons
 

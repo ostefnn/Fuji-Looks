@@ -10,6 +10,7 @@ const APP_SHELL = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/apple-touch-icon.png",
+  "vendor/fonts/great-vibes-latin-400-normal.woff2",
   "vendor/fuji-recipe-converter/data.js",
   "vendor/fuji-recipe-converter/engine.js",
   "vendor/fuji-recipe-converter/export.js",
