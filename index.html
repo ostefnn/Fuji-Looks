@@ -88,12 +88,14 @@
             <button type="button" class="chip" data-filter="color" aria-pressed="false">Couleur</button>
             <button type="button" class="chip" data-filter="mono" aria-pressed="false">N&amp;B</button>
           </div>
-          <select id="lookMoment" class="moment-select" aria-label="Moment conseillé">
-            <option value="">Tous les moments</option>
-          </select>
-          <select id="lookSensor" class="moment-select" aria-label="Capteur">
-            <option value="">Tous les capteurs</option>
-          </select>
+          <div class="look-selects">
+            <select id="lookSim" class="look-select" aria-label="Film Simulation">
+              <option value="">Toutes les simulations</option>
+            </select>
+            <select id="lookSensor" class="look-select" aria-label="Capteur" title="Capteur (onglet Catalogue)" hidden>
+              <option value="">Tous les capteurs</option>
+            </select>
+          </div>
         </div>
         <div class="tabs" role="tablist" id="lookTabs" aria-label="Catégories de looks"></div>
         <div class="look-strip" id="lookGroups"></div>
@@ -229,12 +231,15 @@
           <h2 id="slotsTitle">Mon boîtier · C1–C7</h2>
           <span class="count" id="slotsCamera"></span>
         </div>
-        <p class="hint">Prépare tes 7 réglages personnalisés : place la recette en cours dans un emplacement, vérifie la compatibilité avec ton boîtier, puis garde la fiche ou exporte les .FP1.</p>
-        <ol class="slot-list" id="slotList"></ol>
-        <div class="button-row">
-          <button type="button" class="secondary-button" id="slotsCardButton">Fiche C1–C7 (image)</button>
-          <button type="button" class="secondary-button" id="slotsFp1Button">Exporter les .FP1</button>
-        </div>
+        <p class="hint">Range tes recettes dans les 7 réglages perso du boîtier, puis garde la fiche ou exporte les .FP1.</p>
+        <details class="recipe-panel slots-panel" id="slotsPanel">
+          <summary>Emplacements <small id="slotsCount"></small></summary>
+          <ol class="slot-list" id="slotList"></ol>
+          <div class="button-row">
+            <button type="button" class="secondary-button" id="slotsCardButton">Fiche C1–C7 (image)</button>
+            <button type="button" class="secondary-button" id="slotsFp1Button">Exporter les .FP1</button>
+          </div>
+        </details>
       </section>
 
       <section class="recipe-section" aria-labelledby="recipeTitle">
@@ -365,7 +370,7 @@
           </div>
         </details>
 
-        <p class="hint credits">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT) : mêmes simulations, même moteur de couleur, mêmes exports. Catalogue : bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT), recettes de <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a> — chaque recette renvoie vers son article. Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
+        <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>, avec un lien vers l’article d’origine. Le rendu s’approche de celui du boîtier sans le reproduire exactement.</p>
       </section>
     </div>
   </main>

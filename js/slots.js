@@ -11,6 +11,7 @@ let slots = (() => {
 
 const slotList = document.getElementById("slotList");
 const slotsCamera = document.getElementById("slotsCamera");
+const slotsCount = document.getElementById("slotsCount");
 
 function saveSlots() {
   store(SLOTS_KEY, slots);
@@ -20,6 +21,7 @@ function renderSlots() {
   slotList.textContent = "";
   const camera = CAMERAS.get(cameraId);
   slotsCamera.textContent = camera ? camera.name.toUpperCase() : "";
+  slotsCount.textContent = `${slots.filter(Boolean).length} / ${SLOT_COUNT}`;
   slots.forEach((slot, i) => {
     const li = document.createElement("li");
     li.className = "slot-row";

@@ -2,7 +2,7 @@
  * Recettes personnelles, au format texte Fujifilm.
  * Elles sont lues par FR.parseText (parser du Fuji Recipe Converter).
  * Pour en ajouter une : copier un bloc { name, text } et coller la recette.
- * Facultatif : notes, et moment conseillé (golden, midday, overcast, indoor, night).
+ * Facultatif : notes.
  */
 window.CUSTOM_RECIPES = [
   {
@@ -349,7 +349,6 @@ Exposure Compensation: -1/3 to +1/3 (typically)`
   {
     // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
     name: "Kodak Portra 400 v2",
-    moment: "golden",
     notes: "Dans le fichier source, réglages identiques à Kodak Ultramax 400 sauf la Dynamic Range : à vérifier.",
     text: `Film Simulation: Classic Chrome
 Dynamic Range: DR400
@@ -370,7 +369,6 @@ Clarity: +3`
   {
     // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
     name: "Timeless Negative",
-    moment: "indoor",
     text: `Film Simulation: Nostalgic Neg.
 Dynamic Range: DR400
 White Balance: Auto
@@ -390,7 +388,6 @@ Clarity: -2`
   {
     // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
     name: "1970's Summer",
-    moment: "midday",
     text: `Film Simulation: Nostalgic Neg.
 Dynamic Range: DR400
 White Balance: Colour Temperature (K)
@@ -411,7 +408,6 @@ Clarity: -3`
   {
     // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
     name: "CineStill 800T",
-    moment: "night",
     text: `Film Simulation: ETERNA / Cinema
 Dynamic Range: DR400
 White Balance: Fluorescent 3 (Cool White)
@@ -431,7 +427,6 @@ Clarity: -5`
   {
     // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
     name: "Superia Xtra 400",
-    moment: "night",
     text: `Film Simulation: Classic Neg.
 Dynamic Range: DR400
 White Balance: Auto
@@ -451,7 +446,6 @@ Clarity: -2`
   {
     // Fichier .FP1 du dépôt quiode/fujifilm-recipes (réglages Fuji X Weekly, X-Trans V).
     name: "Kodak Ultramax 400",
-    moment: "overcast",
     text: `Film Simulation: Classic Chrome
 Dynamic Range: DR100
 White Balance: Auto

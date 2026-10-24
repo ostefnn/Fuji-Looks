@@ -7,8 +7,8 @@ const FAV_KEY = "fuji-looks.favorites";
 let favorites = new Set(Array.isArray(load(FAV_KEY)) ? load(FAV_KEY) : []);
 let lookQuery = "";
 let lookFilter = "all"; // all | color | mono
-let lookMoment = ""; // "" ou une clé de MOMENTS
-let lookSensor = ""; // "" ou un capteur (X-Trans V, X-Trans IV…)
+let lookSim = ""; // "" ou l'identifiant d'une Film Simulation
+let lookSensor = ""; // "" ou un capteur (X-Trans V, X-Trans IV…), pour le catalogue seulement
 
 function normalizeText(text) {
   return String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -19,8 +19,8 @@ function lookMatches(look) {
   const sim = FR.simById(look.recipe.filmSim);
   if (lookFilter === "color" && sim.mono) return false;
   if (lookFilter === "mono" && !sim.mono) return false;
-  if (lookMoment && look.moment !== lookMoment) return false;
-  if (lookSensor && !(look.sensors || []).includes(lookSensor)) return false;
+  if (lookSim && sim.id !== lookSim) return false;
+  if (lookSensor && look.group === "catalog" && !look.sensors.includes(lookSensor)) return false;
   if (!lookQuery) return true;
   const haystack = normalizeText([look.name, look.desc, sim.name, look.recipe.author, (look.sensors || []).join(" ")].join(" "));
   return normalizeText(lookQuery).split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
@@ -55,7 +55,7 @@ function applyLookFilter() {
   // Recherche sans résultat dans l'onglet ouvert : on passe au premier onglet qui en a.
   const active = lookTabs.querySelector('[aria-selected="true"]')?.id.replace("tab-", "");
   const activeCount = active ? Number(document.querySelector(`#tab-${active} small`).textContent) : 0;
-  if ((lookQuery || lookFilter !== "all" || lookMoment || lookSensor) && !activeCount && firstWithMatches) showTab(firstWithMatches);
+  if ((lookQuery || lookFilter !== "all" || lookSim || lookSensor) && !activeCount && firstWithMatches) showTab(firstWithMatches);
 }
 
 lookSearch.addEventListener("input", () => {
@@ -63,15 +63,20 @@ lookSearch.addEventListener("input", () => {
   applyLookFilter();
 });
 
-Object.entries(MOMENTS).forEach(([key, m]) => lookMomentSelect.add(new Option(`${m.icon} ${m.label}`, key)));
+[["Couleur", false], ["Noir & blanc", true]].forEach(([label, mono]) => {
+  const group = document.createElement("optgroup");
+  group.label = label;
+  FR.SIMS.filter((sim) => Boolean(sim.mono) === mono).forEach((sim) => group.appendChild(new Option(sim.name, sim.id)));
+  lookSimSelect.appendChild(group);
+});
 SENSORS.forEach((sensor) => lookSensorSelect.add(new Option(sensor, sensor)));
 lookSensorSelect.addEventListener("change", () => {
   lookSensor = lookSensorSelect.value;
   applyLookFilter();
 });
 
-lookMomentSelect.addEventListener("change", () => {
-  lookMoment = lookMomentSelect.value;
+lookSimSelect.addEventListener("change", () => {
+  lookSim = lookSimSelect.value;
   applyLookFilter();
 });
 
@@ -146,6 +151,19 @@ function createLookCard(look) {
   return card;
 }
 
+// Tri par Film Simulation (ordre des menus Fujifilm), puis par nom.
+// Les recettes de la bibliothèque restent en tête de l'onglet « Recettes ».
+const SIM_ORDER = new Map(FR.SIMS.map((sim, i) => [sim.id, i]));
+
+function sortBySim(looks) {
+  const rank = (look) => (look.id.startsWith("lib-") ? -1 : SIM_ORDER.get(FR.simById(look.recipe.filmSim).id) ?? 99);
+  return looks
+    .map((look, i) => ({ look, i }))
+    .sort((a, b) => rank(a.look) - rank(b.look) ||
+      (a.look.id.startsWith("lib-") ? a.i - b.i : a.look.name.localeCompare(b.look.name, "fr", { sensitivity: "base" })))
+    .map(({ look }) => look);
+}
+
 function buildLookGrid() {
   const original = lookById.get("original");
   const activeTab = lookTabs.querySelector('[aria-selected="true"]')?.id.replace("tab-", "");
@@ -158,7 +176,8 @@ function buildLookGrid() {
   ];
 
   GROUPS.forEach((group) => {
-    const looks = group.id === "fav" ? favLooks : LOOKS.filter((look) => look.group === group.id);
+    const groupLooks = group.id === "fav" ? favLooks : LOOKS.filter((look) => look.group === group.id);
+    const looks = group.id === "sims" ? groupLooks : sortBySim(groupLooks);
 
     const tab = document.createElement("button");
     tab.type = "button";
@@ -195,6 +214,8 @@ function buildLookGrid() {
 }
 
 function showTab(groupId) {
+  // Le filtre par capteur ne concerne que le catalogue.
+  lookSensorSelect.hidden = groupId !== "catalog";
   GROUPS.forEach(({ id }) => {
     const active = id === groupId;
     const tab = document.getElementById(`tab-${id}`);
