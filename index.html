@@ -30,9 +30,10 @@
         <div class="photo-placeholder" id="placeholder">
           <div class="placeholder-icon">✳</div>
           <p>Ton prochain chef-d’œuvre commence ici.</p>
-          <span>Importe une photo pour commencer</span>
+          <span>Glisse une photo ici ou importe-la pour commencer</span>
         </div>
-        <img id="photoPreview" alt="Aperçu de ta photo" hidden>
+        <canvas id="photoPreview" role="img" aria-label="Aperçu de ta photo" hidden></canvas>
+        <div class="drop-overlay" aria-hidden="true">Dépose ta photo ici</div>
         <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>
       </div>
 
@@ -50,32 +51,11 @@
           <p class="eyebrow">CURATED FOR YOUR EYES</p>
           <h2>Explore les looks</h2>
         </div>
-        <span class="count">04 STYLES</span>
+        <span class="count" id="lookCount"></span>
       </div>
 
-      <div class="look-grid">
-        <button class="look-card selected" data-look="original">
-          <span class="look-swatch swatch-original">O</span>
-          <span class="look-name">Original</span>
-          <span class="look-desc">Naturel</span>
-        </button>
-        <button class="look-card" data-look="soft">
-          <span class="look-swatch swatch-soft">S</span>
-          <span class="look-name">Soft</span>
-          <span class="look-desc">Doux & aérien</span>
-        </button>
-        <button class="look-card" data-look="warm">
-          <span class="look-swatch swatch-warm">W</span>
-          <span class="look-name">Golden</span>
-          <span class="look-desc">Chaud & solaire</span>
-        </button>
-        <button class="look-card" data-look="mono">
-          <span class="look-swatch swatch-mono">M</span>
-          <span class="look-name">Monochrome</span>
-          <span class="look-desc">Noir & blanc</span>
-        </button>
-      </div>
-      <p class="hint">Les rendus sont des prototypes visuels, pas encore des simulations exactes de recettes Fujifilm.</p>
+      <div id="lookGroups"></div>
+      <p class="hint">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
     </section>
 
     <section class="adjust-section">
@@ -101,6 +81,8 @@
     <span>MADE FOR YOUR VISION</span>
   </footer>
 
+  <script src="vendor/fuji-recipe-converter/data.js"></script>
+  <script src="vendor/fuji-recipe-converter/engine.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
