@@ -26,6 +26,7 @@ function applyImport(result, emptyMessage = "Aucun réglage de recette reconnu."
   const values = Object.assign({}, result.values);
   if (!values.name) values.name = "Recette importée";
   loadRecipe(values);
+  document.getElementById("recipePanel").open = true;
   // Fichier Open Fuji Recipe contenant plusieurs recettes : on peut toutes les garder.
   if (result.batch && result.batch.length > 1 &&
       window.confirm(`Ce fichier contient ${result.batch.length} recettes. Les ajouter toutes à ta bibliothèque ?`)) {
@@ -34,7 +35,7 @@ function applyImport(result, emptyMessage = "Aucun réglage de recette reconnu."
   }
   const n = result.found.filter((key) => FR.fieldByKey(key)).length;
   const source = IMPORT_SOURCES[result.source] || result.source;
-  let message = `${n} réglage${n > 1 ? "s" : ""} importé${n > 1 ? "s" : ""} (${source}). Vérifie-les ci-dessus.`;
+  let message = `${n} réglage${n > 1 ? "s" : ""} importé${n > 1 ? "s" : ""} (${source}). Vérifie-les dans « Recette ».`;
   if (recipe.whiteBalance === "kelvin" && !result.found.includes("kelvin")) {
     message += ` Température de couleur introuvable : réglée sur ${recipe.kelvin} K.`;
   }

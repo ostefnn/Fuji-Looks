@@ -21,6 +21,17 @@ updateFrameOptions();
 buildRecipeEditor();
 renderLibraryList();
 updateRecipeEditor();
+// Accordéons du panneau : on retrouve ceux que tu avais ouverts.
+const PANELS_KEY = "fuji-looks.panels";
+const savedPanels = load(PANELS_KEY) || {};
+document.querySelectorAll("details.acc").forEach((panel) => {
+  if (typeof savedPanels[panel.id] === "boolean") panel.open = savedPanels[panel.id];
+  panel.addEventListener("toggle", () => {
+    savedPanels[panel.id] = panel.open;
+    store(PANELS_KEY, savedPanels);
+  });
+});
+
 importFromHash();
 renderThumbnails(drawSampleScene(), 900, 600);
 updatePreview();

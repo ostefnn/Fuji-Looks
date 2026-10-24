@@ -7,6 +7,7 @@ Applique des recettes Fujifilm à tes photos, directement dans ton navigateur. R
 ## Fonctionnalités
 
 - **Looks** : tes recettes, un **catalogue de 340 recettes** (filtrable par capteur, avec un lien vers chaque article d'origine), des recettes de départ et les 20 simulations de film Fujifilm, classés par Film Simulation, avec recherche, filtres Couleur / N&B et par simulation, et favoris. Survole un look à la souris pour le voir sur ta photo avant de cliquer.
+- **Panneau en accordéons**, dans l'ordre du travail : Recette, Retouche, Cadre, Exporter et partager, Mon boîtier, Importer et bibliothèque. Chaque en-tête résume son état (simulation, cadre choisi, boîtier…) et l'app retient ceux que tu laisses ouverts.
 - **Réglages de la recette** : tous les réglages sous leurs noms Fujifilm (Film Simulation, Dynamic Range, White Balance, Grain, Color Chrome, Highlight, Shadow, Clarity…), avec Annuler / Rétablir (Ctrl+Z / Ctrl+Maj+Z).
 - **Balance des blancs simulée** : le mode de la recette (Daylight, Incandescent, Kelvin…) est appliqué comme sur le boîtier, pour une photo prise en lumière du jour. Un interrupteur revient au comportement du convertisseur (décalage R/B seulement) ; l'aperçu est alors identique au sien, pixel pour pixel.
 - **Compatibilité boîtier** : choisis ton appareil (X-Trans III à V) pour savoir si une recette est reproductible.
