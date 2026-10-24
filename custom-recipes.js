@@ -1,7 +1,7 @@
 /*
  * Recettes personnelles, au format texte Fujifilm.
  * Elles sont lues par FR.parseText (parser du Fuji Recipe Converter).
- * Pour en ajouter une : copier un bloc { name, text } et coller la recette.
+ * Pour en ajouter une : copier un bloc { name, text } (notes facultatives) et coller la recette.
  */
 window.CUSTOM_RECIPES = [
   {
@@ -286,5 +286,63 @@ High ISO NR: -4
 Clarity: +2
 ISO: Auto, up to ISO 6400
 Exposure Compensation: -1 to -1/3 (typically)`
+  },
+  {
+    // Recette infrarouge : nécessite un boîtier converti IR et des filtres physiques.
+    name: "Agfa 400S",
+    notes: "Filtres : Tiffen Deep Yellow 15, Kolari Vision IR Chrome & QB2 Blue (boîtier converti infrarouge).",
+    text: `Film Simulation: Acros+R
+Monochromatic Color WC: 0
+Monochromatic Color MG: 0
+Dynamic Range: DR200
+Grain Effect: Strong, Small
+Color Chrome Effect: Off
+Color Chrome FX Blue: Off
+White Balance: 2500K, +9 Red & -2 Blue
+Highlight: +4
+Shadow: +4
+Sharpness: -1
+High ISO NR: -4
+Clarity: -2
+ISO: Auto, up to ISO 12800
+Exposure Compensation: -1/3 to +1/3 (typically)`
+  },
+  {
+    // Recette infrarouge : nécessite un boîtier converti IR et des filtres physiques.
+    name: "Cotton Candy Chrome",
+    notes: "Filtres : Tiffen Yellow 2 #8, Hoya G(XO) Yellow-Green & QB2 Blue (boîtier converti infrarouge).",
+    text: `Film Simulation: Classic Negative
+Dynamic Range: DR200
+Grain Effect: Strong, Small
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Off
+White Balance: Fluorescent 1, -9 Red & +6 Blue
+Highlight: -1.5
+Shadow: -1.5
+Color: +4
+Sharpness: 0
+High ISO NR: -4
+Clarity: -2
+ISO: Auto, up to ISO 6400
+Exposure Compensation: 0 to +1/3 (typically)`
+  },
+  {
+    // Recette infrarouge : nécessite un boîtier converti IR et des filtres physiques.
+    name: "Aerochrome v3",
+    notes: "Filtres : True Color Infrared Autumnizer (Turquoise), Hoya G(XO) Yellow-Green & Tiffen Yellow 2 #8 (boîtier converti infrarouge).",
+    text: `Film Simulation: Classic Negative
+Dynamic Range: DR400
+Grain Effect: Strong, Small
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Strong
+White Balance: Daylight, +9 Red & +8 Blue
+Highlight: -1.5
+Shadow: -0.5
+Color: +4
+Sharpness: -1
+High ISO NR: -4
+Clarity: -2
+ISO: Auto, up to ISO 6400
+Exposure Compensation: -1/3 to +1/3 (typically)`
   }
 ];
