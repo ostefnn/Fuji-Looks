@@ -1370,3 +1370,28 @@ body:not(.has-photo) .edit-section {
     repeating-linear-gradient(90deg, #d8d2c4 0 2px, transparent 2px 4px) bottom / 100% 2px no-repeat,
     #0e0d0c;
 }
+
+/* --- Signature ----------------------------------------------------------- */
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.1;
+}
+
+.brand-by {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: none;
+}
+
+.footer-link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: var(--accent);
+}
