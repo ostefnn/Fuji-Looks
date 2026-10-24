@@ -234,14 +234,67 @@ body:not(.has-photo) .stage {
   font-size: 13px;
 }
 
+/* Taille et position calculées en JS (ajusté au cadre par défaut, puis zoom / déplacement). */
 #photoPreview {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: none;
+  touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  cursor: pointer;
+  will-change: transform;
+}
+
+.photo-frame.zoomed #photoPreview {
+  cursor: grab;
+}
+
+.photo-frame.panning #photoPreview {
+  cursor: grabbing;
+}
+
+.zoom-controls {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 10px;
+  background: rgba(13,15,18,.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.zoom-controls button {
+  min-width: 38px;
+  height: 36px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.zoom-controls button:hover:not(:disabled) {
+  background: rgba(255,255,255,.08);
+}
+
+.zoom-controls button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.zoom-controls .zoom-level {
+  min-width: 64px;
+  border-inline: 1px solid rgba(255,255,255,.14);
+  font-size: 11px;
+  letter-spacing: .5px;
+  font-variant-numeric: tabular-nums;
 }
 
 .drop-overlay {
