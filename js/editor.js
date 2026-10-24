@@ -115,6 +115,7 @@ function updateRecipeEditor() {
 
   renderXmpDetails();
   updateCompat();
+  updateCompare();
   saveDraft();
 }
 

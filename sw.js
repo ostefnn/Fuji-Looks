@@ -38,7 +38,10 @@ const APP_SHELL = [
   "js/edit.js",
   "js/recipe-card.js",
   "js/fp1.js",
+  "js/ofr.js",
   "js/cameras.js",
+  "js/slots.js",
+  "js/compare.js",
   "js/share.js",
   "js/creations.js",
   "js/main.js"

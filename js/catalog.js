@@ -26,6 +26,10 @@ function parseRecipeText(text, opts) {
 }
 
 function parseAnyRecipe(text) {
+  // Open Fuji Recipe (un document, une liste ou une bibliothèque) : la première recette est chargée,
+  // les autres sont proposées pour la bibliothèque (voir applyImport).
+  const ofr = parseOfrText(text);
+  if (ofr) return Object.assign(ofr[0], { batch: ofr });
   const result = FR.parseAny(text);
   return result && (result.source === "text" || result.source === "screenshot") ? restoreExposureText(text, result) : result;
 }

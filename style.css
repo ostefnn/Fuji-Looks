@@ -1690,3 +1690,146 @@ body:not(.has-photo) .edit-section {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* --- Comparer deux recettes ---------------------------------------------- */
+
+.compare-result {
+  margin-top: 10px;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 6px 6px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.compare-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.compare-table td:first-child {
+  color: var(--muted);
+}
+
+.compare-table td:last-child {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+#compareApply {
+  margin-top: 10px;
+}
+
+/* --- Mon boîtier C1–C7 ----------------------------------------------------- */
+
+.slots-section {
+  margin-top: 26px;
+}
+
+.slot-list {
+  margin: 0 0 4px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  list-style: none;
+}
+
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+}
+
+.slot-row:first-child {
+  border-top: 0;
+}
+
+.slot-num {
+  flex: none;
+  width: 30px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.slot-name {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  font-size: 13px;
+}
+
+.slot-name:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.slot-name strong,
+.slot-name small {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-name small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.slot-compat {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.slot-compat.is-ok { background: rgba(98, 196, 120, .15); color: #9fe0ae; }
+.slot-compat.is-warning { background: rgba(255, 196, 77, .15); color: #ffd98a; }
+.slot-compat.is-error { background: rgba(255, 107, 97, .15); color: #ffb0a9; }
+
+.slot-put {
+  flex: none;
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.slot-clear {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+}
+
+.slot-clear:hover {
+  color: var(--text);
+}

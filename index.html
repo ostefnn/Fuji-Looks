@@ -224,6 +224,19 @@
         </div>
       </section>
 
+      <section class="slots-section" aria-labelledby="slotsTitle">
+        <div class="section-heading">
+          <h2 id="slotsTitle">Mon boîtier · C1–C7</h2>
+          <span class="count" id="slotsCamera"></span>
+        </div>
+        <p class="hint">Prépare tes 7 réglages personnalisés : place la recette en cours dans un emplacement, vérifie la compatibilité avec ton boîtier, puis garde la fiche ou exporte les .FP1.</p>
+        <ol class="slot-list" id="slotList"></ol>
+        <div class="button-row">
+          <button type="button" class="secondary-button" id="slotsCardButton">Fiche C1–C7 (image)</button>
+          <button type="button" class="secondary-button" id="slotsFp1Button">Exporter les .FP1</button>
+        </div>
+      </section>
+
       <section class="recipe-section" aria-labelledby="recipeTitle">
         <div class="section-heading">
           <div>
@@ -271,6 +284,16 @@
               <textarea id="recipeNotes" rows="2" maxlength="2000" placeholder="Optionnel"></textarea>
             </label>
           </div>
+        </details>
+
+        <details class="recipe-panel" id="comparePanel">
+          <summary>Comparer avec une autre recette</summary>
+          <label class="field-text">
+            <span>Recette à comparer</span>
+            <select id="compareSelect"></select>
+          </label>
+          <div class="compare-result" id="compareResult"></div>
+          <button type="button" class="secondary-button" id="compareApply" hidden>Utiliser cette recette</button>
         </details>
 
         <details class="recipe-panel">
@@ -326,6 +349,7 @@
             <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
             <button type="button" class="secondary-button" id="copyLinkButton">Copier le lien</button>
             <button type="button" class="secondary-button" id="jsonButton">Télécharger .recipe.json</button>
+            <button type="button" class="secondary-button" id="ofrButton" title="Format ouvert Open Fuji Recipe, lu par d’autres applications">Open Fuji Recipe (.json)</button>
           </div>
         </details>
 
@@ -406,7 +430,10 @@
   <script src="js/edit.js"></script>
   <script src="js/recipe-card.js"></script>
   <script src="js/fp1.js"></script>
+  <script src="js/ofr.js"></script>
   <script src="js/cameras.js"></script>
+  <script src="js/slots.js"></script>
+  <script src="js/compare.js"></script>
   <script src="js/share.js"></script>
   <script src="js/creations.js"></script>
   <script src="js/main.js"></script>

@@ -10,6 +10,7 @@ const IMPORT_SOURCES = {
   "share code": "code de partage",
   "recipe file": "fichier de recette",
   "X RAW Studio profile": "profil X RAW Studio",
+  "Open Fuji Recipe": "Open Fuji Recipe",
   text: "texte",
   screenshot: "capture d’écran"
 };
@@ -25,6 +26,12 @@ function applyImport(result, emptyMessage = "Aucun réglage de recette reconnu."
   const values = Object.assign({}, result.values);
   if (!values.name) values.name = "Recette importée";
   loadRecipe(values);
+  // Fichier Open Fuji Recipe contenant plusieurs recettes : on peut toutes les garder.
+  if (result.batch && result.batch.length > 1 &&
+      window.confirm(`Ce fichier contient ${result.batch.length} recettes. Les ajouter toutes à ta bibliothèque ?`)) {
+    const added = addRecipesToLibrary(result.batch.map((item) => Object.assign({}, FR.DEFAULT_RECIPE, item.values)));
+    showStatus(`${added} recette${added > 1 ? "s" : ""} ajoutée${added > 1 ? "s" : ""} à la bibliothèque.`);
+  }
   const n = result.found.filter((key) => FR.fieldByKey(key)).length;
   const source = IMPORT_SOURCES[result.source] || result.source;
   let message = `${n} réglage${n > 1 ? "s" : ""} importé${n > 1 ? "s" : ""} (${source}). Vérifie-les ci-dessus.`;
