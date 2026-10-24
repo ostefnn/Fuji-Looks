@@ -14,6 +14,7 @@ const APP_SHELL = [
   "vendor/fuji-recipe-converter/engine.js",
   "vendor/fuji-recipe-converter/export.js",
   "vendor/fuji-recipe-converter/parser.js",
+  "vendor/qrcode/qrcode.js",
   "custom-recipes.js",
   "js/pipeline.js",
   "js/export-worker.js",
@@ -35,6 +36,8 @@ const APP_SHELL = [
   "js/edit.js",
   "js/recipe-card.js",
   "js/cameras.js",
+  "js/share.js",
+  "js/creations.js",
   "js/main.js"
 ];
 
