@@ -224,9 +224,9 @@
           <div class="edit-row" id="frameInfoRow" hidden>
             <span class="edit-label">Infos</span>
             <div class="chips chips-wrap" id="frameInfoOptions" role="group" aria-label="Informations affichées">
-              <button type="button" class="chip" data-info="full" aria-pressed="true">Complètes</button>
+              <button type="button" class="chip" data-info="none" aria-pressed="true">Aucune</button>
               <button type="button" class="chip" data-info="name" aria-pressed="false">Nom seul</button>
-              <button type="button" class="chip" data-info="none" aria-pressed="false">Aucune</button>
+              <button type="button" class="chip" data-info="full" aria-pressed="false">Complètes</button>
             </div>
           </div>
           <div class="edit-row" id="signatureRow" hidden>
@@ -249,7 +249,15 @@
               <button type="button" class="chip" data-size="large" aria-pressed="false">Grande</button>
             </div>
           </div>
-          <p class="hint frame-hint">Visible dans l’aperçu et dans la photo exportée. « Complètes » ajoute tous les réglages de la recette, « Nom seul » le nom et la simulation. La signature s’ajoute en bas du cadre.</p>
+          <div class="edit-row" id="signaturePositionRow" hidden>
+            <span class="edit-label">Position</span>
+            <div class="chips" id="signaturePositionOptions" role="group" aria-label="Position de la signature">
+              <button type="button" class="chip" data-position="left" aria-pressed="false">Gauche</button>
+              <button type="button" class="chip" data-position="center" aria-pressed="false">Centre</button>
+              <button type="button" class="chip" data-position="right" aria-pressed="true">Droite</button>
+            </div>
+          </div>
+          <p class="hint frame-hint">Visible dans l’aperçu et dans la photo exportée. Rien n’est ajouté par défaut : choisis les infos à afficher, et écris ton nom pour ajouter une signature, à gauche, au centre ou à droite.</p>
         </div>
       </details>
 

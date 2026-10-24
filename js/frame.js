@@ -15,7 +15,8 @@ const FRAME_INFO_KEY = "fuji-looks.frame-info";
 const frameMeta = document.getElementById("frameMeta");
 let frameStyle = FRAME_STYLES[load(FRAME_KEY)] ? load(FRAME_KEY) : "none";
 // Infos affichées : full (nom + simulation + réglages), name (nom + simulation) ou none.
-let frameInfo = ["full", "name", "none"].includes(load(FRAME_INFO_KEY)) ? load(FRAME_INFO_KEY) : "full";
+// Par défaut tout est désactivé : pas de cadre, pas d'infos, pas de signature.
+let frameInfo = ["full", "name", "none"].includes(load(FRAME_INFO_KEY)) ? load(FRAME_INFO_KEY) : "none";
 
 function signedValue(v, decimals = 0) {
   const n = Number(v);
@@ -85,6 +86,8 @@ let signatureStyle = ["logo", "monogram", "script"].includes(savedSignature.styl
 // Volontairement discrète : la signature ne doit pas concurrencer la photo.
 const SIGNATURE_SIZES = { small: [0.017, 0.021], medium: [0.023, 0.028], large: [0.03, 0.037] };
 let signatureSize = SIGNATURE_SIZES[savedSignature.size] ? savedSignature.size : "small";
+// Position dans le cartouche : gauche, centre ou droite.
+let signaturePosition = ["left", "center", "right"].includes(savedSignature.position) ? savedSignature.position : "right";
 
 // « Olivier Steffen » → « OS », « ostefnn » → « O ».
 function signatureInitials(name) {
@@ -260,7 +263,10 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
     const sim = frameRecipe ? FR.simById(frameRecipe.filmSim).name.toUpperCase() : "";
     const edge = frameRecipe && info !== "none" ? `${frameRecipe.name || "Recette"}  ▸  ${sim}` : "";
     drawFilmStrip(ctx, 0, 0, canvas.width, strip, true, edge, "▸ 24");
-    drawFilmStrip(ctx, 0, top + H, canvas.width, strip, false, hasSignature ? `© ${signatureName.trim().toUpperCase()}` : "", "24A");
+    // Signature imprimée en bordure : à gauche (ou au centre, faute de place) ou à droite à la place du numéro.
+    const edgeSig = hasSignature ? `© ${signatureName.trim().toUpperCase()}` : "";
+    const sigRight = edgeSig && signaturePosition === "right";
+    drawFilmStrip(ctx, 0, top + H, canvas.width, strip, false, sigRight ? "" : edgeSig, sigRight ? edgeSig : "24A");
   }
 
   if (content) {
@@ -288,9 +294,8 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
       ctx.fillText(line, side, y);
     });
     if (sigBlock) {
-      // Seule dans le cartouche : centrée ; sous des infos : alignée à droite.
       const sigW = measureSignature(ctx, sigSize);
-      const sigX = showTitle || lines.length ? side + W - sigW : side + (W - sigW) / 2;
+      const sigX = signaturePosition === "left" ? side : signaturePosition === "center" ? side + (W - sigW) / 2 : side + W - sigW;
       const sigY = Math.round(bandTop + (bandHeight - content) / 2 + content - sigSize);
       drawSignature(ctx, sigX, sigY, sigSize, cfg);
     }
@@ -314,6 +319,10 @@ function updateFrameOptions() {
     button.setAttribute("aria-pressed", String(button.dataset.signature === signatureStyle));
   });
   signatureSizeRow.hidden = signatureStyleRow.hidden;
+  signaturePositionRow.hidden = signatureStyleRow.hidden;
+  signaturePositionOptions.querySelectorAll("[data-position]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.position === signaturePosition));
+  });
   signatureSizeOptions.querySelectorAll("[data-size]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.size === signatureSize));
   });
@@ -325,6 +334,17 @@ const signatureInput = document.getElementById("signatureInput");
 const signatureStyleOptions = document.getElementById("signatureStyleOptions");
 const signatureSizeRow = document.getElementById("signatureSizeRow");
 const signatureSizeOptions = document.getElementById("signatureSizeOptions");
+const signaturePositionRow = document.getElementById("signaturePositionRow");
+const signaturePositionOptions = document.getElementById("signaturePositionOptions");
+
+signaturePositionOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-position]");
+  if (!button) return;
+  signaturePosition = button.dataset.position;
+  saveSignature();
+  updateFrameOptions();
+  schedulePreview();
+});
 
 signatureSizeOptions.addEventListener("click", (event) => {
   const button = event.target.closest("[data-size]");
@@ -336,7 +356,7 @@ signatureSizeOptions.addEventListener("click", (event) => {
 });
 
 function saveSignature() {
-  store(SIGNATURE_KEY, { name: signatureName, style: signatureStyle, size: signatureSize });
+  store(SIGNATURE_KEY, { name: signatureName, style: signatureStyle, size: signatureSize, position: signaturePosition });
 }
 
 signatureInput.addEventListener("input", () => {
@@ -344,6 +364,7 @@ signatureInput.addEventListener("input", () => {
   saveSignature();
   signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();
   signatureSizeRow.hidden = signatureStyleRow.hidden;
+  signaturePositionRow.hidden = signatureStyleRow.hidden;
   schedulePreview();
 });
 

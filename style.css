@@ -1933,3 +1933,46 @@ body:not(.has-photo) #editSection {
   font-size: 12px;
   opacity: .75;
 }
+
+/* --- Pagination des looks ------------------------------------------------- */
+
+/* Mobile : une carte au bout de la bande ; grand écran : une ligne sous la grille. */
+.look-more {
+  display: flex;
+  flex: 0 0 116px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  text-align: center;
+}
+
+.look-more:hover {
+  border-color: var(--accent);
+}
+
+.look-more small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.look-more[hidden] {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .look-more {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    gap: 10px;
+    min-height: 46px;
+  }
+}
