@@ -61,6 +61,7 @@ async function renderExport() {
   // Le cadre ajoute des pixels : on garde de la marge sous la limite des canvas iOS.
   const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * 0.8;
   const out = await renderExportPixels(maxPixels);
+  await loadScriptFont(); // signature manuscrite prête avant de dessiner le cadre
 
   let canvas;
   if (frameStyle !== "none") {
