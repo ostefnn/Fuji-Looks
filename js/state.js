@@ -47,8 +47,6 @@ const LIB_KEY = "fuji-looks.library.v1";
 const DRAFT_KEY = "fuji-looks.draft.v1";
 const FRAME_KEY = "fuji-looks.frame";
 
-const LUT_N = 33;
-const LUT_CACHE_MAX = 40;
 const PREVIEW_MAX_SIDE = 2048;
 // Zoom relatif à la taille « ajustée au cadre » (1 = toute la photo visible).
 const ZOOM_MIN = 1;

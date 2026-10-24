@@ -1,36 +1,80 @@
 /* Fuji Looks — Export de la photo : rendu pleine résolution, partage ou téléchargement. */
 // --- Export de la photo --------------------------------------------------
 
-function renderExport() {
+// --- Calcul en arrière-plan (Web Worker) ------------------------------------
+
+let exportWorker = null;
+let exportJobId = 0;
+
+function workerAvailable() {
+  return typeof Worker !== "undefined" && typeof OffscreenCanvas !== "undefined" && location.protocol.startsWith("http");
+}
+
+// Envoie les pixels au worker (le tampon est transféré, pas copié) et attend le résultat.
+function renderInWorker(src, workRecipe, strength, size) {
   return new Promise((resolve, reject) => {
-    if (!originalImage) {
-      reject(new Error("Aucune photo sélectionnée."));
-      return;
+    exportWorker ||= new Worker("js/export-worker.js");
+    const worker = exportWorker;
+    const id = ++exportJobId;
+    function cleanup() {
+      worker.removeEventListener("message", onMessage);
+      worker.removeEventListener("error", onError);
     }
-
-    // Le cadre ajoute des pixels : on garde de la marge sous la limite des canvas iOS.
-    const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * 0.8;
-    const src = buildEditedSource(Infinity, maxPixels);
-    const out = renderRecipe(src, activeRecipe(), getStrength(), sourceSize);
-
-    let canvas;
-    if (frameStyle !== "none") {
-      canvas = composeFrame(out, frameStyle, activeRecipe());
-    } else {
-      canvas = document.createElement("canvas");
-      canvas.width = out.width;
-      canvas.height = out.height;
-      canvas.getContext("2d").putImageData(out, 0, 0);
+    function onMessage(event) {
+      if (event.data.id !== id) return;
+      cleanup();
+      if (event.data.error) reject(new Error(event.data.error));
+      else resolve(new ImageData(new Uint8ClampedArray(event.data.buffer), event.data.width, event.data.height));
     }
-
-    canvas.toBlob(async (blob) => {
-      if (!blob) {
-        reject(new Error("La création de l’image a échoué."));
-        return;
-      }
-      resolve(sourceExif ? await withExif(blob, sourceExif, canvas.width, canvas.height) : blob);
-    }, "image/jpeg", 0.94);
+    function onError(event) {
+      cleanup();
+      worker.terminate();
+      exportWorker = null;
+      reject(new Error(event.message || "Worker indisponible"));
+    }
+    worker.addEventListener("message", onMessage);
+    worker.addEventListener("error", onError);
+    worker.postMessage(
+      { id, buffer: src.data.buffer, width: src.width, height: src.height, recipe: workRecipe, strength, source: size },
+      [src.data.buffer]
+    );
   });
+}
+
+// Pixels pleine résolution : dans le worker si possible, sinon sur le fil principal.
+async function renderExportPixels(maxPixels) {
+  const workRecipe = activeRecipe();
+  const strength = getStrength();
+  if (workRecipe && strength > 0 && workerAvailable()) {
+    try {
+      return await renderInWorker(buildEditedSource(Infinity, maxPixels), workRecipe, strength, sourceSize);
+    } catch (err) {
+      console.warn("Export dans le worker impossible, calcul sur la page.", err);
+    }
+  }
+  return renderRecipe(buildEditedSource(Infinity, maxPixels), workRecipe, strength, sourceSize);
+}
+
+async function renderExport() {
+  if (!originalImage) throw new Error("Aucune photo sélectionnée.");
+
+  // Le cadre ajoute des pixels : on garde de la marge sous la limite des canvas iOS.
+  const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * 0.8;
+  const out = await renderExportPixels(maxPixels);
+
+  let canvas;
+  if (frameStyle !== "none") {
+    canvas = composeFrame(out, frameStyle, activeRecipe());
+  } else {
+    canvas = document.createElement("canvas");
+    canvas.width = out.width;
+    canvas.height = out.height;
+    canvas.getContext("2d").putImageData(out, 0, 0);
+  }
+
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.94));
+  if (!blob) throw new Error("La création de l’image a échoué.");
+  return sourceExif ? withExif(blob, sourceExif, canvas.width, canvas.height) : blob;
 }
 
 function exportKey() {

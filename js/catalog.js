@@ -88,7 +88,6 @@ function syncLibraryLooks() {
   LOOKS.splice(1, 0, ...looks);
   looks.forEach((look) => lookById.set(look.id, look));
 }
-const lutCache = new Map();
 
 let originalImage = null;
 let previewSource = null; // ImageData de l'aperçu (réduit)

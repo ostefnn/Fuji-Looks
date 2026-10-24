@@ -6,6 +6,13 @@
   <meta name="theme-color" content="#0d0f12">
   <meta name="description" content="Applique des recettes Fujifilm à tes photos, directement dans ton navigateur.">
   <title>Fuji Looks — Photo Studio</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Fuji Looks">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -75,7 +82,7 @@
           <span class="count" id="lookCount"></span>
         </div>
         <div class="look-toolbar">
-          <input type="search" id="lookSearch" class="look-search" placeholder="Rechercher un look, une simulation, un auteur…" aria-label="Rechercher un look" autocomplete="off">
+          <input type="search" id="lookSearch" class="look-search" placeholder="Rechercher un look…" title="Nom, simulation ou auteur" aria-label="Rechercher un look" autocomplete="off">
           <div class="chips" id="lookFilters" role="group" aria-label="Filtrer les looks">
             <button type="button" class="chip" data-filter="all" aria-pressed="true">Tous</button>
             <button type="button" class="chip" data-filter="color" aria-pressed="false">Couleur</button>
@@ -217,6 +224,7 @@
             <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
             <button type="button" class="secondary-button" id="copyLinkButton">Copier le lien</button>
             <button type="button" class="secondary-button" id="jsonButton">Télécharger .recipe.json</button>
+            <button type="button" class="secondary-button" id="cardButton">Fiche recette (image)</button>
           </div>
         </details>
 
@@ -241,6 +249,7 @@
 
   <footer>
     <span>FUJI LOOKS</span>
+    <button type="button" class="text-button install-button" id="installButton" hidden>Installer l’application</button>
     <span>FAIT POUR TON REGARD</span>
   </footer>
 
@@ -249,6 +258,7 @@
   <script src="vendor/fuji-recipe-converter/export.js"></script>
   <script src="vendor/fuji-recipe-converter/parser.js"></script>
   <script src="custom-recipes.js"></script>
+  <script src="js/pipeline.js"></script>
   <script src="js/state.js"></script>
   <script src="js/catalog.js"></script>
   <script src="js/render.js"></script>
@@ -265,6 +275,7 @@
   <script src="js/frame.js"></script>
   <script src="js/exif.js"></script>
   <script src="js/edit.js"></script>
+  <script src="js/recipe-card.js"></script>
   <script src="js/cameras.js"></script>
   <script src="js/main.js"></script>
 </body>
