@@ -44,6 +44,11 @@
         <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>
         <button type="button" class="compare-button" id="compareButton" aria-pressed="false" hidden
           title="Maintiens pour voir l’original">Avant / Après</button>
+        <div class="zoom-controls" id="zoomControls" role="group" aria-label="Zoom" hidden>
+          <button type="button" id="zoomOut" aria-label="Dézoomer">−</button>
+          <button type="button" id="zoomFit" class="zoom-level" title="Ajuster la photo au cadre">Ajusté</button>
+          <button type="button" id="zoomIn" aria-label="Zoomer">+</button>
+        </div>
       </div>
       <input id="photoInput" type="file" accept="image/*" hidden>
 
