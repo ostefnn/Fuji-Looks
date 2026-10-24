@@ -33,18 +33,33 @@ function toggleFavorite(lookId) {
   if (thumbSource) renderThumbnails(...thumbSource);
 }
 
+// Pagination : chaque onglet affiche LOOK_PAGE looks, puis « Afficher plus ».
+// Le compteur repart de zéro quand la recherche ou un filtre change.
+const LOOK_PAGE = 24;
+let lookLimits = {};
+
+function resetLookPaging() {
+  lookLimits = {};
+}
+
 // Masque les looks qui ne correspondent pas et met à jour les compteurs des onglets.
 function applyLookFilter() {
   let firstWithMatches = null;
   GROUPS.forEach(({ id }) => {
     const panel = document.getElementById(`panel-${id}`);
+    const limit = lookLimits[id] || LOOK_PAGE;
     let count = 0;
     panel.querySelectorAll(".look-item").forEach((item) => {
       const look = lookById.get(item.dataset.look);
-      const visible = lookMatches(look);
-      item.hidden = !visible;
-      if (visible && look.recipe) count++;
+      const matches = lookMatches(look);
+      if (matches && look.recipe) count++;
+      // Le look sélectionné reste visible même au-delà de la page affichée.
+      item.hidden = !matches || (look.recipe && count > limit && look.id !== currentLookId);
     });
+    const more = panel.querySelector(".look-more");
+    const rest = count - limit;
+    more.hidden = rest <= 0;
+    more.querySelector("small").textContent = rest > 0 ? `${rest} restant${rest > 1 ? "s" : ""}` : "";
     panel.querySelector(".look-empty").hidden = count > 0;
     document.querySelector(`#tab-${id} small`).textContent = count;
     if (count && !firstWithMatches) firstWithMatches = id;
@@ -57,6 +72,7 @@ function applyLookFilter() {
 
 lookSearch.addEventListener("input", () => {
   lookQuery = lookSearch.value.trim();
+  resetLookPaging();
   applyLookFilter();
 });
 
@@ -69,11 +85,13 @@ lookSearch.addEventListener("input", () => {
 SENSORS.forEach((sensor) => lookSensorSelect.add(new Option(sensor, sensor)));
 lookSensorSelect.addEventListener("change", () => {
   lookSensor = lookSensorSelect.value;
+  resetLookPaging();
   applyLookFilter();
 });
 
 lookSimSelect.addEventListener("change", () => {
   lookSim = lookSimSelect.value;
+  resetLookPaging();
   applyLookFilter();
 });
 
@@ -191,7 +209,16 @@ function buildLookGrid() {
     empty.className = "look-empty";
     empty.textContent = "Aucun look ne correspond dans cet onglet.";
     empty.hidden = true;
-    grid.append(createLookItem(original), ...looks.map(createLookItem), empty);
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "look-more";
+    more.innerHTML = "<strong>Afficher plus</strong><small></small>";
+    more.hidden = true;
+    more.addEventListener("click", () => {
+      lookLimits[group.id] = (lookLimits[group.id] || LOOK_PAGE) + LOOK_PAGE;
+      applyLookFilter(); // les vignettes des nouveaux looks se calculent quand elles deviennent visibles
+    });
+    grid.append(createLookItem(original), ...looks.map(createLookItem), more, empty);
     lookGroups.appendChild(grid);
   });
 
