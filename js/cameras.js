@@ -136,6 +136,7 @@ function buildCameraSelect() {
     cameraId = cameraSelect.value;
     store(CAMERA_KEY, cameraId);
     updateCompat();
+    renderSlots();
   });
 }
 

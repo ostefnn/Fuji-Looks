@@ -7,6 +7,8 @@ const FAV_KEY = "fuji-looks.favorites";
 let favorites = new Set(Array.isArray(load(FAV_KEY)) ? load(FAV_KEY) : []);
 let lookQuery = "";
 let lookFilter = "all"; // all | color | mono
+let lookMoment = ""; // "" ou une clé de MOMENTS
+let lookSensor = ""; // "" ou un capteur (X-Trans V, X-Trans IV…)
 
 function normalizeText(text) {
   return String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -17,8 +19,10 @@ function lookMatches(look) {
   const sim = FR.simById(look.recipe.filmSim);
   if (lookFilter === "color" && sim.mono) return false;
   if (lookFilter === "mono" && !sim.mono) return false;
+  if (lookMoment && look.moment !== lookMoment) return false;
+  if (lookSensor && !(look.sensors || []).includes(lookSensor)) return false;
   if (!lookQuery) return true;
-  const haystack = normalizeText([look.name, look.desc, sim.name, look.recipe.author].join(" "));
+  const haystack = normalizeText([look.name, look.desc, sim.name, look.recipe.author, (look.sensors || []).join(" ")].join(" "));
   return normalizeText(lookQuery).split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
 }
 
@@ -51,11 +55,23 @@ function applyLookFilter() {
   // Recherche sans résultat dans l'onglet ouvert : on passe au premier onglet qui en a.
   const active = lookTabs.querySelector('[aria-selected="true"]')?.id.replace("tab-", "");
   const activeCount = active ? Number(document.querySelector(`#tab-${active} small`).textContent) : 0;
-  if ((lookQuery || lookFilter !== "all") && !activeCount && firstWithMatches) showTab(firstWithMatches);
+  if ((lookQuery || lookFilter !== "all" || lookMoment || lookSensor) && !activeCount && firstWithMatches) showTab(firstWithMatches);
 }
 
 lookSearch.addEventListener("input", () => {
   lookQuery = lookSearch.value.trim();
+  applyLookFilter();
+});
+
+Object.entries(MOMENTS).forEach(([key, m]) => lookMomentSelect.add(new Option(`${m.icon} ${m.label}`, key)));
+SENSORS.forEach((sensor) => lookSensorSelect.add(new Option(sensor, sensor)));
+lookSensorSelect.addEventListener("change", () => {
+  lookSensor = lookSensorSelect.value;
+  applyLookFilter();
+});
+
+lookMomentSelect.addEventListener("change", () => {
+  lookMoment = lookMomentSelect.value;
   applyLookFilter();
 });
 
@@ -221,24 +237,58 @@ function thumbnailSource(drawable, w, h) {
   return { data: ctx.getImageData(0, 0, THUMB_W, THUMB_H), grainWidth: (THUMB_W * w) / cropW };
 }
 
+// Vignettes calculées à la demande, quand la carte devient visible (340 recettes au catalogue).
+let thumbData = null;
+const thumbQueue = new Set();
+let thumbPending = false;
+
+function processThumbQueue() {
+  thumbPending = false;
+  if (!thumbData) return;
+  const started = performance.now();
+  for (const card of thumbQueue) {
+    if (performance.now() - started > 12) break;
+    thumbQueue.delete(card);
+    if (!card.isConnected || card.dataset.thumbJob === String(thumbData.job)) continue;
+    const look = lookById.get(card.dataset.look);
+    if (!look) continue;
+    const canvas = card.querySelector("canvas");
+    canvas.width = thumbData.src.width;
+    canvas.height = thumbData.src.height;
+    canvas.getContext("2d").putImageData(
+      renderRecipe(thumbData.src, look.recipe, 1, { w: thumbData.w, h: thumbData.h }, thumbData.grainWidth), 0, 0);
+    card.dataset.thumbJob = String(thumbData.job);
+  }
+  if (thumbQueue.size) scheduleThumbs();
+}
+
+function scheduleThumbs() {
+  if (thumbPending) return;
+  thumbPending = true;
+  requestAnimationFrame(processThumbQueue);
+}
+
+const thumbObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) thumbQueue.add(entry.target);
+    else thumbQueue.delete(entry.target);
+  });
+  if (thumbQueue.size) scheduleThumbs();
+}, { rootMargin: "300px" });
+
 function renderThumbnails(drawable, w, h) {
   thumbSource = [drawable, w, h];
-  const job = ++thumbJob;
   const { data: src, grainWidth } = thumbnailSource(drawable, w, h);
-  const cards = [...lookGroups.querySelectorAll(".look-card")];
-  let index = 0;
+  thumbData = { src, grainWidth, w, h, job: ++thumbJob };
+  lookGroups.querySelectorAll(".look-card").forEach((card) => {
+    thumbObserver.unobserve(card);
+    thumbObserver.observe(card);
+  });
+}
 
-  function step() {
-    if (job !== thumbJob) return;
-    const started = performance.now();
-    while (index < cards.length && performance.now() - started < 12) {
-      const card = cards[index++];
-      const canvas = card.querySelector("canvas");
-      canvas.width = src.width;
-      canvas.height = src.height;
-      canvas.getContext("2d").putImageData(renderRecipe(src, lookById.get(card.dataset.look).recipe, 1, { w, h }, grainWidth), 0, 0);
-    }
-    if (index < cards.length) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
+// Force le rendu d'une vignette (par exemple pour la planche contact).
+function ensureThumb(card) {
+  if (!thumbData || !card || card.dataset.thumbJob === String(thumbData.job)) return;
+  thumbQueue.add(card);
+  processThumbQueue();
 }

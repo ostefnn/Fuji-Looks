@@ -16,8 +16,51 @@ function makeCanvas(w, h) {
   return new OffscreenCanvas(w, h);
 }
 
+/*
+ * Simulation du mode de balance des blancs (Daylight, Incandescent, Kelvin…).
+ * Le convertisseur n'applique que le décalage R/B sur une photo développée. Ici, on considère
+ * que la photo est neutre en lumière du jour (5500 K, teinte +10 comme le preset Daylight)
+ * et on applique l'écart avec le mode de la recette, comme le ferait le boîtier :
+ * Incandescent en plein jour → image bleutée, Shade → plus chaude. Auto / Custom : pas de valeur fixe.
+ */
+const PIPELINE_OPTIONS = { simulateWb: true };
+const WB_REFERENCE = [5500, 10];
+
+// Couleur (sRGB linéaire, Y = 1) d'une source à la température T (lieu de Planck, approximation de Kim).
+function kelvinToLinearRgb(T) {
+  const t = Math.min(25000, Math.max(1667, T));
+  const x = t <= 4000
+    ? -0.2661239e9 / t ** 3 - 0.2343589e6 / t ** 2 + 0.8776956e3 / t + 0.17991
+    : -3.0258469e9 / t ** 3 + 2.1070379e6 / t ** 2 + 0.2226347e3 / t + 0.24039;
+  const y = t <= 2222
+    ? -1.1063814 * x ** 3 - 1.3481102 * x ** 2 + 2.18555832 * x - 0.20219683
+    : t <= 4000
+      ? -0.9549476 * x ** 3 - 1.37418593 * x ** 2 + 2.09137015 * x - 0.16748867
+      : 3.081758 * x ** 3 - 5.8733867 * x ** 2 + 3.75112997 * x - 0.37001483;
+  const X = x / y;
+  const Z = (1 - x - y) / y;
+  return [3.2406 * X - 1.5372 - 0.4986 * Z, -0.9689 * X + 1.8758 + 0.0415 * Z, 0.0557 * X - 0.204 + 1.057 * Z];
+}
+
+// Gains R, G, B (luminance constante) pour un mode de balance des blancs, ou null s'il n'a pas de valeur fixe.
+function whiteBalanceGains(r) {
+  const preset = r.whiteBalance === "kelvin" ? [r.kelvin, 10] : FR.wbById(r.whiteBalance).lr;
+  if (!preset) return null;
+  const scene = kelvinToLinearRgb(WB_REFERENCE[0]);
+  const assumed = kelvinToLinearRgb(preset[0]);
+  const gains = scene.map((v, i) => v / assumed[i]);
+  // Teinte : le boîtier compense une lumière verte (teinte positive) en ajoutant du magenta.
+  gains[1] *= Math.pow(2, -(preset[1] - WB_REFERENCE[1]) * 0.004);
+  const luma = 0.2126 * gains[0] + 0.7152 * gains[1] + 0.0722 * gains[2];
+  return gains.map((g) => g / luma);
+}
+
 function getLookData(lookRecipe) {
   const derived = FR.derive(lookRecipe, { drInCurve: true });
+  if (PIPELINE_OPTIONS.simulateWb) {
+    const extra = whiteBalanceGains(FR.normalize(lookRecipe));
+    if (extra) derived.wbGains = derived.wbGains.map((g, i) => g * extra[i]);
+  }
   const key = JSON.stringify(derived);
   if (!lutCache.has(key)) {
     if (lutCache.size >= LUT_CACHE_MAX) lutCache.delete(lutCache.keys().next().value);

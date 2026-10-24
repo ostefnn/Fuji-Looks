@@ -88,6 +88,12 @@
             <button type="button" class="chip" data-filter="color" aria-pressed="false">Couleur</button>
             <button type="button" class="chip" data-filter="mono" aria-pressed="false">N&amp;B</button>
           </div>
+          <select id="lookMoment" class="moment-select" aria-label="Moment conseillé">
+            <option value="">Tous les moments</option>
+          </select>
+          <select id="lookSensor" class="moment-select" aria-label="Capteur">
+            <option value="">Tous les capteurs</option>
+          </select>
         </div>
         <div class="tabs" role="tablist" id="lookTabs" aria-label="Catégories de looks"></div>
         <div class="look-strip" id="lookGroups"></div>
@@ -218,11 +224,25 @@
         </div>
       </section>
 
+      <section class="slots-section" aria-labelledby="slotsTitle">
+        <div class="section-heading">
+          <h2 id="slotsTitle">Mon boîtier · C1–C7</h2>
+          <span class="count" id="slotsCamera"></span>
+        </div>
+        <p class="hint">Prépare tes 7 réglages personnalisés : place la recette en cours dans un emplacement, vérifie la compatibilité avec ton boîtier, puis garde la fiche ou exporte les .FP1.</p>
+        <ol class="slot-list" id="slotList"></ol>
+        <div class="button-row">
+          <button type="button" class="secondary-button" id="slotsCardButton">Fiche C1–C7 (image)</button>
+          <button type="button" class="secondary-button" id="slotsFp1Button">Exporter les .FP1</button>
+        </div>
+      </section>
+
       <section class="recipe-section" aria-labelledby="recipeTitle">
         <div class="section-heading">
           <div>
             <h2 id="recipeTitle">Réglages de la recette</h2>
             <p class="section-sub" id="recipeSim"></p>
+            <a class="source-link" id="recipeSource" href="#" target="_blank" rel="noopener" hidden>Voir la recette originale ↗</a>
           </div>
           <div class="heading-actions">
             <button type="button" class="text-button" id="revertButton" hidden>Revenir au look</button>
@@ -239,6 +259,14 @@
         </div>
 
         <div class="recipe-fields" id="recipeFields"></div>
+        <label class="switch-row">
+          <input type="checkbox" id="wbSimToggle" checked>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="switch-text">
+            <strong>Simuler la balance des blancs</strong>
+            <small>Applique le mode de la recette (Daylight, Incandescent, Kelvin…) comme le boîtier, pour une photo prise en lumière du jour. Désactivé : identique au convertisseur, seul le décalage R/B est appliqué.</small>
+          </span>
+        </label>
 
         <details class="recipe-panel">
           <summary>Nom, auteur et notes</summary>
@@ -256,6 +284,16 @@
               <textarea id="recipeNotes" rows="2" maxlength="2000" placeholder="Optionnel"></textarea>
             </label>
           </div>
+        </details>
+
+        <details class="recipe-panel" id="comparePanel">
+          <summary>Comparer avec une autre recette</summary>
+          <label class="field-text">
+            <span>Recette à comparer</span>
+            <select id="compareSelect"></select>
+          </label>
+          <div class="compare-result" id="compareResult"></div>
+          <button type="button" class="secondary-button" id="compareApply" hidden>Utiliser cette recette</button>
         </details>
 
         <details class="recipe-panel">
@@ -295,11 +333,23 @@
             <button type="button" class="secondary-button" id="cubeButton">LUT 3D (.cube)</button>
           </div>
 
+          <div class="export-group fp1-group">
+            <div class="field-text">
+              <span>Vers ton boîtier : profil X RAW Studio (.FP1)</span>
+              <p class="hint" id="fp1Status"></p>
+            </div>
+            <label class="secondary-button" for="fp1TemplateFile">Charger le modèle de mon boîtier</label>
+            <input id="fp1TemplateFile" type="file" accept=".fp1,.FP1,.xml,application/xml" hidden>
+            <button type="button" class="secondary-button" id="fp1Button" disabled>Profil .FP1</button>
+          </div>
+          <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Fuji Looks reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
+
           <div class="button-row">
             <button type="button" class="secondary-button" id="copyTextButton">Copier la recette</button>
             <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
             <button type="button" class="secondary-button" id="copyLinkButton">Copier le lien</button>
             <button type="button" class="secondary-button" id="jsonButton">Télécharger .recipe.json</button>
+            <button type="button" class="secondary-button" id="ofrButton" title="Format ouvert Open Fuji Recipe, lu par d’autres applications">Open Fuji Recipe (.json)</button>
           </div>
         </details>
 
@@ -315,7 +365,7 @@
           </div>
         </details>
 
-        <p class="hint credits">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT) : mêmes simulations, même moteur de couleur, mêmes exports. Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
+        <p class="hint credits">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT) : mêmes simulations, même moteur de couleur, mêmes exports. Catalogue : bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT), recettes de <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a> — chaque recette renvoie vers son article. Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
       </section>
     </div>
   </main>
@@ -360,6 +410,7 @@
   <script src="vendor/fuji-recipe-converter/parser.js"></script>
   <script src="vendor/qrcode/qrcode.js"></script>
   <script src="custom-recipes.js"></script>
+  <script src="js/kata-catalog.js"></script>
   <script src="js/pipeline.js"></script>
   <script src="js/state.js"></script>
   <script src="js/catalog.js"></script>
@@ -378,7 +429,11 @@
   <script src="js/exif.js"></script>
   <script src="js/edit.js"></script>
   <script src="js/recipe-card.js"></script>
+  <script src="js/fp1.js"></script>
+  <script src="js/ofr.js"></script>
   <script src="js/cameras.js"></script>
+  <script src="js/slots.js"></script>
+  <script src="js/compare.js"></script>
   <script src="js/share.js"></script>
   <script src="js/creations.js"></script>
   <script src="js/main.js"></script>

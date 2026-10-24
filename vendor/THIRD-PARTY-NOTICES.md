@@ -15,6 +15,7 @@ It bundles the following third-party work, unmodified, each under its own licenc
 | heic-to v1.6.5 (libheif 1.23.5 and libde265 compiled to WebAssembly) | `vendor/heic/heic-to.js` | LGPL-3.0 |
 | QR Code Generator for JavaScript v1.4.4 (Kazuhiko Arase), added by Fuji Looks | `vendor/qrcode/qrcode.js` | MIT |
 | Great Vibes (Google Fonts, via @fontsource/great-vibes 5.0.8), added by Fuji Looks | `vendor/fonts/great-vibes-*.woff2` (licence: `vendor/fonts/GreatVibes-OFL.txt`) | SIL OFL 1.1 |
+| Recipe library snapshot from Kata (parth181195/kata, commit 0c47ee2, MIT), recipes by Fuji X Weekly, used by Fuji Looks | `js/kata-catalog.js` (settings, names, sensors and source links only) | MIT (Kata); recipes credited to Fuji X Weekly with a link to each post |
 
 ## Lucide icons
 

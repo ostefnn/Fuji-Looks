@@ -13,6 +13,8 @@ function restoreDraft() {
 syncLibraryLooks();
 restoreDraft();
 buildCameraSelect();
+renderSlots();
+updateFp1Status();
 updateEditControls();
 buildLookGrid();
 updateFrameOptions();

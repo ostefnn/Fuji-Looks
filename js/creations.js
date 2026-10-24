@@ -183,7 +183,9 @@ function renderContactPicker() {
     button.className = "contact-option";
     button.dataset.look = look.id;
     button.setAttribute("aria-pressed", String(contactSelection.includes(look.id)));
-    const thumb = lookGroups.querySelector(`.look-card[data-look="${look.id}"] canvas`);
+    const card = lookGroups.querySelector(`.look-card[data-look="${look.id}"]`);
+    ensureThumb(card);
+    const thumb = card && card.querySelector("canvas");
     const mini = document.createElement("canvas");
     mini.width = 96;
     mini.height = 72;

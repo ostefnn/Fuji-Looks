@@ -111,3 +111,16 @@ sampleButton.addEventListener("click", () => {
   setSource(drawSampleScene(), 900, 600);
   showStatus("Image d’exemple chargée.");
 });
+
+// Ajoute plusieurs recettes d'un coup (import Open Fuji Recipe), sans doublon. Renvoie le nombre ajouté.
+function addRecipesToLibrary(recipes) {
+  let added = 0;
+  recipes.forEach((values) => {
+    const r = FR.normalize(values);
+    if (library.some((other) => JSON.stringify(other.recipe) === JSON.stringify(r))) return;
+    library.push({ id: Date.now().toString(36) + added + Math.random().toString(36).slice(2, 5), savedAt: Date.now(), recipe: r });
+    added++;
+  });
+  if (added) refreshLibrary();
+  return added;
+}

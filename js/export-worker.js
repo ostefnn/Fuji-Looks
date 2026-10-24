@@ -8,8 +8,9 @@ importScripts(
 );
 
 self.onmessage = (event) => {
-  const { id, buffer, width, height, recipe, strength, source } = event.data;
+  const { id, buffer, width, height, recipe, strength, source, simulateWb } = event.data;
   try {
+    PIPELINE_OPTIONS.simulateWb = simulateWb !== false;
     const src = new ImageData(new Uint8ClampedArray(buffer), width, height);
     const out = renderRecipe(src, recipe, strength, source);
     self.postMessage({ id, buffer: out.data.buffer, width, height }, [out.data.buffer]);

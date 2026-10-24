@@ -93,6 +93,9 @@ function baselineRecipe() {
 function updateRecipeEditor() {
   const baseline = modified ? baselineRecipe() : null;
   revertButton.hidden = !baseline;
+  const sourceLook = currentLookId && lookById.get(currentLookId);
+  recipeSource.hidden = !(sourceLook && sourceLook.sourceUrl);
+  if (sourceLook && sourceLook.sourceUrl) recipeSource.href = sourceLook.sourceUrl;
   if (baseline) revertButton.textContent = `Revenir à « ${lookById.get(currentLookId).name} »`;
   recipeName.value = recipe.name;
   recipeAuthor.value = recipe.author;
@@ -112,6 +115,7 @@ function updateRecipeEditor() {
 
   renderXmpDetails();
   updateCompat();
+  updateCompare();
   saveDraft();
 }
 
@@ -127,3 +131,20 @@ function onRecipeEdited() {
   updateRecipeEditor();
   schedulePreview();
 }
+
+// --- Simulation de la balance des blancs ---------------------------------------
+
+const WB_SIM_KEY = "fuji-looks.simulate-wb";
+const wbSimToggle = document.getElementById("wbSimToggle");
+PIPELINE_OPTIONS.simulateWb = load(WB_SIM_KEY) !== false;
+wbSimToggle.checked = PIPELINE_OPTIONS.simulateWb;
+
+wbSimToggle.addEventListener("change", () => {
+  PIPELINE_OPTIONS.simulateWb = wbSimToggle.checked;
+  store(WB_SIM_KEY, wbSimToggle.checked);
+  schedulePreview();
+  if (thumbSource) renderThumbnails(...thumbSource);
+  showStatus(wbSimToggle.checked
+    ? "Balance des blancs simulée comme sur le boîtier."
+    : "Balance des blancs : décalage R/B seulement, comme le convertisseur.");
+});
