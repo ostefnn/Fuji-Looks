@@ -1667,7 +1667,15 @@ body:not(.has-photo) .edit-section {
   line-height: 1.45;
 }
 
-.moment-select {
+.look-selects {
+  display: flex;
+  flex: 1 1 100%;
+  gap: 8px;
+}
+
+.look-select {
+  flex: 1 1 0;
+  min-width: 0;
   min-height: 38px;
   padding: 0 10px;
   border: 1px solid var(--border);
@@ -1735,8 +1743,8 @@ body:not(.has-photo) .edit-section {
   margin-top: 26px;
 }
 
-.slot-list {
-  margin: 0 0 4px;
+.slots-panel .slot-list {
+  margin: 10px 0 4px;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius);

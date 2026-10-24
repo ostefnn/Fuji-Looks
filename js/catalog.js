@@ -3,15 +3,6 @@
 
 const LOOKS = [{ id: "original", name: "Original", desc: "Naturel", group: "base", recipe: null }];
 
-// Moments conseillés (classement du dépôt quiode/fujifilm-recipes, d'après Fuji X Weekly).
-const MOMENTS = {
-  golden: { icon: "🌅", label: "Golden hour" },
-  midday: { icon: "☀️", label: "Mi-journée" },
-  overcast: { icon: "☁️", label: "Temps couvert" },
-  indoor: { icon: "🏠", label: "Intérieur" },
-  night: { icon: "🌙", label: "Nuit" }
-};
-
 // Le parser du convertisseur retire le « - » en tête des champs texte : « -1/3 to +1/3 » devient
 // « 1/3 to +1/3 ». On reprend la valeur telle qu'écrite dans la recette.
 function restoreExposureText(text, result) {
@@ -34,15 +25,14 @@ function parseAnyRecipe(text) {
   return result && (result.source === "text" || result.source === "screenshot") ? restoreExposureText(text, result) : result;
 }
 
-(window.CUSTOM_RECIPES || []).forEach(({ name, author = "", notes = "", moment = "", text }, i) => {
+(window.CUSTOM_RECIPES || []).forEach(({ name, author = "", notes = "", text }, i) => {
   const parsed = parseRecipeText(text);
   if (!parsed) return;
   const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, parsed.values, { name, author, notes }));
   LOOKS.push({
     id: `custom-${i}`,
     name,
-    desc: MOMENTS[moment] ? `${MOMENTS[moment].icon} ${FR.simById(recipe.filmSim).name}` : FR.simById(recipe.filmSim).name,
-    moment: MOMENTS[moment] ? moment : "",
+    desc: FR.simById(recipe.filmSim).name,
     group: "custom",
     recipe
   });
