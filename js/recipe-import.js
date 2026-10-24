@@ -45,7 +45,7 @@ async function importRecipeFile(file) {
   try {
     const text = await file.text();
     importText.value = text;
-    applyImport(FR.parseAny(text), `« ${file.name} » ne ressemble pas à un fichier de recette.`);
+    applyImport(parseAnyRecipe(text), `« ${file.name} » ne ressemble pas à un fichier de recette.`);
   } catch {
     setImportStatus(`Impossible de lire « ${file.name} ».`, true);
   }
@@ -94,7 +94,7 @@ async function importScreenshot(blob) {
     });
     const out = await worker.recognize(canvas);
     importText.value = out.data.text;
-    applyImport(FR.parseText(out.data.text, { ocr: true }),
+    applyImport(parseRecipeText(out.data.text, { ocr: true }),
       "Aucun réglage reconnu dans cette image. Essaie une capture plus nette ou colle le texte.");
   } catch (err) {
     setImportStatus(`Impossible de lire la capture d’écran (${err?.message || "erreur inconnue"}).`, true);
@@ -103,7 +103,7 @@ async function importScreenshot(blob) {
   }
 }
 
-importButton.addEventListener("click", () => applyImport(FR.parseAny(importText.value)));
+importButton.addEventListener("click", () => applyImport(parseAnyRecipe(importText.value)));
 
 importFile.addEventListener("change", () => {
   const file = importFile.files?.[0];
@@ -127,7 +127,7 @@ document.addEventListener("paste", (event) => {
   const text = data.getData("text/plain");
   if (text) {
     event.preventDefault();
-    applyImport(FR.parseAny(text));
+    applyImport(parseAnyRecipe(text));
   }
 });
 

@@ -3,8 +3,26 @@
 
 const LOOKS = [{ id: "original", name: "Original", desc: "Naturel", group: "base", recipe: null }];
 
+// Le parser du convertisseur retire le « - » en tête des champs texte : « -1/3 to +1/3 » devient
+// « 1/3 to +1/3 ». On reprend la valeur telle qu'écrite dans la recette.
+function restoreExposureText(text, result) {
+  if (!result || !result.values.exposureComp) return result;
+  const match = /exposure\s*comp(?:ensation)?\.?\s*[:=]\s*(.+?)\s*$/im.exec(String(text || ""));
+  if (match) result.values.exposureComp = match[1].slice(0, 120);
+  return result;
+}
+
+function parseRecipeText(text, opts) {
+  return restoreExposureText(text, FR.parseText(text, opts));
+}
+
+function parseAnyRecipe(text) {
+  const result = FR.parseAny(text);
+  return result && (result.source === "text" || result.source === "screenshot") ? restoreExposureText(text, result) : result;
+}
+
 (window.CUSTOM_RECIPES || []).forEach(({ name, author = "", text }, i) => {
-  const parsed = FR.parseText(text);
+  const parsed = parseRecipeText(text);
   if (!parsed) return;
   const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, parsed.values, { name, author }));
   LOOKS.push({
