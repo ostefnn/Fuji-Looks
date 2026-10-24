@@ -35,7 +35,7 @@ function renderInWorker(src, workRecipe, strength, size) {
     worker.addEventListener("message", onMessage);
     worker.addEventListener("error", onError);
     worker.postMessage(
-      { id, buffer: src.data.buffer, width: src.width, height: src.height, recipe: workRecipe, strength, source: size },
+      { id, buffer: src.data.buffer, width: src.width, height: src.height, recipe: workRecipe, strength, source: size, simulateWb: PIPELINE_OPTIONS.simulateWb },
       [src.data.buffer]
     );
   });

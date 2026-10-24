@@ -8,6 +8,7 @@ Applique des recettes Fujifilm à tes photos, directement dans ton navigateur. R
 
 - **Looks** : tes recettes, des recettes de départ et les 20 simulations de film Fujifilm, avec recherche, filtres Couleur / N&B et favoris. Survole un look à la souris pour le voir sur ta photo avant de cliquer.
 - **Réglages de la recette** : tous les réglages sous leurs noms Fujifilm (Film Simulation, Dynamic Range, White Balance, Grain, Color Chrome, Highlight, Shadow, Clarity…), avec Annuler / Rétablir (Ctrl+Z / Ctrl+Maj+Z).
+- **Balance des blancs simulée** : le mode de la recette (Daylight, Incandescent, Kelvin…) est appliqué comme sur le boîtier, pour une photo prise en lumière du jour. Un interrupteur revient au comportement du convertisseur (décalage R/B seulement) ; l'aperçu est alors identique au sien, pixel pour pixel.
 - **Compatibilité boîtier** : choisis ton appareil (X-Trans III à V) pour savoir si une recette est reproductible.
 - **Retouche** : format (1:1, 4:5, 3:2, 16:9, 9:16), rotation, redressement, exposition, hautes lumières / ombres et bouton **Auto**.
 - **Aperçu** : zoom, déplacement, Avant / Après (maintenir le bouton), intensité du look.
@@ -68,7 +69,7 @@ Le code de Fuji Looks est sous licence [MIT](LICENSE). Le code tiers dans `vendo
 
 ## Crédits
 
-- Moteur de couleur, simulations, imports et exports : [Fuji Recipe Converter](https://github.com/sadziu/Fuji-Recipe-Converter) (MIT), copié sans modification dans `vendor/fuji-recipe-converter/`. L'aperçu de Fuji Looks est identique au sien, pixel pour pixel.
+- Moteur de couleur, simulations, imports et exports : [Fuji Recipe Converter](https://github.com/sadziu/Fuji-Recipe-Converter) (MIT), copié sans modification dans `vendor/fuji-recipe-converter/`. Avec la simulation de la balance des blancs désactivée, l'aperçu de Fuji Looks est identique au sien, pixel pour pixel.
 - Lecture de captures d'écran : Tesseract.js (Apache-2.0). Photos HEIC : heic-to (LGPL-3.0). QR codes : QR Code Generator de Kazuhiko Arase (MIT). Police manuscrite : Great Vibes (SIL OFL 1.1). Détails dans [`vendor/THIRD-PARTY-NOTICES.md`](vendor/THIRD-PARTY-NOTICES.md).
 - Recettes Kodachrome 64, Kodachrome 25, Kodachrome II, Vintage Color v2, Fujicolor NPH et Kodak T-Max P3200 : [Fuji X Weekly](https://fujixweekly.com).
 
