@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d0f12">
+  <meta name="description" content="Explore des rendus photo créatifs avec Fuji Looks.">
+  <title>Fuji Looks — Photo Studio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Fuji Looks, accueil">
+      <span class="brand-mark">F.</span>
+      <span>FUJI <strong>LOOKS</strong></span>
+    </a>
+    <button class="icon-button" id="resetButton" aria-label="Réinitialiser">↺</button>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">YOUR CREATIVE DARKROOM</p>
+      <h1>Find your<br><span>look.</span></h1>
+      <p class="subtitle">Une photo. Une ambiance. Ton regard.</p>
+    </section>
+
+    <section class="photo-section">
+      <div class="photo-frame" id="photoFrame">
+        <div class="photo-placeholder" id="placeholder">
+          <div class="placeholder-icon">✳</div>
+          <p>Ton prochain chef-d’œuvre commence ici.</p>
+          <span>Importe une photo pour commencer</span>
+        </div>
+        <img id="photoPreview" alt="Aperçu de ta photo" hidden>
+        <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>
+      </div>
+
+      <label class="upload-button" for="photoInput">
+        <span>＋</span> Choisir une photo
+      </label>
+      <input id="photoInput" type="file" accept="image/*" hidden>
+
+      <p class="privacy-note">◇ Tes photos restent sur ton appareil dans cette version.</p>
+    </section>
+
+    <section class="looks-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CURATED FOR YOUR EYES</p>
+          <h2>Explore les looks</h2>
+        </div>
+        <span class="count">04 STYLES</span>
+      </div>
+
+      <div class="look-grid">
+        <button class="look-card selected" data-look="original">
+          <span class="look-swatch swatch-original">O</span>
+          <span class="look-name">Original</span>
+          <span class="look-desc">Naturel</span>
+        </button>
+        <button class="look-card" data-look="soft">
+          <span class="look-swatch swatch-soft">S</span>
+          <span class="look-name">Soft</span>
+          <span class="look-desc">Doux & aérien</span>
+        </button>
+        <button class="look-card" data-look="warm">
+          <span class="look-swatch swatch-warm">W</span>
+          <span class="look-name">Golden</span>
+          <span class="look-desc">Chaud & solaire</span>
+        </button>
+        <button class="look-card" data-look="mono">
+          <span class="look-swatch swatch-mono">M</span>
+          <span class="look-name">Monochrome</span>
+          <span class="look-desc">Noir & blanc</span>
+        </button>
+      </div>
+      <p class="hint">Les rendus sont des prototypes visuels, pas encore des simulations exactes de recettes Fujifilm.</p>
+    </section>
+
+    <section class="adjust-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">MAKE IT YOURS</p>
+          <h2>Intensité</h2>
+        </div>
+        <span id="intensityValue" class="intensity-value">100%</span>
+      </div>
+      <input id="intensity" type="range" min="0" max="100" value="100" aria-label="Intensité du rendu">
+      <div class="range-labels"><span>Subtil</span><span>Intense</span></div>
+    </section>
+
+    <section class="export-section">
+      <button class="export-button" id="exportButton" disabled>Exporter ma photo <span>↗</span></button>
+      <p id="statusMessage" class="status-message" role="status">Importe une photo pour activer l’export.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>FUJI LOOKS</span>
+    <span>MADE FOR YOUR VISION</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
