@@ -37,8 +37,9 @@
         <label class="photo-placeholder" id="placeholder" for="photoInput">
           <span class="placeholder-icon" aria-hidden="true">＋</span>
           <strong>Glisse une photo ici</strong>
-          <span>ou touche pour en choisir une</span>
+          <span>ou touche pour en choisir une (JPEG, PNG, HEIC…)</span>
         </label>
+        <button type="button" class="sample-button" id="sampleButton">Essayer avec l’image d’exemple</button>
         <canvas id="photoPreview" role="img" aria-label="Aperçu de ta photo" hidden></canvas>
         <div class="drop-overlay" aria-hidden="true">Dépose ta photo ici</div>
         <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>
@@ -50,7 +51,7 @@
           <button type="button" id="zoomIn" aria-label="Zoomer">+</button>
         </div>
       </div>
-      <input id="photoInput" type="file" accept="image/*" hidden>
+      <input id="photoInput" type="file" accept="image/*,.heic,.heif" hidden>
 
       <div class="stage-controls">
         <div class="intensity-row">
@@ -82,10 +83,14 @@
             <h2 id="recipeTitle">Réglages de la recette</h2>
             <p class="section-sub" id="recipeSim"></p>
           </div>
-          <button type="button" class="text-button" id="revertButton" hidden>Annuler les modifications</button>
+          <div class="heading-actions">
+            <button type="button" class="text-button" id="revertButton" hidden>Annuler les modifications</button>
+            <button type="button" class="secondary-button" id="saveButton" title="Enregistrer dans ta bibliothèque (sur cet appareil)">Enregistrer</button>
+          </div>
         </div>
 
         <div class="recipe-fields" id="recipeFields"></div>
+        <button type="button" class="text-button defaults-button" id="defaultsButton">Remettre les réglages par défaut</button>
 
         <details class="recipe-panel">
           <summary>Nom, auteur et notes</summary>
@@ -107,13 +112,14 @@
 
         <details class="recipe-panel">
           <summary>Importer une recette</summary>
-          <p class="hint">Colle une recette (texte ou code de partage <code>FR1.…</code>) ou charge un profil X RAW Studio (.FP1/.FP2/.FP3).</p>
+          <p class="hint">Colle une recette (texte, code de partage <code>FR1.…</code> ou lien de partage), charge un profil X RAW Studio (.FP1/.FP2/.FP3), un fichier <code>.recipe.json</code> ou une <strong>capture d’écran</strong> de recette (lue sur ton appareil). Tu peux aussi faire Ctrl+V n’importe où sur la page.</p>
           <textarea id="importText" rows="6" aria-label="Recette à importer" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
           <div class="button-row">
             <button type="button" class="secondary-button" id="importButton">Appliquer</button>
-            <label class="secondary-button" for="importFile">Charger un fichier</label>
-            <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json" hidden>
+            <label class="secondary-button" for="importFile">Fichier ou capture d’écran</label>
+            <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json,image/*,.heic,.heif" hidden>
           </div>
+          <p class="import-status" id="importStatus" role="status" aria-live="polite"></p>
         </details>
 
         <details class="recipe-panel">
@@ -123,15 +129,45 @@
             <select id="xmpTarget"></select>
           </label>
           <p class="hint" id="xmpHint"></p>
-          <div class="button-row">
-            <button type="button" class="secondary-button" id="xmpButton">Preset Lightroom (.xmp)</button>
+          <button type="button" class="secondary-button" id="xmpButton">Preset Lightroom (.xmp)</button>
+          <details class="xmp-details">
+            <summary>Réglages Camera Raw écrits dans le preset</summary>
+            <div id="xmpDetails"></div>
+          </details>
+
+          <div class="export-group">
+            <label class="field-text">
+              <span>Taille de la LUT 3D</span>
+              <select id="lutSize">
+                <option value="17">17 (fichier le plus léger)</option>
+                <option value="33" selected>33 (recommandé)</option>
+                <option value="65">65 (précision maximale)</option>
+              </select>
+            </label>
             <button type="button" class="secondary-button" id="cubeButton">LUT 3D (.cube)</button>
+          </div>
+
+          <div class="button-row">
             <button type="button" class="secondary-button" id="copyTextButton">Copier la recette</button>
             <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
+            <button type="button" class="secondary-button" id="copyLinkButton">Copier le lien</button>
+            <button type="button" class="secondary-button" id="jsonButton">Télécharger .recipe.json</button>
           </div>
         </details>
 
-        <p class="hint credits">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
+        <details class="recipe-panel">
+          <summary>Bibliothèque <small id="libraryCount"></small></summary>
+          <p class="hint">Les recettes enregistrées restent sur cet appareil et apparaissent dans l’onglet « Mes recettes ». Sauvegarde-les pour les transférer ailleurs.</p>
+          <ul class="library-list" id="libraryList"></ul>
+          <p class="hint" id="libraryEmpty">Aucune recette enregistrée pour l’instant. Utilise « Enregistrer » au-dessus des réglages.</p>
+          <div class="button-row">
+            <button type="button" class="secondary-button" id="libraryExportButton">Sauvegarder la bibliothèque</button>
+            <label class="secondary-button" for="libraryFile">Restaurer une sauvegarde</label>
+            <input id="libraryFile" type="file" accept=".json,application/json" hidden>
+          </div>
+        </details>
+
+        <p class="hint credits">Recettes et simulations issues de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT) : mêmes simulations, même moteur de couleur, mêmes exports. Ce sont des approximations, pas des reproductions exactes du traitement Fujifilm.</p>
       </section>
     </div>
   </main>

@@ -72,5 +72,115 @@ High ISO NR: -4
 Clarity: +5
 ISO: Auto, up to ISO 12800
 Exposure Compensation: 0 to +2/3 (typically), +1/3 suggested`
+  },
+  {
+    name: "Kodachrome 64",
+    author: "Fuji X Weekly",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR200
+Highlight: 0
+Shadow: 0
+Color: +2
+Noise Reduction: -4
+Sharpening: +1
+Clarity: +3
+Grain Effect: Weak, Small
+Color Chrome Effect: Strong
+Color Chrome Effect Blue: Weak
+White Balance: Daylight, +2 Red & -5 Blue
+ISO: Auto, up to ISO 6400
+Exposure Compensation: 0 to +2/3 (typically)`
+  },
+  {
+    name: "Kodachrome 25",
+    author: "Fuji X Weekly",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR400
+Highlight: +0.5
+Shadow: -0.5
+Color: +1
+Noise Reduction: -4
+Sharpening: +3
+Clarity: +3
+Grain Effect: Off
+Color Chrome Effect: Strong
+Color Chrome Effect Blue: Strong
+White Balance: Daylight, +2 Red & -4 Blue
+ISO: Auto, up to ISO 1600
+Exposure Compensation: 0 to +2/3 (typically)`
+  },
+  {
+    name: "Kodachrome II",
+    author: "Fuji X Weekly",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR200
+Highlight: +1
+Shadow: +2
+Color: +1
+Noise Reduction: -4
+Sharpening: +1
+Clarity: -2
+Grain Effect: Weak, Small
+Color Chrome Effect: Strong
+Color Chrome Effect Blue: Weak
+White Balance: Auto, +3 Red & -4 Blue
+ISO: Auto, up to ISO 6400
+Exposure Compensation: +1/3 to +2/3 (typically)`
+  },
+  {
+    name: "Vintage Color v2",
+    author: "Fuji X Weekly",
+    text: `Film Simulation: Classic Negative
+Dynamic Range: DR400
+Highlight: +2
+Shadow: +3
+Color: -1
+Noise Reduction: -4
+Sharpness: -2
+Clarity: -3
+Grain Effect: Strong, Large
+Color Chrome Effect: Strong
+Color Chrome Effect Blue: Strong
+White Balance: 7350K, -1 Red & -4 Blue
+ISO: Auto, up to ISO 6400
+Exposure Compensation: 0 to +1 (typically)`
+  },
+  {
+    name: "Fujicolor NPH",
+    author: "Fuji X Weekly",
+    text: `Film Simulation: Provia
+Dynamic Range: DR100
+Highlight: -1
+Shadow: 0
+Color: 0
+Noise Reduction: -4
+Sharpening: 0
+Clarity: -3
+Grain Effect: Weak, Large
+Color Chrome Effect: Strong
+Color Chrome Effect Blue: Strong
+White Balance: 5250K, -3 Red & -4 Blue
+ISO: Auto, up to ISO 6400
+Exposure Compensation: +1/3 to +2/3 (typically)`
+  },
+  {
+    // Fonctionne aussi avec ACROS +Ye, +R ou +G : changer « Film Simulation » dans l'éditeur.
+    name: "Kodak T-Max P3200",
+    author: "Fuji X Weekly",
+    text: `Film Simulation: Acros
+Monochromatic Color WC: -1
+Monochromatic Color MG: -1
+Grain Effect: Strong, Large
+Color Chrome Effect: Off
+Color Chrome FX Blue: Off
+White Balance: 5500K, +4 Red & +7 Blue
+Dynamic Range: DR400
+Highlight: +1
+Shadow: +3
+Sharpness: +2
+High ISO NR: -4
+Clarity: +1
+ISO: up to ISO 12800
+Exposure Compensation: 0 to +2/3 (typically)`
   }
 ];
