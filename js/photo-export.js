@@ -78,7 +78,7 @@ async function renderExport() {
 }
 
 function exportKey() {
-  return JSON.stringify([sourceToken, applied ? recipe : null, intensityState, frameStyle, edit]);
+  return JSON.stringify([sourceToken, applied ? recipe : null, intensityState, frameStyle, frameInfo, edit]);
 }
 
 // Sur mobile, la feuille de partage permet « Enregistrer l'image » dans Photos.

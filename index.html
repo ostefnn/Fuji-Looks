@@ -134,12 +134,27 @@
           <h2 id="frameTitle">Cadre</h2>
           <span class="count">APERÇU &amp; EXPORT</span>
         </div>
-        <div class="tabs" role="radiogroup" aria-labelledby="frameTitle" id="frameOptions">
-          <button type="button" class="tab" role="radio" data-frame="none">Aucun</button>
-          <button type="button" class="tab" role="radio" data-frame="white">Blanc</button>
-          <button type="button" class="tab" role="radio" data-frame="black">Noir</button>
+        <div class="edit-row">
+          <span class="edit-label">Style</span>
+          <div class="chips chips-wrap" id="frameOptions" role="group" aria-label="Style de cadre">
+            <button type="button" class="chip" data-frame="none" aria-pressed="true">Aucun</button>
+            <button type="button" class="chip" data-frame="white" aria-pressed="false"><span class="swatch" style="background:#f5f3ee"></span>Blanc</button>
+            <button type="button" class="chip" data-frame="cream" aria-pressed="false"><span class="swatch" style="background:#ece2cc"></span>Crème</button>
+            <button type="button" class="chip" data-frame="black" aria-pressed="false"><span class="swatch" style="background:#111214"></span>Noir</button>
+            <button type="button" class="chip" data-frame="thin" aria-pressed="false"><span class="swatch swatch-thin"></span>Fin</button>
+            <button type="button" class="chip" data-frame="polaroid" aria-pressed="false"><span class="swatch swatch-polaroid"></span>Polaroid</button>
+            <button type="button" class="chip" data-frame="film" aria-pressed="false"><span class="swatch swatch-film"></span>Pellicule</button>
+          </div>
         </div>
-        <p class="hint frame-hint">Une bordure façon tirage avec le nom de la recette, la simulation et les réglages, visible dans l’aperçu et dans la photo exportée.</p>
+        <div class="edit-row" id="frameInfoRow" hidden>
+          <span class="edit-label">Infos</span>
+          <div class="chips chips-wrap" id="frameInfoOptions" role="group" aria-label="Informations affichées">
+            <button type="button" class="chip" data-info="full" aria-pressed="true">Complètes</button>
+            <button type="button" class="chip" data-info="name" aria-pressed="false">Nom seul</button>
+            <button type="button" class="chip" data-info="none" aria-pressed="false">Aucune</button>
+          </div>
+        </div>
+        <p class="hint frame-hint">Visible dans l’aperçu et dans la photo exportée. « Complètes » ajoute tous les réglages de la recette, « Nom seul » le nom et la simulation.</p>
       </section>
 
       <section class="recipe-section" aria-labelledby="recipeTitle">
