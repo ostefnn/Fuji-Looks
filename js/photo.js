@@ -62,8 +62,11 @@ function setSource(drawable, w, h) {
   originalSize = { w, h };
   sourceSize = { w, h };
   resetEdit();
+  document.body.classList.add("has-photo"); // le cadre prend sa taille finale avant le calcul de l'aperçu
+  view.zoom = 1;
 
-  previewSource = drawToImageData(drawable, w, h, PREVIEW_MAX_SIDE);
+  previewSide = previewTargetSide();
+  previewSource = buildEditedSource(previewSide);
   photoPreview.width = previewSource.width;
   photoPreview.height = previewSource.height;
   photoPreview.hidden = false;
@@ -131,6 +134,7 @@ document.addEventListener("drop", (event) => {
 });
 
 intensity.addEventListener("input", () => {
+  markInteractive();
   commit("intensity");
   intensityState = intensity.value;
   schedulePreview();

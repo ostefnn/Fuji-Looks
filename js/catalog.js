@@ -106,5 +106,4 @@ let hoverTimer = 0;
 let intensityState = "100"; // valeur d'intensité connue de l'historique
 let sourceExif = null; // segment EXIF de la photo d'origine (JPEG uniquement)
 let sourceToken = 0;
-let pendingShare = null;
 const view = { zoom: 1, x: 0, y: 0 };

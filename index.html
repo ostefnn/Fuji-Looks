@@ -157,6 +157,34 @@
         <p class="hint frame-hint">Visible dans l’aperçu et dans la photo exportée. « Complètes » ajoute tous les réglages de la recette, « Nom seul » le nom et la simulation.</p>
       </section>
 
+      <section class="share-section" aria-labelledby="shareTitle">
+        <div class="section-heading">
+          <h2 id="shareTitle">Partager</h2>
+          <span class="count">IMAGES PRÊTES À POSTER</span>
+        </div>
+        <div class="share-grid">
+          <div class="share-card">
+            <strong>Avant / Après</strong>
+            <p class="hint">L’original et la recette, dans une seule image.</p>
+            <div class="chips" id="beforeAfterLayout" role="group" aria-label="Disposition">
+              <button type="button" class="chip" data-layout="side" aria-pressed="true">Côte à côte</button>
+              <button type="button" class="chip" data-layout="split" aria-pressed="false">Coupé</button>
+            </div>
+            <button type="button" class="secondary-button" id="beforeAfterButton">Créer l’avant / après</button>
+          </div>
+          <div class="share-card">
+            <strong>Planche contact</strong>
+            <p class="hint">Ta photo dans 2 à 9 looks, côte à côte.</p>
+            <button type="button" class="secondary-button" id="contactButton">Choisir les looks</button>
+          </div>
+          <div class="share-card">
+            <strong>Fiche recette</strong>
+            <p class="hint">Tous les réglages et un QR code qui ouvre la recette.</p>
+            <button type="button" class="secondary-button" id="cardButton">Créer la fiche</button>
+          </div>
+        </div>
+      </section>
+
       <section class="recipe-section" aria-labelledby="recipeTitle">
         <div class="section-heading">
           <div>
@@ -239,7 +267,6 @@
             <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
             <button type="button" class="secondary-button" id="copyLinkButton">Copier le lien</button>
             <button type="button" class="secondary-button" id="jsonButton">Télécharger .recipe.json</button>
-            <button type="button" class="secondary-button" id="cardButton">Fiche recette (image)</button>
           </div>
         </details>
 
@@ -260,6 +287,32 @@
     </div>
   </main>
 
+  <dialog class="result-dialog contact-dialog" id="contactDialog" aria-labelledby="contactTitle">
+    <div class="result-head">
+      <h2 id="contactTitle">Planche contact</h2>
+      <button type="button" class="ghost-button icon-button" id="contactClose" aria-label="Fermer">✕</button>
+    </div>
+    <p class="hint">Choisis de 2 à 9 looks. <strong id="contactCount"></strong></p>
+    <div class="contact-picker" id="contactPicker"></div>
+    <img class="result-image" id="contactPreview" alt="Aperçu de la planche contact">
+    <div class="result-actions">
+      <button type="button" class="export-button" id="contactExport">Créer la planche</button>
+    </div>
+  </dialog>
+
+  <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultTitle">
+    <div class="result-head">
+      <h2 id="resultTitle">Photo prête</h2>
+      <button type="button" class="ghost-button icon-button" id="resultClose" aria-label="Fermer">✕</button>
+    </div>
+    <img id="resultImage" class="result-image" alt="">
+    <p class="hint" id="resultHint"></p>
+    <div class="result-actions">
+      <button type="button" class="export-button" id="resultSave">Enregistrer dans Photos</button>
+      <button type="button" class="secondary-button" id="resultDownload">Télécharger le fichier</button>
+    </div>
+  </dialog>
+
   <p id="statusMessage" class="toast" role="status" aria-live="polite"></p>
 
   <footer>
@@ -272,6 +325,7 @@
   <script src="vendor/fuji-recipe-converter/engine.js"></script>
   <script src="vendor/fuji-recipe-converter/export.js"></script>
   <script src="vendor/fuji-recipe-converter/parser.js"></script>
+  <script src="vendor/qrcode/qrcode.js"></script>
   <script src="custom-recipes.js"></script>
   <script src="js/pipeline.js"></script>
   <script src="js/state.js"></script>
@@ -292,6 +346,8 @@
   <script src="js/edit.js"></script>
   <script src="js/recipe-card.js"></script>
   <script src="js/cameras.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/creations.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
