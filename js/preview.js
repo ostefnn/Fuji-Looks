@@ -29,6 +29,42 @@ function shownRecipe() {
   return activeRecipe();
 }
 
+// --- Mode interactif : aperçu allégé pendant qu'on fait glisser un curseur --------
+
+let interactiveUntil = 0;
+let interactiveTimer = 0;
+let liteCache = { source: null, data: null };
+
+function markInteractive() {
+  interactiveUntil = performance.now() + 160;
+  clearTimeout(interactiveTimer);
+  // Une fois le geste terminé, on repasse en pleine définition.
+  interactiveTimer = setTimeout(schedulePreview, 200);
+}
+
+function imageDataToCanvas(data) {
+  const canvas = document.createElement("canvas");
+  canvas.width = data.width;
+  canvas.height = data.height;
+  canvas.getContext("2d").putImageData(data, 0, 0);
+  return canvas;
+}
+
+// Copie de l'aperçu en demi-définition (4 fois moins de pixels à calculer).
+function liteSource() {
+  if (liteCache.source !== previewSource) {
+    const w = Math.max(1, Math.round(previewSource.width / 2));
+    const h = Math.max(1, Math.round(previewSource.height / 2));
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(imageDataToCanvas(previewSource), 0, 0, w, h);
+    liteCache = { source: previewSource, data: ctx.getImageData(0, 0, w, h) };
+  }
+  return liteCache.data;
+}
+
 function updatePreview() {
   const strength = getStrength();
 
@@ -36,18 +72,28 @@ function updatePreview() {
 
   if (previewSource) {
     const shown = shownRecipe();
-    const out = renderRecipe(previewSource, shown, strength, sourceSize);
+    // Pendant un glissement de curseur : rendu en demi-définition, affiché à la taille normale.
+    const lite = performance.now() < interactiveUntil && photoPreview.width > 0;
+    const src = lite ? liteSource() : previewSource;
+    const out = renderRecipe(src, shown, strength, sourceSize);
     const framed = frameStyle !== "none" ? composeFrame(out, frameStyle, shown) : null;
-    const w = framed ? framed.width : out.width;
-    const h = framed ? framed.height : out.height;
-    if (photoPreview.width !== w || photoPreview.height !== h) {
-      photoPreview.width = w;
-      photoPreview.height = h;
-      applyView();
-    }
     const ctx = photoPreview.getContext("2d");
-    if (framed) ctx.drawImage(framed, 0, 0);
-    else ctx.putImageData(out, 0, 0);
+
+    if (lite) {
+      const layer = framed || imageDataToCanvas(out);
+      ctx.imageSmoothingQuality = "low";
+      ctx.drawImage(layer, 0, 0, photoPreview.width, photoPreview.height);
+    } else {
+      const w = framed ? framed.width : out.width;
+      const h = framed ? framed.height : out.height;
+      if (photoPreview.width !== w || photoPreview.height !== h) {
+        photoPreview.width = w;
+        photoPreview.height = h;
+        applyView();
+      }
+      if (framed) ctx.drawImage(framed, 0, 0);
+      else ctx.putImageData(out, 0, 0);
+    }
   }
 
   updatePreviewLabel();

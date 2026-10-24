@@ -57,6 +57,7 @@ function buildRecipeEditor() {
     control.id = `f-${field.key}`;
     if (!output) row.appendChild(control);
     control.addEventListener("input", () => {
+      if (field.type === "number") markInteractive();
       commit(`field:${field.key}`);
       recipe[field.key] = field.type === "number" ? Number(control.value) : control.value;
       onRecipeEdited();

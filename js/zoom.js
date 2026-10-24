@@ -29,6 +29,7 @@ function applyView() {
   zoomFitButton.textContent = zoomed ? `${Math.round(view.zoom * 100)}%` : "Ajusté";
   zoomOutButton.disabled = !zoomed;
   zoomInButton.disabled = view.zoom >= ZOOM_MAX - 0.001;
+  schedulePreviewResolution();
 }
 
 // Zoome en gardant fixe le point (cx, cy), exprimé par rapport au centre du cadre.

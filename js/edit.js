@@ -83,12 +83,36 @@ function buildEditedSource(maxSide, maxPixels) {
   return edit.exposure ? applyExposure(data, edit.exposure) : data;
 }
 
+// Aperçu adaptatif : calculé à la taille réelle du cadre (× densité de l'écran), plus grand
+// quand on zoome. Beaucoup plus rapide qu'un aperçu fixe en 2048 px, surtout sur téléphone.
+const PREVIEW_MIN_SIDE = 720;
+let previewSide = 0;
+
+function previewTargetSide() {
+  const rect = photoFrame.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const needed = Math.max(rect.width, rect.height) * dpr * Math.max(1, view.zoom);
+  return Math.round(Math.min(PREVIEW_MAX_SIDE, Math.max(PREVIEW_MIN_SIDE, needed)));
+}
+
+// Après un zoom ou un changement de taille du cadre, ajuste la définition une fois le geste fini.
+let resolutionTimer = 0;
+function schedulePreviewResolution() {
+  if (!originalImage) return;
+  clearTimeout(resolutionTimer);
+  resolutionTimer = setTimeout(() => {
+    const target = previewTargetSide();
+    if (target > previewSide * 1.15 || target < previewSide / 1.6) rebuildSource();
+  }, 250);
+}
+
 // Recalcule l'aperçu après une retouche (ou un changement de photo).
 function rebuildSource() {
   if (!originalImage) return;
   const g = isIdentityEdit() ? originalSize : editGeometry(originalSize.w, originalSize.h);
   sourceSize = { w: g.w, h: g.h };
-  previewSource = buildEditedSource(PREVIEW_MAX_SIDE);
+  previewSide = previewTargetSide();
+  previewSource = buildEditedSource(previewSide);
   sourceToken++;
   schedulePreview();
 }
