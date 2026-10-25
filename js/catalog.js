@@ -45,6 +45,15 @@ function normalizeRecipeText(text) {
         const alias = RECIPE_ALIASES.find(([re]) => re.test(key) && key.replace(re, "").trim() === "");
         if (alias) line = `${alias[1]}:${line.slice(colon + 1)}`;
       }
+      // « Monochromatic Color: WC +2, MG -1 » (une seule ligne) → une ligne par réglage.
+      const mono = /^mono(?:chromatic)?\s*colou?r\b[^:]*:(.*)$/i.exec(line);
+      if (mono) {
+        const wc = /\b(?:WC|warm\s*\/?\s*cool)\s*:?\s*([+-]?\d+(?:\.\d+)?)/i.exec(mono[1]);
+        const mg = /\b(?:MG|magenta\s*\/?\s*green)\s*:?\s*([+-]?\d+(?:\.\d+)?)/i.exec(mono[1]);
+        if (wc || mg) {
+          return [wc && `Monochromatic Color WC: ${wc[1]}`, mg && `Monochromatic Color MG: ${mg[1]}`].filter(Boolean).join("\n");
+        }
+      }
       // Balance des blancs notée « K-7500 », « K 7500 » ou « 7500 K » → « 7500K »
       line = line.replace(/^(White Balance:\s*)K\s*-?\s*(\d{4,5})\b/i, "$1$2K").replace(/^(White Balance:\s*)(\d{4,5})\s+K\b/i, "$1$2K");
       return line;

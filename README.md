@@ -97,7 +97,7 @@ Les recettes intégrées à l'app sont dans [`custom-recipes.js`](custom-recipes
 | `Color`, `Sharpness`, `Noise Reduction` | de -4 à +4 |
 | `Highlight`, `Shadow` | de -2 à +4, par demi-pas (`+1.5`) |
 | `Clarity` | de -5 à +5 |
-| `Monochromatic Color WC`, `Monochromatic Color MG` (N&B) | de -18 à +18, une ligne chacun |
+| `Monochromatic Color` (N&B) | `WC +2, MG -1` sur une ligne, ou `Monochromatic Color WC: +2` et `Monochromatic Color MG: -1` (de -18 à +18) |
 | `ISO`, `Exposure Compensation` | texte libre : `Auto up to ISO 6400`, `+1/3 to +2/3` |
 
 **Astuce** : avant de modifier le fichier, colle la recette dans **Importer une recette** dans l'app pour vérifier qu'elle est bien lue, puis copie les valeurs affichées dans **Recette**.
