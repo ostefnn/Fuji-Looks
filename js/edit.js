@@ -5,7 +5,7 @@ const RATIOS = { original: null, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "16:9": 1
 // temp / tint : balance des blancs de la photo d'origine (avant la recette), de -100 à +100.
 const DEFAULT_EDIT = {
   ratio: "original", cropX: 0, cropY: 0, rotate: 0, straighten: 0,
-  exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, temp: 0, tint: 0
+  exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, temp: 0, tint: 0, halation: 0
 };
 let edit = { ...DEFAULT_EDIT };
 let originalSize = null; // dimensions de la photo importée, avant retouche
@@ -22,6 +22,11 @@ const highlightsInput = document.getElementById("highlightsEdit");
 const highlightsValue = document.getElementById("highlightsEditValue");
 const shadowsInput = document.getElementById("shadowsEdit");
 const shadowsValue = document.getElementById("shadowsEditValue");
+
+// La halation s'applique après la recette : elle ne change pas la source retouchée.
+function hasEdits(e = edit) {
+  return !isIdentityEdit(e) || e.halation > 0;
+}
 
 function isIdentityEdit(e = edit) {
   return e.ratio === "original" && e.rotate === 0 && e.straighten === 0 && e.exposure === 0 &&
@@ -177,6 +182,58 @@ function applyToneRecovery(imageData, highlights, shadows) {
   return imageData;
 }
 
+/*
+ * Halation : halo rouge-orangé autour des lumières fortes, comme sur une pellicule sans
+ * couche anti-halo (CineStill 800T). Effet pellicule, pas un réglage Fujifilm : appliqué
+ * après la recette, sur l'aperçu comme sur l'export. Taille du halo proportionnelle à la photo.
+ */
+const HALATION_TINT = [1, 0.3, 0.1];
+
+function applyHalation(imageData, amount) {
+  if (!amount) return imageData;
+  const { width: w, height: h, data: d } = imageData;
+  const mask = makeCanvas(w, h);
+  const mctx = mask.getContext("2d", { willReadFrequently: true });
+  const m = mctx.createImageData(w, h);
+  for (let i = 0; i < d.length; i += 4) {
+    const y = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255;
+    const t = Math.max(0, (y - 0.8) / 0.2);
+    m.data[i] = m.data[i + 1] = m.data[i + 2] = Math.round(t * t * 255);
+    m.data[i + 3] = 255;
+  }
+  mctx.putImageData(m, 0, 0);
+  const long = Math.max(w, h);
+  // Flou par réduction (rapide et sans canvas.filter, absent de Safari) : un pixel de la
+  // version réduite couvre long / side pixels de la photo.
+  function blurred(side) {
+    const k = Math.min(1, side / long);
+    let layer = mask;
+    for (const step of [Math.min(1, k * 4), k]) {
+      const c = makeCanvas(Math.max(1, Math.round(w * step)), Math.max(1, Math.round(h * step)));
+      const cctx = c.getContext("2d");
+      cctx.imageSmoothingQuality = "high";
+      cctx.drawImage(layer, 0, 0, c.width, c.height);
+      layer = c;
+    }
+    const out = makeCanvas(w, h);
+    const octx = out.getContext("2d", { willReadFrequently: true });
+    octx.imageSmoothingQuality = "high";
+    octx.drawImage(layer, 0, 0, w, h);
+    return octx.getImageData(0, 0, w, h).data;
+  }
+  // Halo serré autour des lumières (≈ 1 % du grand côté) et lueur large plus discrète.
+  const tight = blurred(90);
+  const wide = blurred(36);
+  const strength = amount / 100;
+  for (let i = 0; i < d.length; i += 4) {
+    const g = Math.min(1, ((tight[i] / 255) * 2.2 + (wide[i] / 255) * 0.6) * strength);
+    if (g < 0.004) continue;
+    // Mélange « écran » : le halo éclaire sans jamais assombrir.
+    for (let c = 0; c < 3; c++) d[i + c] = 255 - ((255 - d[i + c]) * (1 - g * HALATION_TINT[c]));
+  }
+  return imageData;
+}
+
 // Source retouchée, réduite à maxSide / maxPixels. Sans retouche, identique à drawToImageData.
 function buildEditedSource(maxSide, maxPixels, e = edit) {
   const { w: W, h: H } = originalSize;
@@ -281,7 +338,8 @@ const SLIDERS = [
   ["whites", "whitesEdit"],
   ["blacks", "blacksEdit"],
   ["temp", "tempEdit"],
-  ["tint", "tintEdit"]
+  ["tint", "tintEdit"],
+  ["halation", "halationEdit"]
 ].map(([key, id]) => ({ key, input: document.getElementById(id), output: document.getElementById(`${id}Value`) }));
 
 function updateEditControls() {
@@ -291,7 +349,7 @@ function updateEditControls() {
   updateCropControls();
   SLIDERS.forEach(({ key, input, output }) => {
     input.value = edit[key] || 0;
-    output.textContent = `${edit[key] > 0 ? "+" : ""}${edit[key] || 0}`;
+    output.textContent = `${edit[key] > 0 && Number(input.min) < 0 ? "+" : ""}${edit[key] || 0}`;
   });
   straightenInput.value = edit.straighten;
   straightenValue.textContent = `${edit.straighten > 0 ? "+" : ""}${edit.straighten.toFixed(1)}°`;
@@ -301,8 +359,8 @@ function updateEditControls() {
   highlightsValue.textContent = `${edit.highlights > 0 ? "+" : ""}${edit.highlights}`;
   shadowsInput.value = edit.shadows;
   shadowsValue.textContent = `${edit.shadows > 0 ? "+" : ""}${edit.shadows}`;
-  editResetButton.disabled = isIdentityEdit();
-  editMeta.textContent = isIdentityEdit() ? "" : "MODIFIÉE";
+  editResetButton.disabled = !hasEdits();
+  editMeta.textContent = hasEdits() ? "MODIFIÉE" : "";
 }
 
 function setEdit(changes, historyKey = null) {
