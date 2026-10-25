@@ -11,8 +11,32 @@ const histogramPanel = document.getElementById("histogramPanel");
 const histogramCanvas = document.getElementById("histogramCanvas");
 const clipShadows = document.getElementById("clipShadows");
 const clipHighlights = document.getElementById("clipHighlights");
+const clippingButton = document.getElementById("clippingButton");
 
 let histogramOn = load(HISTO_KEY) === true;
+// Zones écrêtées sur la photo : hautes lumières brûlées en rouge, ombres bouchées en bleu (aperçu seulement).
+let clippingOn = false;
+
+function markClipping(image) {
+  const d = image.data;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i] >= 254 || d[i + 1] >= 254 || d[i + 2] >= 254) {
+      d[i] = 255;
+      d[i + 1] = 40;
+      d[i + 2] = 40;
+    } else if (d[i] <= 1 && d[i + 1] <= 1 && d[i + 2] <= 1) {
+      d[i] = 30;
+      d[i + 1] = 110;
+      d[i + 2] = 255;
+    }
+  }
+}
+
+function setClipping(on) {
+  clippingOn = on;
+  clippingButton.setAttribute("aria-pressed", String(on));
+  schedulePreview();
+}
 
 // Compte les niveaux R, V, B et la luminance sur ~60 000 pixels au plus (rapide, même en glissant un curseur).
 function computeHistogram(image) {
@@ -127,6 +151,7 @@ function setHistogram(on) {
   store(HISTO_KEY, on);
   histogramPanel.hidden = !on;
   histogramToggle.setAttribute("aria-pressed", String(on));
+  if (!on && clippingOn) setClipping(false);
   if (on) schedulePreview();
 }
 
@@ -136,5 +161,6 @@ histogramToggle.addEventListener("click", (event) => {
 });
 histogramToggle.addEventListener("pointerdown", (event) => event.stopPropagation());
 histogramPanel.addEventListener("pointerdown", (event) => event.stopPropagation());
+clippingButton.addEventListener("click", () => setClipping(!clippingOn));
 histogramPanel.hidden = !histogramOn;
 histogramToggle.setAttribute("aria-pressed", String(histogramOn));

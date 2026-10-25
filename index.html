@@ -58,6 +58,8 @@
           <canvas id="histogramCanvas" role="img" aria-label="Histogramme de la photo (rouge, vert, bleu et luminance)"></canvas>
           <div class="histogram-clip">
             <span id="clipShadows" title="Ombres bouchées"></span>
+            <button type="button" class="clipping-button" id="clippingButton" aria-pressed="false"
+              title="Montrer sur la photo les zones brûlées (rouge) et bouchées (bleu)">Zones</button>
             <span id="clipHighlights" title="Hautes lumières brûlées"></span>
           </div>
         </div>
@@ -166,12 +168,14 @@
         </summary>
         <div class="acc-body">
           <div class="acc-toolbar">
-            <span class="hint">Recadrage, redressement et lumière.</span>
+            <span class="hint">Corrige la photo avant d’y appliquer la recette.</span>
             <div class="heading-actions">
               <button type="button" class="chip" id="autoExposureButton" title="Corrige l’exposition, les hautes lumières et les ombres">✨ Auto</button>
               <button type="button" class="text-button" id="editResetButton" disabled>Réinitialiser</button>
             </div>
           </div>
+
+          <h3 class="acc-sub">Cadrage</h3>
           <div class="edit-row">
             <span class="edit-label">Format</span>
             <div class="chips chips-wrap" id="ratioOptions" role="group" aria-label="Format">
@@ -181,6 +185,8 @@
               <button type="button" class="chip" data-ratio="3:2" aria-pressed="false">3:2</button>
               <button type="button" class="chip" data-ratio="16:9" aria-pressed="false">16:9</button>
               <button type="button" class="chip" data-ratio="9:16" aria-pressed="false">9:16</button>
+              <button type="button" class="chip chip-tool" id="cropMoveButton" aria-pressed="false" hidden
+                title="Fais glisser la photo pour choisir la partie gardée">✥ Déplacer</button>
             </div>
           </div>
           <div class="edit-row">
@@ -195,6 +201,8 @@
             <input type="range" id="straighten" min="-15" max="15" step="0.1" value="0">
             <output id="straightenValue" for="straighten">0.0°</output>
           </div>
+
+          <h3 class="acc-sub">Lumière</h3>
           <div class="edit-row">
             <label class="edit-label" for="exposure">Exposition</label>
             <input type="range" id="exposure" min="-2" max="2" step="0.1" value="0">
@@ -210,7 +218,36 @@
             <input type="range" id="shadowsEdit" min="-100" max="100" step="1" value="0">
             <output id="shadowsEditValue" for="shadowsEdit">0</output>
           </div>
-          <p class="hint">Double-clic sur un curseur pour le remettre à 0. Le redressement recadre automatiquement pour éviter les coins vides. Hautes lumières négatives : récupère un ciel trop clair ; ombres positives : débouche les zones sombres.</p>
+          <div class="edit-row">
+            <label class="edit-label" for="whitesEdit">Blancs</label>
+            <input type="range" id="whitesEdit" min="-100" max="100" step="1" value="0">
+            <output id="whitesEditValue" for="whitesEdit">0</output>
+          </div>
+          <div class="edit-row">
+            <label class="edit-label" for="blacksEdit">Noirs</label>
+            <input type="range" id="blacksEdit" min="-100" max="100" step="1" value="0">
+            <output id="blacksEditValue" for="blacksEdit">0</output>
+          </div>
+
+          <h3 class="acc-sub">Balance des blancs de la photo</h3>
+          <div class="edit-row">
+            <label class="edit-label" for="tempEdit">Température</label>
+            <input type="range" class="range-temp" id="tempEdit" min="-100" max="100" step="1" value="0">
+            <output id="tempEditValue" for="tempEdit">0</output>
+          </div>
+          <div class="edit-row">
+            <label class="edit-label" for="tintEdit">Teinte</label>
+            <input type="range" class="range-tint" id="tintEdit" min="-100" max="100" step="1" value="0">
+            <output id="tintEditValue" for="tintEdit">0</output>
+          </div>
+          <div class="edit-row">
+            <span class="edit-label">Pipette</span>
+            <div class="chips">
+              <button type="button" class="chip chip-tool" id="pipetteButton" aria-pressed="false"
+                title="Touche sur la photo une zone qui devrait être grise ou blanche">⌖ Point neutre</button>
+            </div>
+          </div>
+          <p class="hint">Double-clic sur un curseur pour le remettre à 0. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue (intérieur, néon…) avant la recette, qui suppose une photo prise en lumière du jour.</p>
         </div>
       </details>
 

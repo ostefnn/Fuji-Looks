@@ -1,7 +1,12 @@
-/* Fuji Looks — Retouches de base : format, rotation, redressement, exposition, hautes lumières / ombres. */
+/* Fuji Looks — Retouches de base : format et cadrage, rotation, redressement, lumière, balance des blancs de la photo. */
 
 const RATIOS = { original: null, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "16:9": 16 / 9, "9:16": 9 / 16 };
-const DEFAULT_EDIT = { ratio: "original", rotate: 0, straighten: 0, exposure: 0, highlights: 0, shadows: 0 };
+// cropX / cropY : position du cadrage dans la marge disponible, de -1 (gauche / haut) à 1 (droite / bas).
+// temp / tint : balance des blancs de la photo d'origine (avant la recette), de -100 à +100.
+const DEFAULT_EDIT = {
+  ratio: "original", cropX: 0, cropY: 0, rotate: 0, straighten: 0,
+  exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, temp: 0, tint: 0
+};
 let edit = { ...DEFAULT_EDIT };
 let originalSize = null; // dimensions de la photo importée, avant retouche
 
@@ -20,7 +25,7 @@ const shadowsValue = document.getElementById("shadowsEditValue");
 
 function isIdentityEdit(e = edit) {
   return e.ratio === "original" && e.rotate === 0 && e.straighten === 0 && e.exposure === 0 &&
-    !e.highlights && !e.shadows;
+    !e.highlights && !e.shadows && !e.whites && !e.blacks && !e.temp && !e.tint;
 }
 
 // Géométrie en pixels de la photo d'origine : taille finale et angle total.
@@ -34,14 +39,23 @@ function editGeometry(w, h, e = edit) {
   const s = Math.sin(a);
   // Légère marge quand l'image est inclinée : évite les pixels de bord semi-transparents.
   const fit = Math.min(rw / (rw * c + rh * s), rh / (rw * s + rh * c)) * (a ? 0.995 : 1);
-  let cw = rw * fit;
-  let ch = rh * fit;
+  const fw = rw * fit;
+  const fh = rh * fit;
+  let cw = fw;
+  let ch = fh;
   const ratio = RATIOS[e.ratio];
   if (ratio) {
     if (cw / ch > ratio) cw = ch * ratio;
     else ch = cw / ratio;
   }
-  return { w: Math.max(1, Math.round(cw)), h: Math.max(1, Math.round(ch)), angle: ((e.rotate + e.straighten) * Math.PI) / 180 };
+  // Marge laissée par le format : le cadrage peut s'y déplacer (offX / offY en pixels d'origine).
+  const slackX = (fw - cw) / 2;
+  const slackY = (fh - ch) / 2;
+  return {
+    w: Math.max(1, Math.round(cw)), h: Math.max(1, Math.round(ch)),
+    angle: ((e.rotate + e.straighten) * Math.PI) / 180,
+    slackX, slackY, offX: (e.cropX || 0) * slackX, offY: (e.cropY || 0) * slackY
+  };
 }
 
 function srgbToLinear(v) {
@@ -52,11 +66,61 @@ function linearToSrgb(v) {
   return v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
 }
 
-// Exposition en IL, appliquée en lumière linéaire (comme un vrai changement d'exposition).
-function applyExposure(imageData, ev) {
-  const gain = Math.pow(2, ev);
+/*
+ * Balance des blancs de la photo : gains R, V, B en lumière linéaire. Température positive :
+ * plus chaud (rouge +, bleu −) ; teinte positive : plus magenta (vert −). Les gains sont
+ * normalisés pour garder la même luminosité.
+ */
+const WB_TEMP_STOPS = 0.8; // ±100 → ±0,8 IL sur rouge et bleu (en sens opposés) : couvre une lampe à incandescence
+const WB_TINT_STOPS = 0.4;
+
+function whiteBalanceEditGains(temp, tint) {
+  const r = Math.pow(2, (WB_TEMP_STOPS * temp) / 100);
+  const b = Math.pow(2, (-WB_TEMP_STOPS * temp) / 100);
+  const g = Math.pow(2, (-WB_TINT_STOPS * tint) / 100);
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return [r / luma, g / luma, b / luma];
+}
+
+// Réglages inverses : température et teinte qui donnent ces gains (pour la pipette).
+function gainsToWhiteBalance([r, g, b]) {
+  const clamp = (v) => Math.max(-100, Math.min(100, Math.round(v)));
+  const temp = (Math.log2(r / b) / (2 * WB_TEMP_STOPS)) * 100;
+  const tint = (-Math.log2(g / Math.sqrt(r * b)) / WB_TINT_STOPS) * 100;
+  return { temp: clamp(temp), tint: clamp(tint) };
+}
+
+// Exposition (en IL) et balance des blancs, appliquées en lumière linéaire comme sur le capteur.
+function applyExposure(imageData, ev, gains = [1, 1, 1]) {
+  const exposure = Math.pow(2, ev);
+  const tables = gains.map((gain) => {
+    const table = new Uint8ClampedArray(256);
+    for (let i = 0; i < 256; i++) table[i] = Math.round(linearToSrgb(Math.min(1, srgbToLinear(i / 255) * gain * exposure)) * 255);
+    return table;
+  });
+  const [tr, tg, tb] = tables;
+  const d = imageData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    d[i] = tr[d[i]];
+    d[i + 1] = tg[d[i + 1]];
+    d[i + 2] = tb[d[i + 2]];
+  }
+  return imageData;
+}
+
+/*
+ * Blancs / Noirs, de -100 à +100 : courbe qui agit surtout aux extrémités de l'histogramme.
+ * Blancs + : éclaircit le haut (jusqu'au blanc pur) ; Noirs − : densifie le bas (jusqu'au noir pur).
+ */
+function applyWhitesBlacks(imageData, whites, blacks) {
+  const w = whites / 100;
+  const k = blacks / 100;
   const table = new Uint8ClampedArray(256);
-  for (let i = 0; i < 256; i++) table[i] = Math.round(linearToSrgb(Math.min(1, srgbToLinear(i / 255) * gain)) * 255);
+  for (let i = 0; i < 256; i++) {
+    const x = i / 255;
+    const y = x + 0.3 * w * Math.pow(x, 3) + 0.3 * k * Math.pow(1 - x, 3);
+    table[i] = Math.round(Math.max(0, Math.min(1, y)) * 255);
+  }
   const d = imageData.data;
   for (let i = 0; i < d.length; i += 4) {
     d[i] = table[d[i]];
@@ -130,11 +194,13 @@ function buildEditedSource(maxSide, maxPixels, e = edit) {
   ctx.imageSmoothingQuality = "high";
   ctx.translate(ow / 2, oh / 2);
   ctx.scale(k, k);
+  ctx.translate(-g.offX, -g.offY);
   ctx.rotate(g.angle);
   ctx.drawImage(originalImage, -W / 2, -H / 2, W, H);
   const data = ctx.getImageData(0, 0, ow, oh);
-  if (e.exposure) applyExposure(data, e.exposure);
+  if (e.exposure || e.temp || e.tint) applyExposure(data, e.exposure, whiteBalanceEditGains(e.temp || 0, e.tint || 0));
   if (e.highlights || e.shadows) applyToneRecovery(data, e.highlights, e.shadows);
+  if (e.whites || e.blacks) applyWhitesBlacks(data, e.whites || 0, e.blacks || 0);
   return data;
 }
 
@@ -144,7 +210,7 @@ function buildEditedSource(maxSide, maxPixels, e = edit) {
  * hautes lumières et des ombres selon la part de pixels presque blancs ou presque noirs.
  */
 function autoExposure() {
-  const base = { ...edit, exposure: 0, highlights: 0, shadows: 0 };
+  const base = { ...edit, exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0 };
   const d = buildEditedSource(256, null, base).data;
   const lum = [];
   for (let i = 0; i < d.length; i += 4) {
@@ -163,7 +229,7 @@ function autoExposure() {
   const dark = lum.filter((v) => v * gain < 0.02).length / n;
   const highlights = -Math.min(60, Math.round((bright * 300) / 5) * 5) || 0; // évite « -0 »
   const shadows = Math.min(50, Math.round((dark * 250) / 5) * 5) || 0;
-  return { exposure: ev, highlights, shadows };
+  return { exposure: ev, highlights, shadows, whites: 0, blacks: 0 };
 }
 
 // Aperçu adaptatif : calculé à la taille réelle du cadre (× densité de l'écran), plus grand
@@ -210,9 +276,22 @@ function scheduleRebuild() {
   });
 }
 
+// Curseurs simples de -100 à +100 (valeur affichée dans l'élément « …Value »).
+const SLIDERS = [
+  ["whites", "whitesEdit"],
+  ["blacks", "blacksEdit"],
+  ["temp", "tempEdit"],
+  ["tint", "tintEdit"]
+].map(([key, id]) => ({ key, input: document.getElementById(id), output: document.getElementById(`${id}Value`) }));
+
 function updateEditControls() {
   ratioOptions.querySelectorAll("[data-ratio]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.ratio === edit.ratio));
+  });
+  updateCropControls();
+  SLIDERS.forEach(({ key, input, output }) => {
+    input.value = edit[key] || 0;
+    output.textContent = `${edit[key] > 0 ? "+" : ""}${edit[key] || 0}`;
   });
   straightenInput.value = edit.straighten;
   straightenValue.textContent = `${edit.straighten > 0 ? "+" : ""}${edit.straighten.toFixed(1)}°`;
@@ -240,7 +319,120 @@ function resetEdit() {
 
 ratioOptions.addEventListener("click", (event) => {
   const button = event.target.closest("[data-ratio]");
-  if (button) setEdit({ ratio: button.dataset.ratio });
+  if (button) setEdit({ ratio: button.dataset.ratio, cropX: 0, cropY: 0 });
+});
+
+SLIDERS.forEach(({ key, input }) => {
+  input.addEventListener("input", () => setEdit({ [key]: Number(input.value) }, `edit:${key}`));
+  input.addEventListener("dblclick", () => setEdit({ [key]: 0 }));
+});
+
+// --- Gestes sur la photo : déplacer le cadrage, pipette « point neutre » -------------
+
+const cropMoveButton = document.getElementById("cropMoveButton");
+const pipetteButton = document.getElementById("pipetteButton");
+let photoTool = null; // null | "crop" | "pipette"
+
+function setPhotoTool(tool) {
+  photoTool = tool;
+  cropMoveButton.setAttribute("aria-pressed", String(tool === "crop"));
+  pipetteButton.setAttribute("aria-pressed", String(tool === "pipette"));
+  photoFrame.classList.toggle("tool-crop", tool === "crop");
+  photoFrame.classList.toggle("tool-pipette", tool === "pipette");
+  if (tool === "crop") showStatus("Fais glisser la photo pour choisir le cadrage.");
+  if (tool === "pipette") showStatus("Touche une zone qui devrait être grise ou blanche.");
+}
+
+function updateCropControls() {
+  const movable = edit.ratio !== "original" && originalSize &&
+    (() => { const g = editGeometry(originalSize.w, originalSize.h); return g.slackX > 1 || g.slackY > 1; })();
+  cropMoveButton.hidden = !movable;
+  if (!movable && photoTool === "crop") setPhotoTool(null);
+}
+
+cropMoveButton.addEventListener("click", () => setPhotoTool(photoTool === "crop" ? null : "crop"));
+pipetteButton.addEventListener("click", () => {
+  if (!originalImage) return;
+  setPhotoTool(photoTool === "pipette" ? null : "pipette");
+});
+
+// Point de l'écran → position dans la photo (0..1), en tenant compte du cadre et du zoom.
+function photoPointFromEvent(event) {
+  const rect = photoPreview.getBoundingClientRect();
+  const fx = ((event.clientX - rect.left) / rect.width - previewPhotoRect.x) / previewPhotoRect.w;
+  const fy = ((event.clientY - rect.top) / rect.height - previewPhotoRect.y) / previewPhotoRect.h;
+  return { fx, fy, inside: fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1, scale: rect.width * previewPhotoRect.w };
+}
+
+// Pipette : moyenne d'une petite zone de la photo retouchée, puis gains qui la rendent neutre.
+function pickNeutral(point) {
+  const src = previewSource;
+  const cx = Math.round(point.fx * (src.width - 1));
+  const cy = Math.round(point.fy * (src.height - 1));
+  const radius = Math.max(2, Math.round(Math.min(src.width, src.height) / 200));
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let n = 0;
+  for (let y = Math.max(0, cy - radius); y <= Math.min(src.height - 1, cy + radius); y++) {
+    for (let x = Math.max(0, cx - radius); x <= Math.min(src.width - 1, cx + radius); x++) {
+      const i = (y * src.width + x) * 4;
+      r += srgbToLinear(src.data[i] / 255);
+      g += srgbToLinear(src.data[i + 1] / 255);
+      b += srgbToLinear(src.data[i + 2] / 255);
+      n++;
+    }
+  }
+  r /= n;
+  g /= n;
+  b /= n;
+  if (Math.max(r, g, b) > 0.98 || Math.max(r, g, b) < 0.003) {
+    showStatus("Zone trop claire ou trop sombre : choisis un gris ou un blanc qui n’est pas brûlé.");
+    return;
+  }
+  const current = whiteBalanceEditGains(edit.temp || 0, edit.tint || 0);
+  const mean = (r + g + b) / 3;
+  const next = gainsToWhiteBalance([current[0] * mean / r, current[1] * mean / g, current[2] * mean / b]);
+  setEdit(next);
+  setPhotoTool(null);
+  showStatus(`Point neutre : température ${next.temp > 0 ? "+" : ""}${next.temp}, teinte ${next.tint > 0 ? "+" : ""}${next.tint}.`);
+}
+
+let cropDrag = null;
+photoFrame.addEventListener("pointerdown", (event) => {
+  if (!photoTool || !previewSource || event.target.closest("button")) return;
+  const point = photoPointFromEvent(event);
+  event.stopPropagation(); // pas de déplacement / zoom de l'aperçu pendant l'outil
+  event.preventDefault();
+  if (photoTool === "pipette") {
+    if (point.inside) pickNeutral(point);
+    return;
+  }
+  const g = editGeometry(originalSize.w, originalSize.h);
+  commit("edit:crop");
+  cropDrag = { id: event.pointerId, x: event.clientX, y: event.clientY, cropX: edit.cropX, cropY: edit.cropY, g, scale: point.scale };
+}, true);
+
+window.addEventListener("pointermove", (event) => {
+  if (!cropDrag || event.pointerId !== cropDrag.id) return;
+  const { g } = cropDrag;
+  // Glisser vers la droite fait suivre la photo : le cadrage part vers la gauche.
+  const perPixel = g.w / cropDrag.scale; // pixels d'origine par pixel d'écran
+  const dx = (event.clientX - cropDrag.x) * perPixel;
+  const dy = (event.clientY - cropDrag.y) * perPixel;
+  const clamp = (v) => Math.max(-1, Math.min(1, v));
+  const cropX = g.slackX > 1 ? clamp(cropDrag.cropX - dx / g.slackX) : 0;
+  const cropY = g.slackY > 1 ? clamp(cropDrag.cropY - dy / g.slackY) : 0;
+  if (cropX === edit.cropX && cropY === edit.cropY) return;
+  edit = { ...edit, cropX, cropY };
+  markInteractive();
+  scheduleRebuild();
+});
+
+["pointerup", "pointercancel"].forEach((type) => {
+  window.addEventListener(type, (event) => {
+    if (cropDrag && event.pointerId === cropDrag.id) cropDrag = null;
+  });
 });
 
 document.getElementById("rotateLeft").addEventListener("click", () => setEdit({ rotate: (edit.rotate + 270) % 360 }));

@@ -2055,3 +2055,49 @@ body:not(.has-photo) .histogram-panel {
   width: min(170px, calc(100% - 20px));
   bottom: 48px;
 }
+
+/* --- Outils de retouche sur la photo --------------------------------------- */
+
+.chip-tool[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.tool-crop #photoPreview {
+  cursor: move;
+}
+
+.tool-pipette #photoPreview {
+  cursor: crosshair;
+}
+
+.tool-crop,
+.tool-pipette {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Curseurs colorés : chaud / magenta vers la droite. */
+.edit-row .range-temp {
+  accent-color: #f0a03c;
+}
+
+.edit-row .range-tint {
+  accent-color: #d35bd0;
+}
+
+.clipping-button {
+  padding: 1px 8px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.clipping-button[aria-pressed="true"] {
+  border-color: #ff8a80;
+  color: #ff8a80;
+}
