@@ -12,8 +12,49 @@ function restoreExposureText(text, result) {
   return result;
 }
 
+/*
+ * Recettes copiées depuis un site ou un réseau social : on remet le texte au format attendu par
+ * le parser du convertisseur avant de le lire. Puces, tabulations, tirets typographiques
+ * (« ‑1 » devenait +1), abréviations courantes (Col. Chr., ISO N.R., EV Comp., WB: K-7500…).
+ */
+const RECIPE_ALIASES = [
+  [/^(?:film\s*sim(?:ulation)?|simulation)\b/i, "Film Simulation"],
+  [/^(?:col(?:or|our)?\.?\s*chr(?:ome)?\.?\s*(?:fx\s*)?blue|chrom(?:e)?\.?\s*fx\s*blue|ccfxb|cc\s*fx\s*blue)\b/i, "Color Chrome FX Blue"],
+  [/^(?:col(?:or|our)?\.?\s*chr(?:ome)?\.?\s*(?:effect)?|cce)\b/i, "Color Chrome Effect"],
+  [/^(?:iso\s*n\.?\s*r\.?|high\s*iso\s*n\.?\s*r\.?|noise\s*red(?:uction)?|nr)\b/i, "Noise Reduction"],
+  [/^(?:ev\s*comp(?:ensation)?\.?|exp(?:osure)?\.?\s*comp(?:ensation)?\.?|exposure)\b/i, "Exposure Compensation"],
+  [/^(?:wb|white\s*bal(?:ance)?)\b/i, "White Balance"],
+  [/^(?:dr|d\.\s*range|dynamic\s*range)\b/i, "Dynamic Range"],
+  [/^(?:highlights?|hl)\b/i, "Highlight"],
+  [/^(?:shadows?|sh)\b/i, "Shadow"],
+  [/^colou?r\b/i, "Color"],
+  [/^grain(?:\s*effect)?\b/i, "Grain Effect"]
+];
+
+function normalizeRecipeText(text) {
+  return String(text || "")
+    .replace(/[\u2010-\u2015\u2212\uFE63\uFF0D]/g, "-") // tirets typographiques → « - »
+    .split(/\r?\n/)
+    .map((raw) => {
+      let line = raw.replace(/^\s*(?:[*•·▪►>\-]|\d+[.)])\s+/, "").trim(); // puces et numéros
+      // « Clé<TAB>valeur », « Clé. valeur » ou « Clé - valeur » → « Clé: valeur »
+      line = line.replace(/^([A-Za-z][A-Za-z .()/]*?)\s*(?:\t+|\.\s+(?=[-+\dA-Za-z])|\s+-\s+)(?=\S)/, "$1: ");
+      const colon = line.indexOf(":");
+      if (colon > 0) {
+        const key = line.slice(0, colon).trim();
+        const alias = RECIPE_ALIASES.find(([re]) => re.test(key) && key.replace(re, "").trim() === "");
+        if (alias) line = `${alias[1]}:${line.slice(colon + 1)}`;
+      }
+      // Balance des blancs notée « K-7500 », « K 7500 » ou « 7500 K » → « 7500K »
+      line = line.replace(/^(White Balance:\s*)K\s*-?\s*(\d{4,5})\b/i, "$1$2K").replace(/^(White Balance:\s*)(\d{4,5})\s+K\b/i, "$1$2K");
+      return line;
+    })
+    .join("\n");
+}
+
 function parseRecipeText(text, opts) {
-  return restoreExposureText(text, FR.parseText(text, opts));
+  const clean = normalizeRecipeText(text);
+  return restoreExposureText(clean, FR.parseText(clean, opts));
 }
 
 function parseAnyRecipe(text) {
@@ -22,7 +63,8 @@ function parseAnyRecipe(text) {
   const ofr = parseOfrText(text);
   if (ofr) return Object.assign(ofr[0], { batch: ofr });
   const result = FR.parseAny(text);
-  return result && (result.source === "text" || result.source === "screenshot") ? restoreExposureText(text, result) : result;
+  if (result && result.source === "text") return parseRecipeText(text) || result;
+  return result && result.source === "screenshot" ? restoreExposureText(text, result) : result;
 }
 
 (window.CUSTOM_RECIPES || []).forEach(({ name, author = "", notes = "", text }, i) => {
