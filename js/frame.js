@@ -257,6 +257,8 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
   photo.height = H;
   photo.getContext("2d").putImageData(imageData, 0, 0);
   ctx.drawImage(photo, side, top);
+  canvas.photoX = side; // position de la photo dans le cadre (pipette, recadrage)
+  canvas.photoY = top;
   ctx.textBaseline = "alphabetic";
 
   if (cfg.film) {

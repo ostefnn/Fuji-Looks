@@ -65,6 +65,9 @@ function liteSource() {
   return liteCache.data;
 }
 
+// Position de la photo dans l'aperçu affiché, en fraction du canvas (le cadre l'entoure).
+let previewPhotoRect = { x: 0, y: 0, w: 1, h: 1 };
+
 function updatePreview() {
   const strength = getStrength();
 
@@ -77,7 +80,11 @@ function updatePreview() {
     const src = lite ? liteSource() : previewSource;
     const out = renderRecipe(src, shown, strength, sourceSize);
     updateHistogram(out);
+    if (clippingOn) markClipping(out);
     const framed = frameStyle !== "none" ? composeFrame(out, frameStyle, shown) : null;
+    previewPhotoRect = framed
+      ? { x: framed.photoX / framed.width, y: framed.photoY / framed.height, w: out.width / framed.width, h: out.height / framed.height }
+      : { x: 0, y: 0, w: 1, h: 1 };
     const ctx = photoPreview.getContext("2d");
 
     if (lite) {
