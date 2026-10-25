@@ -577,5 +577,42 @@ Highlight: 0.0
 Shadow: +0.5
 Noise Reduction: -4
 Clarity: +3`
+  },
+  {
+    name: "Real Leica",
+    text: `Film Simulation: Reala Ace
+Dynamic Range: DR200
+White Balance: Auto
+WB Shift Red: +2
+WB Shift Blue: -1
+Grain Effect: Off
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Weak
+Color: +3
+Sharpness: 0
+Highlight: -1
+Shadow: 0
+Noise Reduction: -4
+Clarity: 0
+Exposure Compensation: +1/3`
+  },
+  {
+    name: "Winter Chrome",
+    notes: "Clarity 0 pour un traitement plus rapide dans le boîtier ; ajoute une Clarity négative en post-traitement, ou directement dans le boîtier.",
+    text: `Film Simulation: Classic Chrome
+Dynamic Range: DR400
+White Balance: 7500K
+WB Shift Red: 0
+WB Shift Blue: 0
+Grain Effect: Strong
+Grain Size: Small
+Color Chrome Effect: Strong
+Color Chrome FX Blue: Off
+Color: +2
+Sharpness: -1
+Highlight: -1
+Shadow: -2
+Noise Reduction: -4
+Clarity: 0`
   }
 ];

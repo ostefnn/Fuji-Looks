@@ -27,22 +27,82 @@ Les fichiers RAW (.RAF) ne peuvent pas être lus dans le navigateur : pars d'un 
 
 ## Ajouter une recette
 
-Le plus simple : colle la recette dans **Importer une recette**, puis clique sur **Enregistrer**. Elle reste dans ta bibliothèque sur cet appareil.
+Deux façons, selon que la recette est pour toi seul ou pour tout le monde.
 
-Pour qu'elle soit présente pour tout le monde, ajoute-la à la fin de [`custom-recipes.js`](custom-recipes.js), au format texte Fujifilm :
+### Pour toi, sur ton appareil (le plus rapide)
 
-```js
-{
-  name: "Ma recette",
-  author: "Optionnel",
-  text: `Film Simulation: Classic Chrome
-Dynamic Range: DR200
-White Balance: Daylight, +2 Red & -5 Blue
-...`
-}
-```
+1. Copie la recette depuis le site, le post ou la note où elle se trouve.
+2. Dans l'app : **Importer et bibliothèque** → **Importer une recette**, colle le texte, puis **Appliquer**.
+3. Vérifie les réglages dans **Recette**, puis touche **Enregistrer**. Elle apparaît en tête de l'onglet « Recettes », sur cet appareil seulement.
 
-Ajoute les nouvelles recettes **à la fin** du tableau : les favoris sont liés à leur position.
+L'import comprend la plupart des façons d'écrire une recette : puces (`*`, `•`), tabulations, abréviations (`Col. Chr. Effect`, `ISO N.R.`, `EV Comp.`, `WB: K-7500`…), tirets typographiques. Il lit aussi les codes et liens de partage, les profils X RAW Studio (.FP1), les fichiers Open Fuji Recipe et les captures d'écran.
+
+### Pour tout le monde, dans le dépôt GitHub
+
+Les recettes intégrées à l'app sont dans [`custom-recipes.js`](custom-recipes.js). Tout se fait depuis le site GitHub, sans rien installer, même sur iPhone.
+
+1. **Ouvre le fichier** : sur github.com, va dans le dépôt `ostefnn/Fuji-Looks`, puis clique sur `custom-recipes.js`.
+2. **Passe en modification** : clique sur l'icône crayon ✏️ (« Edit this file ») en haut à droite du fichier.
+3. **Va tout en bas** du fichier. La dernière recette se termine par :
+   ```js
+   Clarity: 0`
+     }
+   ];
+   ```
+4. **Ajoute une virgule** après le `}` de la dernière recette, puis **colle le bloc de ta recette** juste avant le `];` final :
+   ```js
+     },
+     {
+       name: "Ma recette",
+       text: `Film Simulation: Classic Chrome
+   Dynamic Range: DR400
+   White Balance: 7500K
+   WB Shift Red: 0
+   WB Shift Blue: 0
+   Grain Effect: Strong
+   Grain Size: Small
+   Color Chrome Effect: Strong
+   Color Chrome FX Blue: Off
+   Color: +2
+   Sharpness: -1
+   Highlight: -1
+   Shadow: -2
+   Noise Reduction: -4
+   Clarity: 0
+   Exposure Compensation: +1/3`
+     }
+   ];
+   ```
+5. **Enregistre** : clique sur **Commit changes…**, écris un message (par exemple « Ajout de la recette Ma recette »), laisse « Commit directly to the main branch » coché, puis valide.
+6. **Attends 1 à 2 minutes** que GitHub Pages republie le site, puis recharge l'app : la recette est dans l'onglet « Recettes ».
+
+#### Les règles à respecter
+
+- Le texte de la recette est entre deux **accents graves** `` ` `` (touche `` ` `` ; sur iPhone, appui long sur l'apostrophe). N'utilise pas d'accent grave à l'intérieur du texte.
+- Chaque recette est entourée de `{ … }`, séparée de la suivante par une **virgule**.
+- **Ajoute toujours à la fin** : les favoris et les emplacements C1–C7 sont liés à la position des recettes. En insérer une au milieu décalerait les suivantes.
+- Une ligne par réglage, au format `Réglage: valeur`. Les lignes absentes prennent la valeur par défaut (0 ou Off).
+- Facultatif : `author: "Nom",` pour créditer l'auteur, et `notes: "…",` pour un conseil de prise de vue. Ces deux lignes se placent sous `name`.
+
+#### Réglages reconnus
+
+| Réglage | Exemples de valeurs |
+|---|---|
+| `Film Simulation` | Provia, Velvia, Astia, Classic Chrome, Reala Ace, Pro Neg. Hi, Pro Neg. Std, Classic Neg., Nostalgic Neg., Eterna, Eterna Bleach Bypass, Acros (+ Ye, R, G), Monochrome (+ Ye, R, G), Sepia |
+| `Dynamic Range` | DR100, DR200, DR400, Auto |
+| `White Balance` | Auto, Auto White Priority, Auto Ambience Priority, Daylight, Shade, Incandescent, Fluorescent 1 / 2 / 3, Underwater, ou une température : `7500K` |
+| `WB Shift Red`, `WB Shift Blue` | de -9 à +9 (ou sur la ligne White Balance : `Auto, +2 Red & -1 Blue`) |
+| `Grain Effect`, `Grain Size` | Off, Weak, Strong ; Small, Large |
+| `Color Chrome Effect`, `Color Chrome FX Blue` | Off, Weak, Strong |
+| `Color`, `Sharpness`, `Noise Reduction` | de -4 à +4 |
+| `Highlight`, `Shadow` | de -2 à +4, par demi-pas (`+1.5`) |
+| `Clarity` | de -5 à +5 |
+| `Monochromatic Color WC`, `Monochromatic Color MG` (N&B) | de -18 à +18, une ligne chacun |
+| `ISO`, `Exposure Compensation` | texte libre : `Auto up to ISO 6400`, `+1/3 to +2/3` |
+
+**Astuce** : avant de modifier le fichier, colle la recette dans **Importer une recette** dans l'app pour vérifier qu'elle est bien lue, puis copie les valeurs affichées dans **Recette**.
+
+Si l'app ne s'affiche plus après une modification, c'est presque toujours une virgule ou un accent grave oublié. Ouvre l'historique du fichier sur GitHub (« History ») pour revenir à la version précédente.
 
 ## Lancer en local
 
