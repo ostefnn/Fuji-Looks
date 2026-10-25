@@ -45,6 +45,7 @@ const APP_SHELL = [
   "js/compare.js",
   "js/share.js",
   "js/creations.js",
+  "js/series.js",
   "js/main.js"
 ];
 

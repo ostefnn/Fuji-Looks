@@ -57,11 +57,18 @@ async function loadImage(blob) {
   }
 }
 
-function setSource(drawable, w, h) {
+// keepEdit : dans une série, la retouche de la photo précédente est conservée.
+function setSource(drawable, w, h, { keepEdit = false } = {}) {
   originalImage = drawable;
   originalSize = { w, h };
   sourceSize = { w, h };
-  resetEdit();
+  if (keepEdit) {
+    const g = isIdentityEdit() ? originalSize : editGeometry(w, h);
+    sourceSize = { w: g.w, h: g.h };
+    updateEditControls();
+  } else {
+    resetEdit();
+  }
   document.body.classList.add("has-photo"); // le cadre prend sa taille finale avant le calcul de l'aperçu
   view.zoom = 1;
 
@@ -86,7 +93,7 @@ function setSource(drawable, w, h) {
   renderThumbnails(drawable, w, h);
 }
 
-async function loadFile(file) {
+async function loadFile(file, { keepEdit = false, quiet = false } = {}) {
   if (!file) return;
 
   if (!isImageFile(file)) {
@@ -98,15 +105,16 @@ async function loadFile(file) {
   try {
     const img = await loadImage(file);
     sourceExif = await readExif(file);
-    setSource(img, img.naturalWidth, img.naturalHeight);
-    showStatus("Photo chargée. Maintiens « Avant / Après » pour comparer.");
+    setSource(img, img.naturalWidth, img.naturalHeight, { keepEdit });
+    if (!quiet) showStatus("Photo chargée. Maintiens « Avant / Après » pour comparer.");
   } catch {
     showStatus("Impossible de lire cette image. Essaie un autre fichier.");
   }
 }
 
+// Plusieurs photos choisies ensemble : elles forment une série (voir series.js).
 photoInput.addEventListener("change", () => {
-  loadFile(photoInput.files?.[0]);
+  loadPhotos([...(photoInput.files || [])]);
   photoInput.value = "";
 });
 
@@ -128,9 +136,9 @@ document.addEventListener("drop", (event) => {
   if (!event.dataTransfer?.files.length) return;
   event.preventDefault();
   photoFrame.classList.remove("dragging");
-  const file = event.dataTransfer.files[0];
-  if (isImageFile(file)) loadFile(file);
-  else importRecipeFile(file);
+  const files = [...event.dataTransfer.files];
+  if (isImageFile(files[0])) loadPhotos(files);
+  else importRecipeFile(files[0]);
 });
 
 intensity.addEventListener("input", () => {

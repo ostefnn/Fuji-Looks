@@ -41,7 +41,7 @@
         <label class="photo-placeholder" id="placeholder" for="photoInput">
           <span class="placeholder-icon" aria-hidden="true">＋</span>
           <strong>Glisse une photo ici</strong>
-          <span>ou touche pour en choisir une (JPEG, PNG, HEIC…)</span>
+          <span>ou touche pour en choisir une ou plusieurs (JPEG, PNG, HEIC…)</span>
           <span class="placeholder-steps">Choisis un look, ajuste la recette, exporte.</span>
         </label>
         <button type="button" class="sample-button" id="sampleButton">Essayer avec l’image d’exemple</button>
@@ -69,7 +69,7 @@
           <button type="button" id="zoomIn" aria-label="Zoomer">+</button>
         </div>
       </div>
-      <input id="photoInput" type="file" accept="image/*,.heic,.heif" hidden>
+      <input id="photoInput" type="file" accept="image/*,.heic,.heif" multiple hidden>
 
       <div class="stage-controls">
         <div class="intensity-row">
@@ -80,6 +80,15 @@
         <button class="export-button" id="exportButton" disabled>
           Exporter la photo <span aria-hidden="true">↗</span>
         </button>
+      </div>
+      <div class="series-strip" id="seriesStrip" hidden>
+        <div class="series-head">
+          <strong>Série <small id="seriesCount"></small></strong>
+          <label class="text-button" for="seriesInput">＋ Ajouter</label>
+          <input id="seriesInput" type="file" accept="image/*,.heic,.heif" multiple hidden>
+        </div>
+        <div class="series-list" id="seriesList"></div>
+        <button type="button" class="secondary-button series-export" id="seriesExportButton">Exporter la série</button>
       </div>
       <p class="privacy-note">Tes photos restent sur ton appareil : rien n’est envoyé en ligne.</p>
     </section>
@@ -247,7 +256,14 @@
                 title="Touche sur la photo une zone qui devrait être grise ou blanche">⌖ Point neutre</button>
             </div>
           </div>
-          <p class="hint">Double-clic sur un curseur pour le remettre à 0. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue (intérieur, néon…) avant la recette, qui suppose une photo prise en lumière du jour.</p>
+
+          <h3 class="acc-sub">Effet pellicule</h3>
+          <div class="edit-row">
+            <label class="edit-label" for="halationEdit">Halation</label>
+            <input type="range" id="halationEdit" class="range-halation" min="0" max="100" step="1" value="0">
+            <output id="halationEditValue" for="halationEdit">0</output>
+          </div>
+          <p class="hint">Double-clic sur un curseur pour le remettre à 0. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue (intérieur, néon…) avant la recette, qui suppose une photo prise en lumière du jour. La halation ajoute le halo rouge des pellicules sans couche anti-halo (CineStill 800T) : ce n’est pas un réglage Fujifilm.</p>
         </div>
       </details>
 
@@ -315,6 +331,26 @@
           <span class="acc-meta"></span>
         </summary>
         <div class="acc-body">
+          <h3 class="acc-sub">Photo exportée</h3>
+          <div class="edit-row">
+            <span class="edit-label">Taille</span>
+            <div class="chips chips-wrap" id="exportSizeOptions" role="group" aria-label="Taille d’export">
+              <button type="button" class="chip" data-size="full" aria-pressed="true">Pleine résolution</button>
+              <button type="button" class="chip" data-size="web" aria-pressed="false">Web · 2048 px</button>
+              <button type="button" class="chip" data-size="insta" aria-pressed="false">Instagram · 1080 px</button>
+            </div>
+          </div>
+          <div class="edit-row">
+            <span class="edit-label">Qualité</span>
+            <div class="chips chips-wrap" id="exportQualityOptions" role="group" aria-label="Qualité JPEG">
+              <button type="button" class="chip" data-quality="max" aria-pressed="true">Maximale</button>
+              <button type="button" class="chip" data-quality="standard" aria-pressed="false">Standard</button>
+              <button type="button" class="chip" data-quality="light" aria-pressed="false">Légère</button>
+            </div>
+          </div>
+          <p class="hint">S’applique à « Exporter la photo » et aux séries. Instagram : 1080 px de large, cadre compris. Pour une série, choisis plusieurs photos à l’import.</p>
+          <button type="button" class="export-button series-export-panel" id="seriesExportPanelButton" hidden>Exporter la série</button>
+
           <h3 class="acc-sub">Images à partager</h3>
           <div class="share-grid">
             <div class="share-card">
@@ -500,6 +536,7 @@
   <script src="js/compare.js"></script>
   <script src="js/share.js"></script>
   <script src="js/creations.js"></script>
+  <script src="js/series.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

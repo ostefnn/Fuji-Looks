@@ -51,7 +51,7 @@ function drawPill(ctx, text, x, y, size, alignRight = false) {
 
 function buildBeforeAfter(layout) {
   const src = creationSource(1600);
-  const after = renderRecipe(src, recipe, getStrength(), sourceSize);
+  const after = applyHalation(renderRecipe(src, recipe, getStrength(), sourceSize), edit.halation);
   const before = imageDataToCanvas(src);
   const graded = imageDataToCanvas(after);
   const w = src.width;
@@ -147,7 +147,7 @@ function buildContactSheet(lookIds, width) {
     const row = Math.floor(i / cols);
     const x = pad + col * (cellW + gap);
     const y = pad + row * (cellH + labelH + gap);
-    const out = renderRecipe(cellSrc, look.recipe, 1, sourceSize);
+    const out = applyHalation(renderRecipe(cellSrc, look.recipe, 1, sourceSize), edit.halation);
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(imageDataToCanvas(out), x, y, cellW, cellH);
     ctx.textAlign = "left";

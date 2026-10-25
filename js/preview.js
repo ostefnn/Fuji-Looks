@@ -79,6 +79,7 @@ function updatePreview() {
     const lite = performance.now() < interactiveUntil && photoPreview.width > 0;
     const src = lite ? liteSource() : previewSource;
     const out = renderRecipe(src, shown, strength, sourceSize);
+    if (!comparing) applyHalation(out, edit.halation);
     updateHistogram(out);
     if (clippingOn) markClipping(out);
     const framed = frameStyle !== "none" ? composeFrame(out, frameStyle, shown) : null;
