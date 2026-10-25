@@ -1,5 +1,5 @@
 /* Fuji Looks — Service worker : l'app s'installe et fonctionne hors connexion. */
-const CACHE = "fuji-looks-v1";
+const CACHE = "fuji-looks-v2";
 
 // Fichiers de l'app, mis en cache dès l'installation.
 const APP_SHELL = [
@@ -81,8 +81,12 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Le reste : réseau d'abord (toujours la dernière version en ligne), cache si hors connexion.
+  // « no-cache » : le navigateur revérifie chaque fichier auprès du serveur (réponse 304 légère)
+  // au lieu de réutiliser sa copie HTTP pendant 10 minutes. Sans cela, juste après une mise à
+  // jour, la page pouvait être neuve et un script encore ancien (un curseur sans effet, par exemple).
+  // Requête recréée à partir de l'URL : une navigation ne peut pas recevoir d'options.
   event.respondWith(
-    fetch(request)
+    fetch(new Request(url.href, { cache: "no-cache", credentials: "same-origin" }))
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();

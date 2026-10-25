@@ -195,9 +195,19 @@ function applyHalation(imageData, amount) {
   const mask = makeCanvas(w, h);
   const mctx = mask.getContext("2d", { willReadFrequently: true });
   const m = mctx.createImageData(w, h);
+  // Seuil adapté à la photo : les zones les plus claires (0,5 % des pixels) déclenchent le halo,
+  // même sans soleil ni lampe dans le cadre (entre 55 % et 80 % de luminosité).
+  const levels = new Uint32Array(256);
+  for (let i = 0; i < d.length; i += 16) levels[Math.round(0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2])]++;
+  let seen = 0;
+  let top = 255;
+  const samples = Math.ceil(d.length / 16);
+  while (top > 0 && seen + levels[top] < samples * 0.005) seen += levels[top--];
+  const threshold = Math.max(0.55, Math.min(0.8, top / 255 - 0.18));
+  const range = 1 - threshold;
   for (let i = 0; i < d.length; i += 4) {
     const y = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255;
-    const t = Math.max(0, (y - 0.8) / 0.2);
+    const t = Math.max(0, (y - threshold) / range);
     m.data[i] = m.data[i + 1] = m.data[i + 2] = Math.round(t * t * 255);
     m.data[i + 3] = 255;
   }
