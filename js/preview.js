@@ -76,6 +76,7 @@ function updatePreview() {
     const lite = performance.now() < interactiveUntil && photoPreview.width > 0;
     const src = lite ? liteSource() : previewSource;
     const out = renderRecipe(src, shown, strength, sourceSize);
+    updateHistogram(out);
     const framed = frameStyle !== "none" ? composeFrame(out, frameStyle, shown) : null;
     const ctx = photoPreview.getContext("2d");
 

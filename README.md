@@ -14,7 +14,7 @@ Applique des recettes Fujifilm à tes photos, directement dans ton navigateur. R
 - **Mon boîtier · C1–C7** : range tes recettes dans les 7 réglages perso, vérifie leur compatibilité, garde la fiche en image ou exporte un .FP1 par emplacement.
 - **Comparer deux recettes** : seuls les réglages qui changent, pour savoir quoi modifier sur le boîtier.
 - **Retouche** : format (1:1, 4:5, 3:2, 16:9, 9:16), rotation, redressement, exposition, hautes lumières / ombres et bouton **Auto**.
-- **Aperçu** : zoom, déplacement, Avant / Après (maintenir le bouton), intensité du look.
+- **Aperçu** : zoom, déplacement, Avant / Après (maintenir le bouton), intensité du look et **histogramme** RVB en direct, avec la part d'ombres bouchées et de hautes lumières brûlées.
 - **Cadre** : Blanc, Crème, Noir, Fin, Polaroid ou Pellicule, avec au choix le nom de la recette, ses réglages ou rien, et ta **signature** (Logo, Monogramme ou Manuscrit, à gauche, au centre ou à droite). Tout est désactivé par défaut.
 - **Export** : JPEG pleine résolution avec les métadonnées EXIF conservées. Sur iPhone / Android, l'écran « Photo prête » propose **Enregistrer dans Photos** (ou appui long sur l'image).
 - **Partager** : image **Avant / Après** (côte à côte ou coupée), **planche contact** de ta photo dans 2 à 9 looks, et **fiche recette** avec un QR code qui ouvre la recette dans l'app.
@@ -60,6 +60,7 @@ puis ouvre http://localhost:8000/. Ouvrir `index.html` directement fonctionne au
 | `index.html`, `style.css` | Page et styles |
 | `custom-recipes.js` | Recettes perso au format texte |
 | `js/kata-catalog.js` | Catalogue de 340 recettes (données générées depuis Kata) |
+| `js/histogram.js` | Histogramme de l'aperçu |
 | `js/pipeline.js` | Rendu recette → LUT 3D → pixels (partagé avec le worker) |
 | `js/export-worker.js` | Calcul de l'export en arrière-plan |
 | `js/*.js` | Un fichier par partie de l'interface (looks, éditeur, zoom, cadre, EXIF…) chargés dans l'ordre de `index.html` |

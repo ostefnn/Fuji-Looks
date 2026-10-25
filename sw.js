@@ -27,6 +27,7 @@ const APP_SHELL = [
   "js/editor.js",
   "js/history.js",
   "js/preview.js",
+  "js/histogram.js",
   "js/photo.js",
   "js/zoom.js",
   "js/recipe-import.js",

@@ -50,6 +50,17 @@
         <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>
         <button type="button" class="compare-button" id="compareButton" aria-pressed="false" hidden
           title="Maintiens pour voir l’original">Avant / Après</button>
+        <button type="button" class="histogram-toggle" id="histogramToggle" aria-pressed="false" aria-controls="histogramPanel"
+          title="Afficher l’histogramme" aria-label="Histogramme">
+          <svg viewBox="0 0 20 14" aria-hidden="true"><path d="M1 13h18M2 13V9h2v4M5 13V5h2v8M8 13V2h2v11M11 13V6h2v7M14 13V9h2v4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+        </button>
+        <div class="histogram-panel" id="histogramPanel" hidden>
+          <canvas id="histogramCanvas" role="img" aria-label="Histogramme de la photo (rouge, vert, bleu et luminance)"></canvas>
+          <div class="histogram-clip">
+            <span id="clipShadows" title="Ombres bouchées"></span>
+            <span id="clipHighlights" title="Hautes lumières brûlées"></span>
+          </div>
+        </div>
         <div class="zoom-controls" id="zoomControls" role="group" aria-label="Zoom" hidden>
           <button type="button" id="zoomOut" aria-label="Dézoomer">−</button>
           <button type="button" id="zoomFit" class="zoom-level" title="Ajuster la photo au cadre">Ajusté</button>
@@ -434,6 +445,7 @@
   <script src="js/editor.js"></script>
   <script src="js/history.js"></script>
   <script src="js/preview.js"></script>
+  <script src="js/histogram.js"></script>
   <script src="js/photo.js"></script>
   <script src="js/zoom.js"></script>
   <script src="js/recipe-import.js"></script>
