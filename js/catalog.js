@@ -76,12 +76,45 @@ function parseAnyRecipe(text) {
   return result && result.source === "screenshot" ? restoreExposureText(text, result) : result;
 }
 
-(window.CUSTOM_RECIPES || []).forEach(({ name, author = "", notes = "", text }, i) => {
+function lookSlug(name) {
+  return String(name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+// Identifiant stable tiré du nom : ajouter ou retirer une recette ne décale plus les favoris.
+function customLookId(name) {
+  return `custom-${lookSlug(name)}`;
+}
+
+/*
+ * Anciens identifiants (« custom-0 »… : position dans custom-recipes.js) → identifiants actuels.
+ * Les recettes retirées car identiques à une recette du catalogue renvoient vers celle-ci.
+ * Un nom = recette gardée dans custom-recipes.js ; « kata-… » = recette du catalogue.
+ */
+const LEGACY_CUSTOM_IDS = [
+  "kata-kodak-vision3-250d-v2", "kata-1970-s-summer", "kata-vivid-velvia", "kata-frgmt-b-w",
+  "kata-kodachrome-64-x-trans-iv", "kata-kodachrome-25-x-trans-iv", "Kodachrome II", "kata-vintage-color-v2",
+  "kata-fujicolor-nph", "Kodak T-Max P3200", "kata-classic-b-w", "kata-agfa-scala-x-trans-v",
+  "kata-kodak-t-max-100-hard-tone", "kata-kodak-t-max-100-soft-tone", "Kodak Plus-X 125", "kata-ilford-fp4-plus-125",
+  "Agfa 400S", "Cotton Candy Chrome", "Aerochrome v3", "Kodak Portra 400 v2", "kata-timeless-negative-x-trans-v",
+  "1970's Summer", "kata-cinestill-800t-x-trans-v", "kata-superia-xtra-400-x-trans-v", "Kodak Ultramax 400",
+  "California Summer", "kata-kodak-gold-200-x-trans-v", "kata-pacific-blues-x-trans-v", "Reggie's Portra",
+  "Vibrant Arizona", "Kodachrome 64 (X-Trans V)", "Real Leica", "Winter Chrome"
+];
+
+function migrateLookId(id) {
+  const match = /^custom-(\d+)$/.exec(String(id || ""));
+  if (!match) return id;
+  const target = LEGACY_CUSTOM_IDS[Number(match[1])];
+  if (!target) return id;
+  return target.startsWith("kata-") ? target : customLookId(target);
+}
+
+(window.CUSTOM_RECIPES || []).forEach(({ name, author = "", notes = "", text }) => {
   const parsed = parseRecipeText(text);
   if (!parsed) return;
   const recipe = FR.normalize(Object.assign({}, FR.DEFAULT_RECIPE, parsed.values, { name, author, notes }));
   LOOKS.push({
-    id: `custom-${i}`,
+    id: customLookId(name),
     name,
     desc: FR.simById(recipe.filmSim).name,
     group: "custom",

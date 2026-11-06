@@ -6,7 +6,7 @@ let slots = (() => {
   const saved = load(SLOTS_KEY);
   const list = Array.isArray(saved) ? saved.slice(0, SLOT_COUNT) : [];
   while (list.length < SLOT_COUNT) list.push(null);
-  return list.map((slot) => (slot && slot.recipe ? { recipe: FR.normalize(slot.recipe), lookId: slot.lookId || null } : null));
+  return list.map((slot) => (slot && slot.recipe ? { recipe: FR.normalize(slot.recipe), lookId: migrateLookId(slot.lookId) || null } : null));
 })();
 
 const slotList = document.getElementById("slotList");

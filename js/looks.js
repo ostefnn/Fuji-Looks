@@ -3,7 +3,7 @@
 // --- Favoris, recherche et filtres -------------------------------------------
 
 const FAV_KEY = "fuji-looks.favorites";
-let favorites = new Set(Array.isArray(load(FAV_KEY)) ? load(FAV_KEY) : []);
+let favorites = new Set((Array.isArray(load(FAV_KEY)) ? load(FAV_KEY) : []).map(migrateLookId));
 let lookQuery = "";
 let lookSim = ""; // "" (toutes), "color", "mono" ou l'identifiant d'une Film Simulation
 let lookSensor = ""; // "" ou un capteur (X-Trans V, X-Trans IV…), pour le catalogue seulement
@@ -217,6 +217,13 @@ function createLookCard(look) {
   thumb.className = "look-swatch";
   thumb.setAttribute("aria-hidden", "true");
   frame.appendChild(thumb);
+  // Type du look, pour ne pas confondre une recette « Tri-X 400 » et la pellicule Tri-X 400.
+  if (look.film || look.group === "custom" || look.group === "catalog") {
+    const kind = document.createElement("span");
+    kind.className = `look-kind ${look.film ? "is-film" : "is-recipe"}`;
+    kind.textContent = look.film ? "Pellicule" : "Recette";
+    frame.appendChild(kind);
+  }
   if (look.film) {
     const badge = document.createElement("span");
     badge.className = "look-badge";
