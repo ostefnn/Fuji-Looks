@@ -1,20 +1,21 @@
 # Fuji Looks
 
-Applique des recettes Fujifilm à tes photos, directement dans ton navigateur. Rien n'est envoyé en ligne : les photos restent sur ton appareil.
+Applique des recettes Fujifilm et des pellicules argentiques à tes photos, directement dans ton navigateur. Rien n'est envoyé en ligne : les photos restent sur ton appareil.
 
 **En ligne :** https://ostefnn.github.io/Fuji-Looks/
 
 ## Fonctionnalités
 
-- **Looks** : tes recettes, un **catalogue de 344 recettes** (340 de Kata, filtrables par capteur avec un lien vers chaque article d'origine, et les exemples du convertisseur) et les 20 simulations de film Fujifilm, classés par Film Simulation, avec recherche, un filtre unique (Couleur, N&B ou une simulation précise) et favoris ; 24 looks à la fois avec « Afficher plus ». Survole un look à la souris pour le voir sur ta photo avant de cliquer.
-- **Panneau en accordéons**, dans l'ordre du travail : Recette, Retouche, Cadre, Exporter et partager, Mon boîtier, Importer et bibliothèque. Chaque en-tête résume son état (simulation, cadre choisi, boîtier…) et l'app retient ceux que tu laisses ouverts.
+- **Un écran en trois zones** : choisir à gauche (looks), voir au centre (photo), régler à droite (Recette ou Pellicule, Retouche, Cadre). Sur téléphone, la photo reste en haut et une barre en bas passe de Looks à Recette, Retouche ou Partager. Le menu **Exporter** regroupe la photo, les images à partager et les fichiers du look ; **Mon boîtier** est dans la barre du haut.
+- **Looks** : tes recettes, un **catalogue de 344 recettes** (340 de Kata, filtrables par capteur avec un lien vers chaque article d'origine, et les exemples du convertisseur), les 20 simulations de film Fujifilm et **72 pellicules argentiques**, avec recherche, filtre par simulation et favoris. La liste se charge au fil du défilement. Survole un look à la souris pour le voir sur ta photo avant de cliquer ; au clavier, ← → passent au look précédent ou suivant et Espace (maintenu) montre l'original.
+- **Pellicules** : 72 films rangés en quatre rayons (Négatif 25, Diapo · Cross 19, N&B 22, Cinéma 6) : Portra, Ektar, Superia, Velvia, Kodachrome, Tri-X, HP5, CineStill, Vision 2383… La couleur vient des LUT de la collection [Film-Luts](https://github.com/YahiaAngelo/Film-Luts) (69 films) ou d'un modèle propre à Fuji Looks (Gold 200, CineStill 800T et 400T) ; grain, halation et douceur dépendent de la sensibilité et du type de film, et se règlent avec l'exposition du scan et l'équilibrage (jour ou tungstène). Les miniatures montrent la même scène de référence pour comparer les films, ou ta photo. Une pellicule s'exporte en LUT 3D (.cube), pas en .FP1 : ce n'est pas une recette boîtier.
 - **Réglages de la recette** : tous les réglages sous leurs noms Fujifilm (Film Simulation, Dynamic Range, White Balance, Grain, Color Chrome, Highlight, Shadow, Clarity…), avec Annuler / Rétablir (Ctrl+Z / Ctrl+Maj+Z).
 - **Balance des blancs simulée** : le mode de la recette (Daylight, Incandescent, Kelvin…) est appliqué comme sur le boîtier, pour une photo prise en lumière du jour. Un interrupteur revient au comportement du convertisseur (décalage R/B seulement) ; l'aperçu est alors identique au sien, pixel pour pixel.
 - **Compatibilité boîtier** : choisis ton appareil (X-Trans III à V) pour savoir si une recette est reproductible.
 - **Mon boîtier · C1–C7** : range tes recettes dans les 7 réglages perso, vérifie leur compatibilité, garde la fiche en image ou exporte un .FP1 par emplacement.
 - **Comparer deux recettes** : seuls les réglages qui changent, pour savoir quoi modifier sur le boîtier.
 - **Retouche** : format (1:1, 4:5, 3:2, 16:9, 9:16) avec **cadrage déplaçable**, rotation, redressement, exposition, hautes lumières / ombres, **blancs / noirs**, bouton **Auto**, et **balance des blancs de la photo** (température, teinte, pipette « point neutre ») pour corriger l'éclairage avant la recette. Effet pellicule **Halation** (halo rouge façon CineStill 800T), en option.
-- **Aperçu** : zoom, déplacement, Avant / Après (maintenir le bouton), intensité du look et **histogramme** RVB en direct, avec la part d'ombres bouchées et de hautes lumières brûlées, et le bouton **Zones** qui les montre sur la photo (rouge / bleu).
+- **Aperçu** : zoom, déplacement, Avant / Après (maintenir le bouton, ou vue coupée en deux), intensité du look et **histogramme** RVB en direct, avec la part d'ombres bouchées et de hautes lumières brûlées, et le bouton **Zones** qui les montre sur la photo (rouge / bleu).
 - **Cadre** : Blanc, Crème, Noir, Fin, Polaroid ou Pellicule, avec au choix le nom de la recette, ses réglages ou rien, et ta **signature** (Logo, Monogramme ou Manuscrit, à gauche, au centre ou à droite). Tout est désactivé par défaut.
 - **Export** : JPEG en pleine résolution, « Web » (2048 px) ou « Instagram » (1080 px de large), qualité au choix, avec les métadonnées EXIF conservées.
 - **Séries** : choisis plusieurs photos à l'import ; la recette, la retouche et le cadre s'appliquent à toute la série, exportée en une fois. Sur iPhone / Android, l'écran « Photo prête » propose **Enregistrer dans Photos** (ou appui long sur l'image).
@@ -32,7 +33,7 @@ Deux façons, selon que la recette est pour toi seul ou pour tout le monde.
 ### Pour toi, sur ton appareil (le plus rapide)
 
 1. Copie la recette depuis le site, le post ou la note où elle se trouve.
-2. Dans l'app : **Importer et bibliothèque** → **Importer une recette**, colle le texte, puis **Appliquer**.
+2. Dans l'app : bouton **+ Importer** au-dessus des looks (ou menu **…** → **Importer une recette**), colle le texte, puis **Appliquer**.
 3. Vérifie les réglages dans **Recette**, puis touche **Enregistrer**. Elle apparaît en tête de l'onglet « Recettes », sur cet appareil seulement.
 
 L'import comprend la plupart des façons d'écrire une recette : puces (`*`, `•`), tabulations, abréviations (`Col. Chr. Effect`, `ISO N.R.`, `EV Comp.`, `WB: K-7500`…), tirets typographiques. Il lit aussi les codes et liens de partage, les profils X RAW Studio (.FP1), les fichiers Open Fuji Recipe et les captures d'écran.

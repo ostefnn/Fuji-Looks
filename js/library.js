@@ -46,7 +46,7 @@ function renderLibraryList() {
   });
   libraryEmpty.hidden = library.length > 0;
   libraryCount.textContent = library.length ? String(library.length) : "";
-  libraryMeta.textContent = library.length ? `${library.length} RECETTE${library.length > 1 ? "S" : ""}` : "";
+  libraryMeta.textContent = library.length ? `${library.length}` : "";
 }
 
 saveButton.addEventListener("click", () => {
@@ -62,6 +62,7 @@ saveButton.addEventListener("click", () => {
   }
   commit();
   recipe = saved;
+  currentFilm = null;
   applied = true;
   modified = false;
   currentLookId = `lib-${item.id}`;
@@ -110,6 +111,8 @@ libraryFile.addEventListener("change", async () => {
 sampleButton.addEventListener("click", () => {
   sourceExif = null;
   setSource(drawSampleScene(), 900, 600);
+  currentFileName = "image-exemple";
+  updateFileLabel();
   showStatus("Image d’exemple chargée.");
 });
 

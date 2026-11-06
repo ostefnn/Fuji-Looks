@@ -29,7 +29,24 @@ function capitalize(text) {
 }
 
 // Réglages de la recette, avec les noms des menus Fujifilm.
+// Pellicule : sensibilité, procédé et réglages de texture à la place des réglages Fujifilm.
+function filmFrameTokens(spec) {
+  const film = filmByKey.get(spec.film);
+  return [`ISO ${film.iso}`, film.process, FILM_SHELVES.find((s) => s.id === film.shelf).kindLabel,
+    `Grain ${spec.grain}`, `Halation ${spec.halation}`, `Douceur ${spec.softness}`];
+}
+
+// Sous-titre d'un look dans un cadre : la simulation, ou le procédé de la pellicule.
+function frameSubtitle(r) {
+  if (r.film) {
+    const film = filmByKey.get(r.film);
+    return `ISO ${film.iso} · ${film.process}`;
+  }
+  return FR.simById(r.filmSim).name.toUpperCase();
+}
+
 function frameTokens(r) {
+  if (r.film) return filmFrameTokens(r);
   const wbName = r.whiteBalance === "kelvin" ? `${r.kelvin}K` : FR.wbById(r.whiteBalance).name;
   const tokens = [
     FR.formatValue(FR.fieldByKey("dynamicRange"), r),
@@ -262,7 +279,7 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
   ctx.textBaseline = "alphabetic";
 
   if (cfg.film) {
-    const sim = frameRecipe ? FR.simById(frameRecipe.filmSim).name.toUpperCase() : "";
+    const sim = frameRecipe ? frameSubtitle(frameRecipe) : "";
     const edge = frameRecipe && info !== "none" ? `${frameRecipe.name || "Recette"}  ▸  ${sim}` : "";
     drawFilmStrip(ctx, 0, 0, canvas.width, strip, true, edge, "▸ 24");
     // Signature imprimée en bordure : à gauche (ou au centre, faute de place) ou à droite à la place du numéro.
@@ -285,7 +302,7 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
       ctx.fillStyle = cfg.muted;
       ctx.font = `500 ${Math.round(titleSize * 0.8)}px ${FRAME_FONT}`;
       ctx.textAlign = "right";
-      ctx.fillText(FR.simById(frameRecipe.filmSim).name.toUpperCase(), side + W, y, W * 0.36);
+      ctx.fillText(frameSubtitle(frameRecipe), side + W, y, W * 0.36);
       y += Math.round(titleSize * 0.25);
     }
     ctx.textAlign = "left";
@@ -312,7 +329,7 @@ function updateFrameOptions() {
   frameInfoOptions.querySelectorAll("[data-info]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.info === frameInfo));
   });
-  frameMeta.textContent = frameStyle === "none" ? "" : frameOptions.querySelector(`[data-frame="${frameStyle}"]`).textContent.trim().toUpperCase();
+  frameMeta.hidden = frameStyle === "none";
   frameInfoRow.hidden = frameStyle === "none";
   signatureRow.hidden = frameStyle === "none";
   signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();

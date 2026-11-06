@@ -61,6 +61,7 @@ function renderSeries() {
   seriesStrip.hidden = !active;
   seriesExportPanelButton.hidden = !active;
   document.body.classList.toggle("has-series", active);
+  updateFileLabel();
   seriesList.textContent = "";
   if (!active) return;
   seriesCount.textContent = `${seriesIndex + 1} / ${series.length}`;

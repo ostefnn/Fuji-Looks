@@ -4,7 +4,9 @@ self.window = self; // les scripts du convertisseur s'attachent à window.FR
 importScripts(
   "../vendor/fuji-recipe-converter/data.js",
   "../vendor/fuji-recipe-converter/engine.js",
-  "pipeline.js"
+  "pipeline.js",
+  "films.js",
+  "film-luts-data.js"
 );
 
 self.onmessage = (event) => {

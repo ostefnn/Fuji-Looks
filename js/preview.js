@@ -15,7 +15,7 @@ function updatePreviewLabel() {
   if (comparing) text = "Original";
   else if (hoverLookId) text = `${lookById.get(hoverLookId).name} · aperçu`;
   else {
-    const name = applied ? recipe.name || "Recette" : "Original";
+    const name = applied ? (currentFilm ? currentFilm.name : recipe.name || "Recette") : "Original";
     text = modified ? `${name} · modifiée` : name;
   }
   photoLabel.textContent = text.toUpperCase();
@@ -25,7 +25,7 @@ function updatePreviewLabel() {
 // Recette affichée : l'original pendant la comparaison, le look survolé, sinon la recette en cours.
 function shownRecipe() {
   if (comparing) return null;
-  if (hoverLookId) return lookById.get(hoverLookId)?.recipe || null;
+  if (hoverLookId) return lookRender(lookById.get(hoverLookId));
   return activeRecipe();
 }
 
@@ -71,16 +71,20 @@ let previewPhotoRect = { x: 0, y: 0, w: 1, h: 1 };
 function updatePreview() {
   const strength = getStrength();
 
-  intensityValue.textContent = `${Math.round(strength * 100)}%`;
+  intensityValue.textContent = `${Math.round(strength * 100)} %`;
 
   if (previewSource) {
     const shown = shownRecipe();
     // Pendant un glissement de curseur : rendu en demi-définition, affiché à la taille normale.
     const lite = performance.now() < interactiveUntil && photoPreview.width > 0;
     const src = lite ? liteSource() : previewSource;
-    const out = renderRecipe(src, shown, strength, sourceSize);
-    if (!comparing) applyHalation(out, edit.halation);
+    // Pellicule pas encore chargée : on garde l'original le temps du chargement.
+    const ready = !(shown && shown.film) || filmLutsReady();
+    if (!ready) ensureFilmLuts();
+    const out = renderRecipe(src, ready ? shown : null, strength, sourceSize);
+    if (!comparing) applyHalation(out, halationFor(ready ? shown : null));
     updateHistogram(out);
+    if (splitView && !comparing) applySplit(out, src);
     if (clippingOn) markClipping(out);
     const framed = frameStyle !== "none" ? composeFrame(out, frameStyle, shown) : null;
     previewPhotoRect = framed
@@ -118,15 +122,46 @@ function markSelectedCard() {
   });
 }
 
+// Avant / Après : la moitié gauche de l'aperçu montre la photo sans le look.
+let splitView = false;
+
+function applySplit(out, src) {
+  const { width: w, height: h } = out;
+  const half = Math.round(w / 2);
+  const a = src.data;
+  const b = out.data;
+  for (let y = 0; y < h; y++) {
+    const row = y * w * 4;
+    b.set(a.subarray(row, row + half * 4), row);
+    // Trait de séparation, deux pixels clairs.
+    for (let x = half - 1; x <= half; x++) {
+      const i = row + x * 4;
+      b[i] = b[i + 1] = b[i + 2] = 235;
+    }
+  }
+}
+
+function setSplitView(value) {
+  splitView = value;
+  document.body.classList.toggle("split-view", value);
+  schedulePreview();
+}
+
 function selectLook(id) {
   const look = lookById.get(id);
   if (id !== currentLookId || modified) commit();
   currentLookId = id;
   modified = false;
-  if (look.recipe) {
+  if (look.film) {
+    currentFilm = filmSpec(look.film);
+    applied = true;
+    ensureFilmLuts();
+  } else if (look.recipe) {
+    currentFilm = null;
     recipe = FR.normalize(look.recipe);
     applied = true;
   } else {
+    currentFilm = null;
     applied = false;
   }
   updateRecipeEditor();

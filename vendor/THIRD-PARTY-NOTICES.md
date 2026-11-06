@@ -16,6 +16,7 @@ It bundles the following third-party work, unmodified, each under its own licenc
 | QR Code Generator for JavaScript v1.4.4 (Kazuhiko Arase), added by Fuji Looks | `vendor/qrcode/qrcode.js` | MIT |
 | Great Vibes (Google Fonts, via @fontsource/great-vibes 5.0.8), added by Fuji Looks | `vendor/fonts/great-vibes-*.woff2` (licence: `vendor/fonts/GreatVibes-OFL.txt`) | SIL OFL 1.1 |
 | Recipe library snapshot from Kata (parth181195/kata, commit 0c47ee2, MIT), recipes by Fuji X Weekly, used by Fuji Looks | `js/kata-catalog.js` (settings, names, sensors and source links only) | MIT (Kata); recipes credited to Fuji X Weekly with a link to each post |
+| Film colour LUTs from Film-Luts (YahiaAngelo/Film-Luts, commit af957b6, MIT): 69 G'MIC film CLUTs, 13×13×13, packed to 8 bits by `tools/build-film-luts.py` | `js/film-luts-data.js` | MIT (Copyright (c) 2024 Yahia) |
 
 ## Lucide icons
 
@@ -71,9 +72,40 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   License. You may replace `vendor/heic/heic-to.js` with a build of your own from the sources
   above; the app only relies on the global `HeicTo({ blob, type, quality })` function.
 
+## Film-Luts
+
+```
+MIT License
+
+Copyright (c) 2024 Yahia
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+The Film-Luts README adds that its maintainer does not claim ownership of the LUTs, which come
+from the G'MIC film emulation collection. Grain, halation, softness and the parametric colour of
+Kodak Gold 200 and CineStill 800T / 400T are Fuji Looks' own model (`js/films.js`); nothing is
+taken from the M-Film project's code.
+
 ## Trademarks
 
-FUJIFILM and the film simulation names are trademarks of FUJIFILM Corporation. Adobe,
+FUJIFILM and the film simulation names are trademarks of FUJIFILM Corporation. Film stock names (Kodak, Ilford, Agfa, Lomography, Rollei, CineStill…) belong to their owners and are used only to describe the look; Fuji Looks is not affiliated with them. Adobe,
 Lightroom and Camera Raw are trademarks of Adobe Inc. DaVinci Resolve is a trademark of
 Blackmagic Design Pty. Ltd. This project uses these names only to describe compatibility
 and contains no logos, icons, software, profiles or other assets from those companies.
