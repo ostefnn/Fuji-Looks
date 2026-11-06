@@ -128,13 +128,37 @@ FR.SIMS.forEach((sim) => {
   });
 });
 
-// Deux onglets (plus ★ Favoris s'il y en a) ; « Original » est repris en tête de chaque onglet.
+// Pellicules argentiques (js/films.js) : un rendu, pas une recette Fujifilm.
+FILMS.forEach((film) => {
+  LOOKS.push({
+    id: `film-${film.key}`,
+    name: film.name,
+    desc: `ISO ${film.iso} · ${film.process}`,
+    group: "films",
+    shelf: film.shelf,
+    film: film.key,
+    recipe: null
+  });
+});
+
+// Quatre onglets ; « Original » est repris en tête de chaque onglet.
 // « Recettes » : bibliothèque, puis recettes perso, puis exemples du convertisseur.
 const ALL_GROUPS = [
   { id: "custom", title: "Recettes" },
   { id: "catalog", title: "Catalogue" },
-  { id: "sims", title: "Simulations" }
+  { id: "sims", title: "Simulations" },
+  { id: "films", title: "Pellicules" }
 ];
+
+// Ce qu'un look applique : une recette Fujifilm, une pellicule (réglages par défaut du film) ou rien.
+function lookRender(look) {
+  if (!look) return null;
+  return look.film ? filmSpec(look.film) : look.recipe || null;
+}
+
+function isRealLook(look) {
+  return Boolean(look && (look.recipe || look.film));
+}
 let GROUPS = [];
 
 const lookById = new Map(LOOKS.map((look) => [look.id, look]));
@@ -189,6 +213,8 @@ let currentLookId = "original";
 // Recette en cours d'édition ; elle n'est appliquée que si `applied` est vrai.
 let recipe = FR.normalize({ name: "Ma recette" });
 let applied = false;
+// Pellicule en cours (réglages compris), ou null : la recette s'applique alors.
+let currentFilm = null;
 let modified = false;
 let renderPending = false;
 let thumbJob = 0;

@@ -5,8 +5,15 @@ function getStrength() {
   return Number(intensity.value) / 100;
 }
 
+// Rendu appliqué : la pellicule en cours, sinon la recette (null = photo d'origine).
 function activeRecipe() {
-  return applied ? recipe : null;
+  if (!applied) return null;
+  return currentFilm || recipe;
+}
+
+// Halation totale : celle de la retouche plus celle de la pellicule affichée.
+function halationFor(look) {
+  return Math.min(100, edit.halation + (look && look.film ? Number(look.halation) || 0 : 0));
 }
 
 function drawToImageData(drawable, srcW, srcH, maxSide, maxPixels) {

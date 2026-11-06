@@ -3,73 +3,127 @@
 
 const fieldRows = [];
 
-function buildRecipeEditor() {
-  FR.FIELDS.forEach((field) => {
-    const row = document.createElement("div");
-    row.className = "recipe-row";
+// Les réglages, regroupés comme sur le boîtier. Détail et Prise de vue se replient en résumé.
+const FIELD_GROUPS = [
+  { title: "Base", keys: ["filmSim", "dynamicRange"] },
+  { title: "Tonalité", keys: ["highlight", "shadow"] },
+  { title: "Couleur", keys: ["whiteBalance", "kelvin", "wbShiftRed", "wbShiftBlue", "color", "monoWC", "monoMG", "colorChromeEffect", "colorChromeFxBlue"] },
+  { title: "Détail", fold: true, keys: ["grainEffect", "grainSize", "sharpness", "noiseReduction", "clarity"] },
+  { title: "Prise de vue", fold: true, keys: ["iso", "exposureComp", "camera"] }
+];
+const foldSummaries = [];
 
-    const label = document.createElement("label");
-    label.className = "recipe-label";
-    label.htmlFor = `f-${field.key}`;
-    label.textContent = field.label + (field.unit ? ` (${field.unit})` : "");
-    row.appendChild(label);
+function fieldSummary(keys) {
+  return keys
+    .map((key) => FR.fieldByKey(key))
+    .filter((field) => field && !(field.when && !field.when(recipe)))
+    .map((field) => {
+      const value = field.type === "text" ? recipe[field.key] : FR.formatValue(field, recipe);
+      if (!value) return "";
+      const short = { "Grain Effect": "Grain", "Noise Reduction": "NR", "Exposure Compensation": "Expo.", "Camera / Sensor": "" }[field.label];
+      return `${short ?? field.label} ${value}`.trim();
+    })
+    .filter(Boolean)
+    .join(" · ") || "—";
+}
 
-    let control;
-    let output = null;
-    let dec = null;
-    let inc = null;
+function buildFieldRow(field) {
+  const row = document.createElement("div");
+  row.className = "row recipe-row";
 
-    if (field.type === "select") {
-      control = document.createElement("select");
-      field.options.forEach(([value, text]) => control.add(new Option(text, value)));
-    } else if (field.type === "number") {
-      const wrap = document.createElement("span");
-      wrap.className = "recipe-range";
-      control = document.createElement("input");
-      control.type = "range";
-      control.min = field.min;
-      control.max = field.max;
-      control.step = field.step;
-      output = document.createElement("output");
-      // Boutons −/+ pour régler pas à pas, comme dans le convertisseur.
-      dec = document.createElement("button");
-      inc = document.createElement("button");
-      [dec, inc].forEach((button, i) => {
-        button.type = "button";
-        button.className = "step-button";
-        button.textContent = i ? "+" : "−";
-        button.setAttribute("aria-label", `${i ? "Augmenter" : "Diminuer"} ${field.label}`);
-        button.addEventListener("click", () => {
-          commit(`field:${field.key}`);
-          recipe[field.key] += i ? field.step : -field.step;
-          onRecipeEdited();
-        });
-      });
-      wrap.append(dec, control, inc, output);
-      row.appendChild(wrap);
-    } else {
-      control = document.createElement("input");
-      control.type = "text";
-      control.maxLength = 120;
-      control.placeholder = field.placeholder || "";
-    }
+  const label = document.createElement("label");
+  label.htmlFor = `f-${field.key}`;
+  label.textContent = field.label + (field.unit ? ` (${field.unit})` : "");
+  row.appendChild(label);
 
-    control.id = `f-${field.key}`;
-    if (!output) row.appendChild(control);
-    control.addEventListener("input", () => {
-      if (field.type === "number") markInteractive();
+  let control;
+  let output = null;
+  if (field.type === "select") {
+    control = document.createElement("select");
+    control.className = "select";
+    field.options.forEach(([value, text]) => control.add(new Option(text, value)));
+  } else if (field.type === "number") {
+    control = document.createElement("input");
+    control.type = "range";
+    control.className = field.min < 0 ? "range-bi" : "range-uni";
+    control.min = field.min;
+    control.max = field.max;
+    control.step = field.step;
+    output = document.createElement("output");
+    output.htmlFor = `f-${field.key}`;
+  } else {
+    row.classList.add("row-text");
+    control = document.createElement("input");
+    control.type = "text";
+    control.className = "input";
+    control.maxLength = 120;
+    control.placeholder = field.placeholder || "";
+  }
+
+  control.id = `f-${field.key}`;
+  row.appendChild(control);
+  if (output) row.appendChild(output);
+  control.addEventListener("input", () => {
+    if (field.type === "number") markInteractive();
+    commit(`field:${field.key}`);
+    recipe[field.key] = field.type === "number" ? Number(control.value) : control.value;
+    onRecipeEdited();
+  });
+  // Double-clic sur un curseur : valeur du look d'origine (ou 0).
+  if (field.type === "number") {
+    control.addEventListener("dblclick", () => {
+      const base = baselineRecipe();
       commit(`field:${field.key}`);
-      recipe[field.key] = field.type === "number" ? Number(control.value) : control.value;
+      recipe[field.key] = base ? base[field.key] : Math.min(field.max, Math.max(field.min, 0));
       onRecipeEdited();
     });
-    recipeFields.appendChild(row);
-    fieldRows.push({ field, row, control, output, dec, inc });
+  }
+  fieldRows.push({ field, row, control, output });
+  return row;
+}
+
+function buildRecipeEditor() {
+  const placed = new Set();
+  FIELD_GROUPS.forEach((group, i) => {
+    const fields = group.keys.map((key) => FR.fieldByKey(key)).filter(Boolean);
+    fields.forEach((field) => placed.add(field.key));
+    if (i === FIELD_GROUPS.length - 1) FR.FIELDS.forEach((field) => { if (!placed.has(field.key)) fields.push(field); });
+    let body;
+    if (group.fold) {
+      const details = document.createElement("details");
+      details.className = "fold";
+      const summary = document.createElement("summary");
+      const text = document.createElement("span");
+      text.className = "fold-title";
+      const title = document.createElement("strong");
+      title.textContent = group.title;
+      const sum = document.createElement("small");
+      sum.className = "muted";
+      text.append(title, sum);
+      summary.append(text);
+      summary.insertAdjacentHTML("beforeend", '<svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg>');
+      body = document.createElement("div");
+      body.className = "fold-body";
+      details.append(summary, body);
+      recipeFields.appendChild(details);
+      foldSummaries.push({ el: sum, keys: fields.map((f) => f.key) });
+    } else {
+      body = document.createElement("section");
+      body.className = "group";
+      const h = document.createElement("h3");
+      h.textContent = group.title;
+      body.appendChild(h);
+      recipeFields.appendChild(body);
+    }
+    fields.forEach((field) => body.appendChild(buildFieldRow(field)));
   });
 
   recipeName.addEventListener("input", () => {
     commit("meta:name");
     recipe.name = recipeName.value;
+    recipeTitle.textContent = recipe.name || "Recette";
     updatePreviewLabel();
+    updateStageTitle();
     saveDraft();
   });
   recipeAuthor.addEventListener("input", () => {
@@ -84,6 +138,10 @@ function buildRecipeEditor() {
   });
 }
 
+const recipeTitle = document.getElementById("recipeTitle");
+const modifiedRow = document.getElementById("modifiedRow");
+const modifiedText = document.getElementById("modifiedText");
+
 // Recette de référence du look choisi, pour repérer les réglages modifiés.
 function baselineRecipe() {
   const look = currentLookId && lookById.get(currentLookId);
@@ -91,27 +149,39 @@ function baselineRecipe() {
 }
 
 function updateRecipeEditor() {
+  updateFilmEditor();
+  updateStageTitle();
+  if (currentFilm) {
+    updateCompat();
+    saveDraft();
+    return;
+  }
   const baseline = modified ? baselineRecipe() : null;
-  revertButton.hidden = !baseline;
   const sourceLook = currentLookId && lookById.get(currentLookId);
   recipeSource.hidden = !(sourceLook && sourceLook.sourceUrl);
   if (sourceLook && sourceLook.sourceUrl) recipeSource.href = sourceLook.sourceUrl;
-  if (baseline) revertButton.textContent = `Revenir à « ${lookById.get(currentLookId).name} »`;
   recipeName.value = recipe.name;
   recipeAuthor.value = recipe.author;
   recipeNotes.value = recipe.notes;
-  recipeSim.textContent = FR.simById(recipe.filmSim).name.toUpperCase();
+  recipeTitle.textContent = applied ? recipe.name || "Recette" : "Aucun look appliqué";
+  recipeSim.textContent = FR.simById(recipe.filmSim).name;
 
-  fieldRows.forEach(({ field, row, control, output, dec, inc }) => {
+  let changed = 0;
+  fieldRows.forEach(({ field, row, control, output }) => {
     row.hidden = Boolean(field.when && !field.when(recipe));
     control.value = recipe[field.key];
     if (output) output.textContent = FR.formatValue(field, recipe);
-    if (dec) {
-      dec.disabled = recipe[field.key] <= field.min;
-      inc.disabled = recipe[field.key] >= field.max;
-    }
-    row.classList.toggle("changed", Boolean(baseline && baseline[field.key] !== recipe[field.key]));
+    const diff = Boolean(baseline && baseline[field.key] !== recipe[field.key]);
+    if (diff && !row.hidden) changed++;
+    row.classList.toggle("changed", diff);
   });
+  foldSummaries.forEach(({ el, keys }) => { el.textContent = fieldSummary(keys); });
+  modifiedRow.hidden = !baseline;
+  if (baseline) {
+    modifiedText.textContent = changed
+      ? `${changed} réglage${changed > 1 ? "s" : ""} modifié${changed > 1 ? "s" : ""} par rapport à « ${lookById.get(currentLookId).name} »`
+      : `Modifiée par rapport à « ${lookById.get(currentLookId).name} »`;
+  }
 
   renderXmpDetails();
   updateCompat();
@@ -121,11 +191,12 @@ function updateRecipeEditor() {
 
 // Brouillon : la recette en cours est retrouvée au prochain chargement, comme dans le convertisseur.
 function saveDraft() {
-  store(DRAFT_KEY, { recipe, applied, modified, lookId: currentLookId });
+  store(DRAFT_KEY, { recipe, film: currentFilm, applied, modified, lookId: currentLookId });
 }
 
 function onRecipeEdited() {
   recipe = FR.normalize(recipe);
+  currentFilm = null;
   applied = true;
   modified = true;
   updateRecipeEditor();

@@ -106,6 +106,8 @@ async function loadFile(file, { keepEdit = false, quiet = false } = {}) {
     const img = await loadImage(file);
     sourceExif = await readExif(file);
     setSource(img, img.naturalWidth, img.naturalHeight, { keepEdit });
+    currentFileName = file.name || "photo";
+    updateFileLabel();
     if (!quiet) showStatus("Photo chargée. Maintiens « Avant / Après » pour comparer.");
   } catch {
     showStatus("Impossible de lire cette image. Essaie un autre fichier.");

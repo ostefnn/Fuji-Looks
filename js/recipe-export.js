@@ -89,6 +89,10 @@ document.getElementById("xmpButton").addEventListener("click", () => {
 
 document.getElementById("cubeButton").addEventListener("click", () => {
   const size = Number(lutSize.value);
+  if (currentFilm) {
+    document.getElementById("filmCubeButton").click();
+    return;
+  }
   downloadText(FR.fileName(recipe, `-${size}.cube`), FR.toCube(recipe, size), "text/plain");
   showStatus(`LUT téléchargée (${size}×${size}×${size}).`);
 });

@@ -370,7 +370,7 @@ function updateEditControls() {
   shadowsInput.value = edit.shadows;
   shadowsValue.textContent = `${edit.shadows > 0 ? "+" : ""}${edit.shadows}`;
   editResetButton.disabled = !hasEdits();
-  editMeta.textContent = hasEdits() ? "MODIFIÉE" : "";
+  editMeta.hidden = !hasEdits();
 }
 
 function setEdit(changes, historyKey = null) {

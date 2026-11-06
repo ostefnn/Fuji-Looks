@@ -51,7 +51,7 @@ function drawPill(ctx, text, x, y, size, alignRight = false) {
 
 function buildBeforeAfter(layout) {
   const src = creationSource(1600);
-  const after = applyHalation(renderRecipe(src, recipe, getStrength(), sourceSize), edit.halation);
+  const after = applyHalation(renderRecipe(src, activeRecipe(), getStrength(), sourceSize), halationFor(activeRecipe()));
   const before = imageDataToCanvas(src);
   const graded = imageDataToCanvas(after);
   const w = src.width;
@@ -147,7 +147,7 @@ function buildContactSheet(lookIds, width) {
     const row = Math.floor(i / cols);
     const x = pad + col * (cellW + gap);
     const y = pad + row * (cellH + labelH + gap);
-    const out = applyHalation(renderRecipe(cellSrc, look.recipe, 1, sourceSize), edit.halation);
+    const out = applyHalation(renderRecipe(cellSrc, lookRender(look), 1, sourceSize), halationFor(lookRender(look)));
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(imageDataToCanvas(out), x, y, cellW, cellH);
     ctx.textAlign = "left";
@@ -156,7 +156,7 @@ function buildContactSheet(lookIds, width) {
     ctx.fillText(look.name, x, y + cellH + nameSize * 1.35, cellW);
     ctx.fillStyle = "#9ba1a9";
     ctx.font = `500 ${subSize}px ${CREATION_FONT}`;
-    const sub = look.recipe ? FR.simById(look.recipe.filmSim).name.toUpperCase() : "SANS RECETTE";
+    const sub = isRealLook(look) ? frameSubtitle(lookRender(look)) : "SANS RECETTE";
     ctx.fillText(sub, x, y + cellH + nameSize * 1.35 + subSize * 1.5, cellW);
   });
   ctx.fillStyle = "#5f656d";
@@ -248,6 +248,7 @@ contactExport.addEventListener("click", async () => {
   if (contactSelection.length < 2) return;
   contactExport.disabled = true;
   contactExport.textContent = "Création…";
+  if (contactSelection.some((id) => id.startsWith("film-"))) await ensureFilmLuts();
   await new Promise((r) => setTimeout(r, 30));
   const file = await canvasToFile(buildContactSheet(contactSelection, 2160), "fuji-looks-planche-contact.jpg");
   contactExport.textContent = "Créer la planche";

@@ -111,6 +111,7 @@ function fitExportCanvas(canvas) {
 async function renderExportPixels(maxPixels, maxSide = Infinity) {
   const workRecipe = activeRecipe();
   const strength = getStrength();
+  if (workRecipe && workRecipe.film) await ensureFilmLuts();
   if (workRecipe && strength > 0 && workerAvailable()) {
     try {
       return await renderInWorker(buildEditedSource(maxSide, maxPixels), workRecipe, strength, sourceSize);
@@ -127,7 +128,7 @@ async function renderExport() {
 
   // Le cadre ajoute des pixels : on garde de la marge sous la limite des canvas iOS.
   const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * 0.8;
-  const out = applyHalation(await renderExportPixels(maxPixels, exportPhotoSide()), edit.halation);
+  const out = applyHalation(await renderExportPixels(maxPixels, exportPhotoSide()), halationFor(activeRecipe()));
   await loadScriptFont(); // signature manuscrite prête avant de dessiner le cadre
 
   let canvas;
@@ -147,7 +148,7 @@ async function renderExport() {
 }
 
 function exportFileName(suffix = "") {
-  const name = applied ? recipe.name : "original";
+  const name = applied ? (currentFilm ? currentFilm.name : recipe.name) : "original";
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "photo";
   return `fuji-looks-${slug}${suffix}.jpg`;
 }

@@ -102,6 +102,8 @@ function grainScale(width, sourceW, sourceH, derived) {
 // `grainWidth` = largeur équivalente de la photo entière (différente pour une vignette recadrée).
 function renderRecipe(src, lookRecipe, strength, source = { w: src.width, h: src.height }, grainWidth = src.width) {
   const { width: w, height: h } = src;
+  // Pellicule argentique (js/films.js) : son propre rendu, couleur, douceur et grain.
+  if (lookRecipe && lookRecipe.film) return renderFilm(src, lookRecipe, strength, grainWidth);
   const out = new ImageData(new Uint8ClampedArray(src.data), w, h);
   if (!lookRecipe || strength <= 0) return out;
 

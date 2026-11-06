@@ -5,6 +5,7 @@ function restoreDraft() {
   const draft = load(DRAFT_KEY);
   if (!draft || !draft.recipe) return;
   recipe = FR.normalize(draft.recipe);
+  currentFilm = draft.film && filmByKey.has(draft.film.film) ? filmSpec(draft.film.film, draft.film) : null;
   applied = Boolean(draft.applied);
   currentLookId = draft.lookId && lookById.has(draft.lookId) ? draft.lookId : null;
   modified = Boolean(draft.modified) && Boolean(currentLookId);
@@ -21,49 +22,10 @@ updateFrameOptions();
 buildRecipeEditor();
 renderLibraryList();
 updateRecipeEditor();
-// Mobile : une fois les looks dépassés, l'aperçu collé en haut se fait plus petit pour laisser
-// de la place aux réglages. Seuil d'entrée et de sortie différents pour éviter les allers-retours,
-// et défilement compensé pour que le contenu ne saute pas.
-const mobileLayout = window.matchMedia("(max-width: 959px)");
-const stageElement = document.querySelector(".stage");
-const looksSection = document.querySelector(".looks-section");
-let compactFrame = 0;
-
-function updateCompactStage() {
-  cancelAnimationFrame(compactFrame);
-  compactFrame = requestAnimationFrame(() => {
-    const body = document.body;
-    const compact = body.classList.contains("compact-stage");
-    let next = false;
-    if (mobileLayout.matches && body.classList.contains("has-photo")) {
-      const looksBottom = looksSection.getBoundingClientRect().bottom;
-      const stageBottom = stageElement.getBoundingClientRect().bottom;
-      next = compact ? looksBottom < stageBottom + 220 : looksBottom < stageBottom - 40;
-    }
-    if (next === compact) return;
-    const before = stageElement.offsetHeight;
-    body.classList.toggle("compact-stage", next);
-    // La hauteur finale (sans la transition) sert à compenser le défilement.
-    stageElement.querySelector(".photo-frame").style.transition = "none";
-    const delta = before - stageElement.offsetHeight;
-    stageElement.querySelector(".photo-frame").style.transition = "";
-    if (delta) window.scrollBy(0, -delta);
-  });
-}
-
-window.addEventListener("scroll", updateCompactStage, { passive: true });
-mobileLayout.addEventListener("change", updateCompactStage);
-
-// Accordéons du panneau : on retrouve ceux que tu avais ouverts.
-const PANELS_KEY = "fuji-looks.panels";
-const savedPanels = load(PANELS_KEY) || {};
-document.querySelectorAll("details.acc").forEach((panel) => {
-  if (typeof savedPanels[panel.id] === "boolean") panel.open = savedPanels[panel.id];
-  panel.addEventListener("toggle", () => {
-    savedPanels[panel.id] = panel.open;
-    store(PANELS_KEY, savedPanels);
-  });
-});
+// Pellicule retrouvée dans le brouillon : ses couleurs sont chargées tout de suite.
+// Sinon, on les charge quand le navigateur est libre, pour que l'onglet Pellicules soit prêt.
+if (currentFilm) ensureFilmLuts();
+else (window.requestIdleCallback || ((fn) => setTimeout(fn, 1500)))(() => ensureFilmLuts());
 
 importFromHash();
 renderThumbnails(drawSampleScene(), 900, 600);

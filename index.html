@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d0f12">
-  <meta name="description" content="Applique des recettes Fujifilm à tes photos, directement dans ton navigateur.">
+  <meta name="theme-color" content="#121214">
+  <meta name="description" content="Applique des recettes Fujifilm et des pellicules argentiques à tes photos, directement dans ton navigateur.">
   <title>Fuji Looks — Photo Studio</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
@@ -15,44 +15,186 @@
   <meta name="apple-mobile-web-app-title" content="Fuji Looks">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-pane="looks">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V3m0 0L7 8m5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-histogram" viewBox="0 0 24 24"><path d="M4 20V12M9 20V5M14 20v-8M19 20V9"/></symbol>
+    <symbol id="i-split" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12m0-12L7 8m5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  </svg>
+
   <header class="topbar">
     <a class="brand" href="./" aria-label="Fuji Looks, accueil">
-      <span class="brand-mark">F.</span>
-      <span>FUJI <strong>LOOKS</strong></span>
+      <span class="brand-mark" aria-hidden="true">F.</span>
+      <span class="brand-name">Fuji Looks</span>
     </a>
-    <div class="topbar-actions">
-      <label class="ghost-button" for="photoInput" id="changePhotoButton" hidden>
-        <span aria-hidden="true">＋</span> <span>Changer <span class="wide-only">de photo</span></span>
-      </label>
-      <div class="history-buttons" role="group" aria-label="Historique">
-        <button type="button" class="ghost-button icon-button" id="undoButton" title="Annuler (Ctrl+Z)" aria-label="Annuler" disabled>↶</button>
-        <button type="button" class="ghost-button icon-button" id="redoButton" title="Rétablir (Ctrl+Maj+Z)" aria-label="Rétablir" disabled>↷</button>
+    <span class="topbar-sep" aria-hidden="true"></span>
+    <button type="button" class="btn btn-ghost camera-button" id="cameraButton" aria-haspopup="dialog">
+      <svg class="icon" aria-hidden="true"><use href="#i-camera"/></svg>
+      <span class="wide-only">Mon boîtier :</span>
+      <strong id="cameraButtonName">aucun</strong>
+      <span class="muted wide-only" id="cameraButtonSensor"></span>
+      <svg class="icon icon-sm muted" aria-hidden="true"><use href="#i-chevron"/></svg>
+    </button>
+    <span class="file-label" id="fileLabel"></span>
+    <span class="topbar-spacer"></span>
+    <div class="topbar-group" role="group" aria-label="Historique">
+      <button type="button" class="btn btn-icon" id="undoButton" title="Annuler (Ctrl+Z)" aria-label="Annuler (Ctrl+Z)" disabled><svg class="icon" aria-hidden="true"><use href="#i-undo"/></svg></button>
+      <button type="button" class="btn btn-icon" id="redoButton" title="Rétablir (Ctrl+Maj+Z)" aria-label="Rétablir (Ctrl+Maj+Z)" disabled><svg class="icon" aria-hidden="true"><use href="#i-redo"/></svg></button>
+      <div class="menu-wrap">
+        <button type="button" class="btn btn-icon" id="moreButton" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu"
+          aria-label="Plus d’actions : bibliothèque, import, sauvegarde" title="Plus d’actions">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <div class="menu" id="moreMenu" role="menu" aria-label="Plus d’actions" hidden>
+          <button type="button" class="menu-item" role="menuitem" data-open="importDialog">Importer une recette…</button>
+          <button type="button" class="menu-item" role="menuitem" data-open="importDialog" data-section="librarySection">Bibliothèque <small class="muted" id="libraryMeta"></small></button>
+          <button type="button" class="menu-item" role="menuitem" data-open="cameraDialog">Mon boîtier et réglages C1–C7 <small class="muted" id="cameraMeta"></small></button>
+          <div class="menu-sep" role="separator"></div>
+          <button type="button" class="menu-item" role="menuitem" id="installButton" hidden>Installer l’application</button>
+          <a class="menu-item" role="menuitem" href="https://github.com/ostefnn/Fuji-Looks" target="_blank" rel="noopener">À propos et crédits ↗</a>
+        </div>
+      </div>
+    </div>
+    <label class="btn btn-secondary import-photos" for="photoInput" id="changePhotoButton">
+      <svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg>
+      <span class="wide-only">Importer des photos</span>
+    </label>
+    <div class="menu-wrap">
+      <button type="button" class="btn btn-primary export-menu-button" id="exportMenuButton" aria-haspopup="menu" aria-expanded="false" aria-controls="exportMenu">
+        Exporter
+        <span class="btn-divider" aria-hidden="true"></span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg>
+      </button>
+      <div class="menu menu-right" id="exportMenu" role="menu" aria-label="Exporter" hidden>
+        <div class="menu-label">Photo</div>
+        <button type="button" class="menu-item" role="menuitem" id="exportButton" disabled><span>Exporter la photo…</span><kbd>Ctrl+E</kbd></button>
+        <button type="button" class="menu-item" role="menuitem" id="seriesExportPanelButton" hidden>Exporter la série</button>
+        <button type="button" class="menu-item" role="menuitem" data-open="exportDialog" data-section="photoExportSection">Taille et qualité…</button>
+        <button type="button" class="menu-item" role="menuitem" data-open="exportDialog" data-section="shareSection">Images à partager (avant/après, planche)…</button>
+        <div class="menu-sep" role="separator"></div>
+        <div class="menu-label" id="exportLookLabel">Recette</div>
+        <div id="recipeExportItems">
+          <button type="button" class="menu-item" role="menuitem" data-open="exportDialog" data-section="recipeFilesSection">Preset Lightroom, LUT, codes…</button>
+          <button type="button" class="menu-item" role="menuitem" data-open="cameraDialog" data-section="fp1Section">Profil X RAW Studio (.FP1)…</button>
+        </div>
+        <div id="filmExportItems" hidden>
+          <button type="button" class="menu-item" role="menuitem" id="filmCubeButton"><span>LUT 3D (.cube)</span><small class="muted">couleur seule</small></button>
+          <button type="button" class="menu-item" role="menuitem" aria-disabled="true">
+            <span>Profil X RAW Studio (.FP1)</span>
+            <small class="muted menu-note">Réservé aux recettes Fuji : une pellicule n’a pas de réglages boîtier.</small>
+          </button>
+          <button type="button" class="menu-item" role="menuitem" aria-disabled="true">
+            <span>Preset Lightroom et code de partage</span>
+            <small class="muted menu-note">Réservés aux recettes. Pour Lightroom, Photoshop ou Resolve, utilise la LUT .cube.</small>
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
-  <h1 class="visually-hidden">Fuji Looks : recettes Fujifilm pour tes photos</h1>
+  <h1 class="visually-hidden">Fuji Looks : recettes Fujifilm et pellicules argentiques pour tes photos</h1>
 
-  <main class="studio">
-    <!-- Colonne image : reste visible pendant qu'on choisit et règle les looks -->
-    <section class="stage" aria-label="Aperçu">
+  <main class="workspace">
+    <!-- Gauche : choisir un look -->
+    <aside class="looks-pane pane" id="looksPane" aria-label="Bibliothèque de looks">
+      <div class="pane-head">
+        <h2 id="looksTitle">Looks</h2>
+        <span class="muted" id="lookCount"></span>
+        <span class="topbar-spacer"></span>
+        <button type="button" class="btn btn-ghost btn-sm" data-open="importDialog" aria-label="Importer une recette (texte, code FR1, .FP1, .json, capture)">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg> Importer
+        </button>
+      </div>
+      <label class="search">
+        <span class="visually-hidden">Rechercher un look</span>
+        <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+        <input type="search" id="lookSearch" placeholder="Rechercher un look, une pellicule…" title="Nom, simulation, film ou auteur" autocomplete="off">
+      </label>
+      <div class="segmented look-tabs" role="tablist" id="lookTabs" aria-label="Type de look"></div>
+      <div class="look-filters" id="lookFilters">
+        <select id="lookSim" class="select select-sm" aria-label="Filtrer par Film Simulation">
+          <option value="">Simulation</option>
+          <option value="color">Couleur</option>
+          <option value="mono">Noir &amp; blanc</option>
+        </select>
+        <select id="lookSensor" class="select select-sm" aria-label="Capteur" title="Capteur (onglet Catalogue)" hidden>
+          <option value="">Capteur</option>
+        </select>
+        <button type="button" class="pill" id="favFilter" aria-pressed="false">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-star"/></svg> Favoris
+        </button>
+        <span class="pill-note" id="compatNote"></span>
+      </div>
+      <div class="film-tools" id="filmTools" hidden>
+        <div class="pill-row" id="filmShelves" role="group" aria-label="Rayon"></div>
+        <div class="film-preview-row">
+          <span class="muted">Aperçu</span>
+          <div class="segmented segmented-sm" role="group" aria-label="Aperçu des miniatures">
+            <button type="button" id="filmPreviewRef" aria-pressed="true">Scène de référence</button>
+            <button type="button" id="filmPreviewMine" aria-pressed="false">Ma photo</button>
+          </div>
+        </div>
+        <p class="hint" id="filmPreviewHint"></p>
+      </div>
+      <div class="look-strip" id="lookGroups"></div>
+    </aside>
+
+    <!-- Centre : voir -->
+    <section class="stage" id="stage" aria-label="Aperçu">
+      <div class="stage-toolbar">
+        <div class="stage-title">
+          <h2 id="lookTitle">Original</h2>
+          <span class="badge" id="lookBadge"></span>
+          <button type="button" class="btn btn-icon btn-sm" id="lookFavButton" aria-pressed="false" aria-label="Ajouter aux favoris" hidden>
+            <svg class="icon" aria-hidden="true"><use href="#i-star"/></svg>
+          </button>
+        </div>
+        <span class="topbar-spacer"></span>
+        <div class="segmented" role="group" aria-label="Mode d’affichage">
+          <button type="button" id="viewResult" aria-pressed="true">Résultat</button>
+          <button type="button" id="viewSplit" aria-pressed="false">Avant / Après</button>
+        </div>
+        <div class="zoom-controls" id="zoomControls" role="group" aria-label="Zoom" hidden>
+          <button type="button" class="btn btn-icon btn-sm" id="zoomOut" aria-label="Zoom arrière">−</button>
+          <button type="button" class="btn btn-ghost btn-sm zoom-level" id="zoomFit" title="Ajuster la photo au cadre">Ajusté</button>
+          <button type="button" class="btn btn-icon btn-sm" id="zoomIn" aria-label="Zoom avant">+</button>
+        </div>
+        <button type="button" class="btn btn-icon btn-sm" id="histogramToggle" aria-pressed="false" aria-controls="histogramPanel"
+          title="Afficher l’histogramme" aria-label="Histogramme">
+          <svg class="icon" aria-hidden="true"><use href="#i-histogram"/></svg>
+        </button>
+      </div>
+
       <div class="photo-frame" id="photoFrame">
         <label class="photo-placeholder" id="placeholder" for="photoInput">
-          <span class="placeholder-icon" aria-hidden="true">＋</span>
+          <span class="placeholder-icon" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg></span>
           <strong>Glisse une photo ici</strong>
           <span>ou touche pour en choisir une ou plusieurs (JPEG, PNG, HEIC…)</span>
-          <span class="placeholder-steps">Choisis un look, ajuste la recette, exporte.</span>
+          <span class="placeholder-steps">Choisis à gauche, vois au centre, règle à droite.</span>
         </label>
-        <button type="button" class="sample-button" id="sampleButton">Essayer avec l’image d’exemple</button>
+        <button type="button" class="btn btn-secondary sample-button" id="sampleButton">Essayer avec l’image d’exemple</button>
         <canvas id="photoPreview" role="img" aria-label="Aperçu de ta photo" hidden></canvas>
         <div class="drop-overlay" aria-hidden="true">Dépose ta photo ici</div>
         <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>
+        <span class="split-label split-before" aria-hidden="true">Avant</span>
+        <span class="split-label split-after" aria-hidden="true">Après</span>
         <button type="button" class="compare-button" id="compareButton" aria-pressed="false" hidden
-          title="Maintiens pour voir l’original">Avant / Après</button>
-        <button type="button" class="histogram-toggle" id="histogramToggle" aria-pressed="false" aria-controls="histogramPanel"
-          title="Afficher l’histogramme" aria-label="Histogramme">
-          <svg viewBox="0 0 20 14" aria-hidden="true"><path d="M1 13h18M2 13V9h2v4M5 13V5h2v8M8 13V2h2v11M11 13V6h2v7M14 13V9h2v4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+          title="Maintiens pour voir l’original (ou la touche Espace)">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-split"/></svg> Avant
         </button>
         <div class="histogram-panel" id="histogramPanel" hidden>
           <canvas id="histogramCanvas" role="img" aria-label="Histogramme de la photo (rouge, vert, bleu et luminance)"></canvas>
@@ -63,445 +205,481 @@
             <span id="clipHighlights" title="Hautes lumières brûlées"></span>
           </div>
         </div>
-        <div class="zoom-controls" id="zoomControls" role="group" aria-label="Zoom" hidden>
-          <button type="button" id="zoomOut" aria-label="Dézoomer">−</button>
-          <button type="button" id="zoomFit" class="zoom-level" title="Ajuster la photo au cadre">Ajusté</button>
-          <button type="button" id="zoomIn" aria-label="Zoomer">+</button>
-        </div>
       </div>
       <input id="photoInput" type="file" accept="image/*,.heic,.heif" multiple hidden>
 
-      <div class="stage-controls">
-        <div class="intensity-row">
-          <label for="intensity">Intensité</label>
-          <input id="intensity" type="range" min="0" max="100" value="100">
-          <output id="intensityValue" for="intensity">100%</output>
-        </div>
-        <button class="export-button" id="exportButton" disabled>
-          Exporter la photo <span aria-hidden="true">↗</span>
-        </button>
+      <div class="intensity-bar">
+        <label for="intensity" id="intensityLabel">Intensité du look</label>
+        <input id="intensity" class="range-uni" type="range" min="0" max="100" value="100">
+        <output id="intensityValue" for="intensity">100 %</output>
+        <span class="topbar-spacer"></span>
+        <span class="shortcut-hint"><kbd>←</kbd> <kbd>→</kbd> look précédent / suivant · <kbd>Espace</kbd> maintenir pour voir l’original</span>
       </div>
-      <div class="series-strip" id="seriesStrip" hidden>
-        <div class="series-head">
-          <strong>Série <small id="seriesCount"></small></strong>
-          <label class="text-button" for="seriesInput">＋ Ajouter</label>
-          <input id="seriesInput" type="file" accept="image/*,.heic,.heif" multiple hidden>
-        </div>
+
+      <div class="series-strip" id="seriesStrip" aria-label="Photos de la série" hidden>
+        <span class="series-head"><strong>Série</strong> <small id="seriesCount"></small></span>
         <div class="series-list" id="seriesList"></div>
-        <button type="button" class="secondary-button series-export" id="seriesExportButton">Exporter la série</button>
+        <label class="btn btn-icon btn-sm" for="seriesInput" aria-label="Ajouter des photos à la série" title="Ajouter des photos">+</label>
+        <input id="seriesInput" type="file" accept="image/*,.heic,.heif" multiple hidden>
+        <span class="topbar-spacer"></span>
+        <button type="button" class="btn btn-secondary btn-sm" id="seriesExportButton">Exporter la série</button>
       </div>
       <p class="privacy-note">Tes photos restent sur ton appareil : rien n’est envoyé en ligne.</p>
     </section>
 
-    <!-- Colonne réglages -->
-    <div class="panel">
-      <section class="looks-section" aria-labelledby="looksTitle">
-        <div class="section-heading">
-          <h2 id="looksTitle">Looks</h2>
-          <span class="count" id="lookCount"></span>
-        </div>
-        <div class="look-toolbar">
-          <input type="search" id="lookSearch" class="look-search" placeholder="Rechercher un look…" title="Nom, simulation ou auteur" aria-label="Rechercher un look" autocomplete="off">
-          <div class="look-selects">
-            <select id="lookSim" class="look-select" aria-label="Filtrer par Film Simulation">
-              <option value="">Toutes les simulations</option>
-              <option value="color">Couleur</option>
-              <option value="mono">Noir &amp; blanc</option>
-            </select>
-            <select id="lookSensor" class="look-select" aria-label="Capteur" title="Capteur (onglet Catalogue)" hidden>
-              <option value="">Tous les capteurs</option>
-            </select>
+    <!-- Droite : régler -->
+    <aside class="inspector pane" id="inspector" aria-label="Réglages">
+      <div class="inspector-tabs" role="tablist" aria-label="Panneau de réglages">
+        <button type="button" role="tab" id="tabRecipe" aria-controls="recipePanel" aria-selected="true">Recette</button>
+        <button type="button" role="tab" id="tabEdit" aria-controls="editSection" aria-selected="false">Retouche <span class="tab-dot" id="editMeta"></span></button>
+        <button type="button" role="tab" id="tabFrame" aria-controls="framePanel" aria-selected="false">Cadre <span class="tab-dot" id="frameMeta"></span></button>
+      </div>
+
+      <!-- RECETTE -->
+      <section class="inspector-panel" id="recipePanel" role="tabpanel" aria-labelledby="tabRecipe">
+        <div class="inspector-head">
+          <div class="inspector-title">
+            <strong id="recipeTitle">Ma recette</strong>
+            <span class="muted" id="recipeSim"></span>
+            <a class="source-link" id="recipeSource" href="#" target="_blank" rel="noopener" hidden>Recette d’origine ↗</a>
           </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="saveButton" title="Enregistrer dans ta bibliothèque (sur cet appareil)">Enregistrer…</button>
         </div>
-        <div class="tabs" role="tablist" id="lookTabs" aria-label="Catégories de looks"></div>
-        <div class="look-strip" id="lookGroups"></div>
+        <div class="modified-row" id="modifiedRow" role="status" hidden>
+          <span class="mod-dot" aria-hidden="true"></span>
+          <span id="modifiedText">Réglages modifiés</span>
+          <button type="button" class="btn btn-ghost btn-sm" id="revertButton">Rétablir</button>
+        </div>
+        <ul class="compat-list" id="compatList" aria-live="polite"></ul>
+        <div class="recipe-fields" id="recipeFields"></div>
+        <label class="switch-row">
+          <input type="checkbox" id="wbSimToggle" checked>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="switch-text">
+            <strong>Simuler la balance des blancs</strong>
+            <small>Applique le mode de la recette (Daylight, Incandescent, Kelvin…) comme le boîtier, pour une photo prise en lumière du jour. Désactivé : identique au convertisseur, seul le décalage R/B est appliqué.</small>
+          </span>
+        </label>
+        <details class="fold">
+          <summary><span class="fold-title">Nom, auteur et notes</span><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <div class="fold-body recipe-meta">
+            <label class="field"><span>Nom</span><input id="recipeName" class="input" type="text" maxlength="120"></label>
+            <label class="field"><span>Auteur</span><input id="recipeAuthor" class="input" type="text" maxlength="120" placeholder="Optionnel"></label>
+            <label class="field"><span>Notes</span><textarea id="recipeNotes" class="input" rows="2" maxlength="2000" placeholder="Optionnel"></textarea></label>
+          </div>
+        </details>
+        <details class="fold" id="comparePanel">
+          <summary><span class="fold-title">Comparer avec une autre recette</span><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <div class="fold-body">
+            <label class="field"><span>Recette à comparer</span><select id="compareSelect" class="select"></select></label>
+            <div class="compare-result" id="compareResult"></div>
+            <button type="button" class="btn btn-secondary btn-sm" id="compareApply" hidden>Utiliser cette recette</button>
+          </div>
+        </details>
       </section>
 
-      <details class="acc" id="recipePanel" open>
-        <summary class="acc-head">
-          <h2>Recette</h2>
-          <span class="acc-meta" id="recipeSim"></span>
-        </summary>
-        <div class="acc-body">
-          <div class="acc-toolbar">
-            <a class="source-link" id="recipeSource" href="#" target="_blank" rel="noopener" hidden>Voir la recette originale ↗</a>
-            <div class="heading-actions">
-              <button type="button" class="text-button" id="revertButton" hidden>Revenir au look</button>
-              <button type="button" class="secondary-button" id="saveButton" title="Enregistrer dans ta bibliothèque (sur cet appareil)">Enregistrer</button>
-            </div>
+      <!-- PELLICULE -->
+      <section class="inspector-panel" id="filmPanel" role="tabpanel" aria-labelledby="tabRecipe" hidden>
+        <div class="inspector-head">
+          <div class="inspector-title">
+            <strong id="filmName"></strong>
+            <span class="muted" id="filmMeta"></span>
+            <em class="muted film-tag" id="filmTag"></em>
           </div>
-          <ul class="compat-list" id="compatList" aria-live="polite"></ul>
-          <div class="recipe-fields" id="recipeFields"></div>
-          <label class="switch-row">
-            <input type="checkbox" id="wbSimToggle" checked>
-            <span class="switch" aria-hidden="true"></span>
-            <span class="switch-text">
-              <strong>Simuler la balance des blancs</strong>
-              <small>Applique le mode de la recette (Daylight, Incandescent, Kelvin…) comme le boîtier, pour une photo prise en lumière du jour. Désactivé : identique au convertisseur, seul le décalage R/B est appliqué.</small>
-            </span>
-          </label>
-          <details class="recipe-panel">
-            <summary>Nom, auteur et notes</summary>
-            <div class="recipe-meta">
-              <label class="field-text">
-                <span>Nom</span>
-                <input id="recipeName" type="text" maxlength="120">
-              </label>
-              <label class="field-text">
-                <span>Auteur</span>
-                <input id="recipeAuthor" type="text" maxlength="120" placeholder="Optionnel">
-              </label>
-              <label class="field-text field-wide">
-                <span>Notes</span>
-                <textarea id="recipeNotes" rows="2" maxlength="2000" placeholder="Optionnel"></textarea>
-              </label>
-            </div>
-          </details>
-
-          <details class="recipe-panel" id="comparePanel">
-            <summary>Comparer avec une autre recette</summary>
-            <label class="field-text">
-              <span>Recette à comparer</span>
-              <select id="compareSelect"></select>
-            </label>
-            <div class="compare-result" id="compareResult"></div>
-            <button type="button" class="secondary-button" id="compareApply" hidden>Utiliser cette recette</button>
-          </details>
+          <button type="button" class="btn btn-ghost btn-sm" id="filmResetButton" title="Remettre les réglages du film par défaut">Rétablir</button>
         </div>
-      </details>
+        <div class="note" role="note">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-info"/></svg>
+          <span>Une pellicule est un rendu, pas une recette boîtier : elle s’exporte en LUT 3D (.cube), pas en .FP1.</span>
+        </div>
+        <section class="group">
+          <h3>Développement</h3>
+          <div class="row">
+            <label for="filmEv">Exposition scan</label>
+            <input type="range" id="filmEv" class="range-bi" min="-2" max="2" step="0.1" value="0">
+            <output id="filmEvValue" for="filmEv">0,0 IL</output>
+          </div>
+          <div class="row">
+            <label for="filmBalance">Équilibrage</label>
+            <select id="filmBalance" class="select">
+              <option value="day">Lumière du jour · 5500 K</option>
+              <option value="tungsten">Tungstène · 3200 K</option>
+            </select>
+          </div>
+        </section>
+        <section class="group">
+          <h3>Texture</h3>
+          <div class="row">
+            <label for="filmGrain">Grain</label>
+            <input type="range" id="filmGrain" class="range-uni" min="0" max="100" step="1" value="0">
+            <output id="filmGrainValue" for="filmGrain">0</output>
+          </div>
+          <div class="row">
+            <label for="filmGrainSize">Taille du grain</label>
+            <select id="filmGrainSize" class="select">
+              <option value="auto">Selon l’ISO (auto)</option>
+              <option value="fine">Fin</option>
+              <option value="medium">Moyen</option>
+              <option value="coarse">Gros</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="filmHalation">Halation</label>
+            <input type="range" id="filmHalation" class="range-uni" min="0" max="100" step="1" value="0">
+            <output id="filmHalationValue" for="filmHalation">0</output>
+          </div>
+          <div class="row">
+            <label for="filmSoftness">Douceur</label>
+            <input type="range" id="filmSoftness" class="range-uni" min="0" max="100" step="1" value="0">
+            <output id="filmSoftnessValue" for="filmSoftness">0</output>
+          </div>
+          <p class="hint">Double-clic sur un curseur : valeur du film.</p>
+        </section>
+        <section class="group">
+          <h3>Source</h3>
+          <p class="hint" id="filmSource"></p>
+        </section>
+      </section>
 
-      <details class="acc" id="editSection">
-        <summary class="acc-head">
-          <h2>Retouche</h2>
-          <span class="acc-meta" id="editMeta"></span>
-        </summary>
-        <div class="acc-body">
-          <div class="acc-toolbar">
-            <span class="hint">Corrige la photo avant d’y appliquer la recette.</span>
-            <div class="heading-actions">
-              <button type="button" class="chip" id="autoExposureButton" title="Corrige l’exposition, les hautes lumières et les ombres">✨ Auto</button>
-              <button type="button" class="text-button" id="editResetButton" disabled>Réinitialiser</button>
-            </div>
-          </div>
+      <!-- RETOUCHE -->
+      <section class="inspector-panel" id="editSection" role="tabpanel" aria-labelledby="tabEdit" hidden>
+        <div class="inspector-head">
+          <p class="hint">Corrige la photo source. S’applique avant la recette.</p>
+          <button type="button" class="btn btn-secondary btn-sm" id="autoExposureButton" title="Corrige l’exposition, les hautes lumières et les ombres">Auto</button>
+          <button type="button" class="btn btn-icon btn-sm" id="editResetButton" aria-label="Réinitialiser la retouche" title="Réinitialiser la retouche" disabled>
+            <svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg>
+          </button>
+        </div>
 
-          <h3 class="acc-sub">Cadrage</h3>
-          <div class="edit-row">
-            <span class="edit-label">Format</span>
-            <div class="chips chips-wrap" id="ratioOptions" role="group" aria-label="Format">
-              <button type="button" class="chip" data-ratio="original" aria-pressed="true">Original</button>
-              <button type="button" class="chip" data-ratio="1:1" aria-pressed="false">1:1</button>
-              <button type="button" class="chip" data-ratio="4:5" aria-pressed="false">4:5</button>
-              <button type="button" class="chip" data-ratio="3:2" aria-pressed="false">3:2</button>
-              <button type="button" class="chip" data-ratio="16:9" aria-pressed="false">16:9</button>
-              <button type="button" class="chip" data-ratio="9:16" aria-pressed="false">9:16</button>
-              <button type="button" class="chip chip-tool" id="cropMoveButton" aria-pressed="false" hidden
-                title="Fais glisser la photo pour choisir la partie gardée">✥ Déplacer</button>
-            </div>
+        <section class="group">
+          <h3>Cadrage</h3>
+          <div class="pill-row" id="ratioOptions" role="group" aria-label="Format">
+            <button type="button" class="chip" data-ratio="original" aria-pressed="true">Orig.</button>
+            <button type="button" class="chip" data-ratio="1:1" aria-pressed="false">1:1</button>
+            <button type="button" class="chip" data-ratio="4:5" aria-pressed="false">4:5</button>
+            <button type="button" class="chip" data-ratio="3:2" aria-pressed="false">3:2</button>
+            <button type="button" class="chip" data-ratio="16:9" aria-pressed="false">16:9</button>
+            <button type="button" class="chip" data-ratio="9:16" aria-pressed="false">9:16</button>
+            <button type="button" class="chip chip-tool" id="cropMoveButton" aria-pressed="false" hidden
+              title="Fais glisser la photo pour choisir la partie gardée">Déplacer</button>
           </div>
-          <div class="edit-row">
-            <span class="edit-label">Rotation</span>
-            <div class="chips">
-              <button type="button" class="chip" id="rotateLeft" aria-label="Pivoter de 90° vers la gauche">⟲ 90°</button>
-              <button type="button" class="chip" id="rotateRight" aria-label="Pivoter de 90° vers la droite">⟳ 90°</button>
-            </div>
-          </div>
-          <div class="edit-row">
-            <label class="edit-label" for="straighten">Redresser</label>
-            <input type="range" id="straighten" min="-15" max="15" step="0.1" value="0">
+          <div class="row">
+            <label for="straighten">Redresser</label>
+            <input type="range" id="straighten" class="range-bi" min="-15" max="15" step="0.1" value="0">
             <output id="straightenValue" for="straighten">0.0°</output>
           </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary btn-sm" id="rotateLeft" aria-label="Pivoter de 90° vers la gauche">↺ 90°</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="rotateRight" aria-label="Pivoter de 90° vers la droite">↻ 90°</button>
+          </div>
+        </section>
 
-          <h3 class="acc-sub">Lumière</h3>
-          <div class="edit-row">
-            <label class="edit-label" for="exposure">Exposition</label>
-            <input type="range" id="exposure" min="-2" max="2" step="0.1" value="0">
+        <section class="group">
+          <h3>Lumière</h3>
+          <div class="row">
+            <label for="exposure">Exposition</label>
+            <input type="range" id="exposure" class="range-bi" min="-2" max="2" step="0.1" value="0">
             <output id="exposureValue" for="exposure">0.0 IL</output>
           </div>
-          <div class="edit-row">
-            <label class="edit-label" for="highlightsEdit">Hautes lumières</label>
-            <input type="range" id="highlightsEdit" min="-100" max="100" step="1" value="0">
+          <div class="row">
+            <label for="highlightsEdit">Hautes lumières</label>
+            <input type="range" id="highlightsEdit" class="range-bi" min="-100" max="100" step="1" value="0">
             <output id="highlightsEditValue" for="highlightsEdit">0</output>
           </div>
-          <div class="edit-row">
-            <label class="edit-label" for="shadowsEdit">Ombres</label>
-            <input type="range" id="shadowsEdit" min="-100" max="100" step="1" value="0">
+          <div class="row">
+            <label for="shadowsEdit">Ombres</label>
+            <input type="range" id="shadowsEdit" class="range-bi" min="-100" max="100" step="1" value="0">
             <output id="shadowsEditValue" for="shadowsEdit">0</output>
           </div>
-          <div class="edit-row">
-            <label class="edit-label" for="whitesEdit">Blancs</label>
-            <input type="range" id="whitesEdit" min="-100" max="100" step="1" value="0">
+          <div class="row">
+            <label for="whitesEdit">Blancs</label>
+            <input type="range" id="whitesEdit" class="range-bi" min="-100" max="100" step="1" value="0">
             <output id="whitesEditValue" for="whitesEdit">0</output>
           </div>
-          <div class="edit-row">
-            <label class="edit-label" for="blacksEdit">Noirs</label>
-            <input type="range" id="blacksEdit" min="-100" max="100" step="1" value="0">
+          <div class="row">
+            <label for="blacksEdit">Noirs</label>
+            <input type="range" id="blacksEdit" class="range-bi" min="-100" max="100" step="1" value="0">
             <output id="blacksEditValue" for="blacksEdit">0</output>
           </div>
+        </section>
 
-          <h3 class="acc-sub">Balance des blancs de la photo</h3>
-          <div class="edit-row">
-            <label class="edit-label" for="tempEdit">Température</label>
-            <input type="range" class="range-temp" id="tempEdit" min="-100" max="100" step="1" value="0">
+        <section class="group">
+          <div class="group-head">
+            <h3>Balance des blancs</h3>
+            <button type="button" class="chip chip-tool" id="pipetteButton" aria-pressed="false"
+              title="Touche sur la photo une zone qui devrait être grise ou blanche">Pipette</button>
+          </div>
+          <div class="row">
+            <label for="tempEdit">Température</label>
+            <input type="range" class="range-bi range-temp" id="tempEdit" min="-100" max="100" step="1" value="0">
             <output id="tempEditValue" for="tempEdit">0</output>
           </div>
-          <div class="edit-row">
-            <label class="edit-label" for="tintEdit">Teinte</label>
-            <input type="range" class="range-tint" id="tintEdit" min="-100" max="100" step="1" value="0">
+          <div class="row">
+            <label for="tintEdit">Teinte</label>
+            <input type="range" class="range-bi range-tint" id="tintEdit" min="-100" max="100" step="1" value="0">
             <output id="tintEditValue" for="tintEdit">0</output>
           </div>
-          <div class="edit-row">
-            <span class="edit-label">Pipette</span>
-            <div class="chips">
-              <button type="button" class="chip chip-tool" id="pipetteButton" aria-pressed="false"
-                title="Touche sur la photo une zone qui devrait être grise ou blanche">⌖ Point neutre</button>
-            </div>
-          </div>
+        </section>
 
-          <h3 class="acc-sub">Effet pellicule</h3>
-          <div class="edit-row">
-            <label class="edit-label" for="halationEdit">Halation</label>
-            <input type="range" id="halationEdit" class="range-halation" min="0" max="100" step="1" value="0">
+        <section class="group">
+          <h3>Effet pellicule</h3>
+          <div class="row">
+            <label for="halationEdit">Halation</label>
+            <input type="range" id="halationEdit" class="range-uni range-halation" min="0" max="100" step="1" value="0">
             <output id="halationEditValue" for="halationEdit">0</output>
           </div>
-          <p class="hint">Double-clic sur un curseur pour le remettre à 0. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue (intérieur, néon…) avant la recette, qui suppose une photo prise en lumière du jour. La halation ajoute le halo rouge des pellicules sans couche anti-halo (CineStill 800T) autour des zones les plus claires : très visible sur les lampes, néons, reflets et ciels, plus discret sur une photo sans lumière forte. Ce n’est pas un réglage Fujifilm.</p>
-        </div>
-      </details>
+        </section>
+        <p class="hint">Double-clic sur un curseur : remise à zéro. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue avant la recette. La halation ajoute le halo rouge des pellicules sans couche anti-halo autour des zones les plus claires ; elle s’ajoute à celle d’une pellicule.</p>
+      </section>
 
-      <details class="acc" id="framePanel">
-        <summary class="acc-head">
-          <h2>Cadre</h2>
-          <span class="acc-meta" id="frameMeta"></span>
-        </summary>
-        <div class="acc-body">
-          <div class="edit-row">
-            <span class="edit-label">Style</span>
-            <div class="chips chips-wrap" id="frameOptions" role="group" aria-label="Style de cadre">
-              <button type="button" class="chip" data-frame="none" aria-pressed="true">Aucun</button>
-              <button type="button" class="chip" data-frame="white" aria-pressed="false"><span class="swatch" style="background:#f5f3ee"></span>Blanc</button>
-              <button type="button" class="chip" data-frame="cream" aria-pressed="false"><span class="swatch" style="background:#ece2cc"></span>Crème</button>
-              <button type="button" class="chip" data-frame="black" aria-pressed="false"><span class="swatch" style="background:#111214"></span>Noir</button>
-              <button type="button" class="chip" data-frame="thin" aria-pressed="false"><span class="swatch swatch-thin"></span>Fin</button>
-              <button type="button" class="chip" data-frame="polaroid" aria-pressed="false"><span class="swatch swatch-polaroid"></span>Polaroid</button>
-              <button type="button" class="chip" data-frame="film" aria-pressed="false"><span class="swatch swatch-film"></span>Pellicule</button>
-            </div>
+      <!-- CADRE -->
+      <section class="inspector-panel" id="framePanel" role="tabpanel" aria-labelledby="tabFrame" hidden>
+        <section class="group">
+          <h3>Style</h3>
+          <div class="pill-row" id="frameOptions" role="group" aria-label="Style de cadre">
+            <button type="button" class="chip" data-frame="none" aria-pressed="true">Aucun</button>
+            <button type="button" class="chip" data-frame="white" aria-pressed="false"><span class="swatch" style="background:#f5f3ee"></span>Blanc</button>
+            <button type="button" class="chip" data-frame="cream" aria-pressed="false"><span class="swatch" style="background:#ece2cc"></span>Crème</button>
+            <button type="button" class="chip" data-frame="black" aria-pressed="false"><span class="swatch" style="background:#111214"></span>Noir</button>
+            <button type="button" class="chip" data-frame="thin" aria-pressed="false"><span class="swatch swatch-thin"></span>Fin</button>
+            <button type="button" class="chip" data-frame="polaroid" aria-pressed="false"><span class="swatch swatch-polaroid"></span>Polaroid</button>
+            <button type="button" class="chip" data-frame="film" aria-pressed="false"><span class="swatch swatch-film"></span>Pellicule</button>
           </div>
-          <div class="edit-row" id="frameInfoRow" hidden>
-            <span class="edit-label">Infos</span>
-            <div class="chips chips-wrap" id="frameInfoOptions" role="group" aria-label="Informations affichées">
-              <button type="button" class="chip" data-info="none" aria-pressed="true">Aucune</button>
-              <button type="button" class="chip" data-info="name" aria-pressed="false">Nom seul</button>
-              <button type="button" class="chip" data-info="full" aria-pressed="false">Complètes</button>
-            </div>
+        </section>
+        <section class="group" id="frameInfoRow" hidden>
+          <h3>Infos</h3>
+          <div class="pill-row" id="frameInfoOptions" role="group" aria-label="Informations affichées">
+            <button type="button" class="chip" data-info="none" aria-pressed="true">Aucune</button>
+            <button type="button" class="chip" data-info="name" aria-pressed="false">Nom seul</button>
+            <button type="button" class="chip" data-info="full" aria-pressed="false">Complètes</button>
           </div>
-          <div class="edit-row" id="signatureRow" hidden>
-            <label class="edit-label" for="signatureInput">Signature</label>
-            <input type="text" id="signatureInput" class="signature-input" maxlength="32" placeholder="Ton nom ou tes initiales" autocomplete="off">
-          </div>
-          <div class="edit-row" id="signatureStyleRow" hidden>
-            <span class="edit-label">Style</span>
-            <div class="chips chips-wrap" id="signatureStyleOptions" role="group" aria-label="Style de signature">
+        </section>
+        <section class="group" id="signatureRow" hidden>
+          <h3><label for="signatureInput">Signature</label></h3>
+          <input type="text" id="signatureInput" class="input" maxlength="32" placeholder="Ton nom ou tes initiales" autocomplete="off">
+          <div class="sub-row" id="signatureStyleRow" hidden>
+            <span class="sub-label">Style</span>
+            <div class="pill-row" id="signatureStyleOptions" role="group" aria-label="Style de signature">
               <button type="button" class="chip" data-signature="logo" aria-pressed="false"><span class="sig-chip-logo">F.</span>Logo</button>
               <button type="button" class="chip" data-signature="monogram" aria-pressed="true"><span class="sig-chip-mono">F</span>Monogramme</button>
               <button type="button" class="chip sig-chip-script" data-signature="script" aria-pressed="false">Manuscrit</button>
             </div>
           </div>
-          <div class="edit-row" id="signatureSizeRow" hidden>
-            <span class="edit-label">Taille</span>
-            <div class="chips" id="signatureSizeOptions" role="group" aria-label="Taille de la signature">
+          <div class="sub-row" id="signatureSizeRow" hidden>
+            <span class="sub-label">Taille</span>
+            <div class="pill-row" id="signatureSizeOptions" role="group" aria-label="Taille de la signature">
               <button type="button" class="chip" data-size="small" aria-pressed="true">Petite</button>
               <button type="button" class="chip" data-size="medium" aria-pressed="false">Moyenne</button>
               <button type="button" class="chip" data-size="large" aria-pressed="false">Grande</button>
             </div>
           </div>
-          <div class="edit-row" id="signaturePositionRow" hidden>
-            <span class="edit-label">Position</span>
-            <div class="chips" id="signaturePositionOptions" role="group" aria-label="Position de la signature">
+          <div class="sub-row" id="signaturePositionRow" hidden>
+            <span class="sub-label">Position</span>
+            <div class="pill-row" id="signaturePositionOptions" role="group" aria-label="Position de la signature">
               <button type="button" class="chip" data-position="left" aria-pressed="false">Gauche</button>
               <button type="button" class="chip" data-position="center" aria-pressed="false">Centre</button>
               <button type="button" class="chip" data-position="right" aria-pressed="true">Droite</button>
             </div>
           </div>
-          <p class="hint frame-hint">Visible dans l’aperçu et dans la photo exportée. Rien n’est ajouté par défaut : choisis les infos à afficher, et écris ton nom pour ajouter une signature, à gauche, au centre ou à droite.</p>
-        </div>
-      </details>
-
-      <details class="acc" id="exportPanel">
-        <summary class="acc-head">
-          <h2>Exporter et partager</h2>
-          <span class="acc-meta"></span>
-        </summary>
-        <div class="acc-body">
-          <h3 class="acc-sub">Photo exportée</h3>
-          <div class="edit-row">
-            <span class="edit-label">Taille</span>
-            <div class="chips chips-wrap" id="exportSizeOptions" role="group" aria-label="Taille d’export">
-              <button type="button" class="chip" data-size="full" aria-pressed="true">Pleine résolution</button>
-              <button type="button" class="chip" data-size="web" aria-pressed="false">Web · 2048 px</button>
-              <button type="button" class="chip" data-size="insta" aria-pressed="false">Instagram · 1080 px</button>
-            </div>
-          </div>
-          <div class="edit-row">
-            <span class="edit-label">Qualité</span>
-            <div class="chips chips-wrap" id="exportQualityOptions" role="group" aria-label="Qualité JPEG">
-              <button type="button" class="chip" data-quality="max" aria-pressed="true">Maximale</button>
-              <button type="button" class="chip" data-quality="standard" aria-pressed="false">Standard</button>
-              <button type="button" class="chip" data-quality="light" aria-pressed="false">Légère</button>
-            </div>
-          </div>
-          <p class="hint">S’applique à « Exporter la photo » et aux séries. Instagram : 1080 px de large, cadre compris. Pour une série, choisis plusieurs photos à l’import.</p>
-          <button type="button" class="export-button series-export-panel" id="seriesExportPanelButton" hidden>Exporter la série</button>
-
-          <h3 class="acc-sub">Images à partager</h3>
-          <div class="share-grid">
-            <div class="share-card">
-              <strong>Avant / Après</strong>
-              <p class="hint">L’original et la recette, dans une seule image.</p>
-              <div class="chips" id="beforeAfterLayout" role="group" aria-label="Disposition">
-                <button type="button" class="chip" data-layout="side" aria-pressed="true">Côte à côte</button>
-                <button type="button" class="chip" data-layout="split" aria-pressed="false">Coupé</button>
-              </div>
-              <button type="button" class="secondary-button" id="beforeAfterButton">Créer l’avant / après</button>
-            </div>
-            <div class="share-card">
-              <strong>Planche contact</strong>
-              <p class="hint">Ta photo dans 2 à 9 looks, côte à côte.</p>
-              <button type="button" class="secondary-button" id="contactButton">Choisir les looks</button>
-            </div>
-            <div class="share-card">
-              <strong>Fiche recette</strong>
-              <p class="hint">Tous les réglages et un QR code qui ouvre la recette.</p>
-              <button type="button" class="secondary-button" id="cardButton">Créer la fiche</button>
-            </div>
-          </div>
-          <h3 class="acc-sub">Fichiers de la recette</h3>
-          <label class="field-text">
-            <span>Preset Lightroom pour</span>
-            <select id="xmpTarget"></select>
-          </label>
-          <p class="hint" id="xmpHint"></p>
-          <button type="button" class="secondary-button" id="xmpButton">Preset Lightroom (.xmp)</button>
-          <details class="xmp-details">
-            <summary>Réglages Camera Raw écrits dans le preset</summary>
-            <div id="xmpDetails"></div>
-          </details>
-
-          <div class="export-group">
-            <label class="field-text">
-              <span>Taille de la LUT 3D</span>
-              <select id="lutSize">
-                <option value="17">17 (fichier le plus léger)</option>
-                <option value="33" selected>33 (recommandé)</option>
-                <option value="65">65 (précision maximale)</option>
-              </select>
-            </label>
-            <button type="button" class="secondary-button" id="cubeButton">LUT 3D (.cube)</button>
-          </div>
-          <div class="button-row">
-            <button type="button" class="secondary-button" id="copyTextButton">Copier la recette</button>
-            <button type="button" class="secondary-button" id="copyCodeButton">Copier le code de partage</button>
-            <button type="button" class="secondary-button" id="copyLinkButton">Copier le lien</button>
-            <button type="button" class="secondary-button" id="jsonButton">Télécharger .recipe.json</button>
-            <button type="button" class="secondary-button" id="ofrButton" title="Format ouvert Open Fuji Recipe, lu par d’autres applications">Open Fuji Recipe (.json)</button>
-          </div>
-        </div>
-      </details>
-
-      <details class="acc" id="cameraPanel">
-        <summary class="acc-head">
-          <h2>Mon boîtier</h2>
-          <span class="acc-meta" id="cameraMeta"></span>
-        </summary>
-        <div class="acc-body">
-          <label class="field-text compat-camera">
-            <span>Modèle</span>
-            <select id="cameraSelect"></select>
-          </label>
-          <p class="hint">Les recettes impossibles sur ce boîtier sont signalées dans les looks et dans « Recette ».</p>
-          <h3 class="acc-sub">Réglages perso C1–C7</h3>
-          <p class="hint">Range tes recettes dans les 7 emplacements, puis garde la fiche ou exporte les .FP1.</p>
-          <ol class="slot-list" id="slotList"></ol>
-          <div class="button-row">
-            <button type="button" class="secondary-button" id="slotsCardButton">Fiche C1–C7 (image)</button>
-            <button type="button" class="secondary-button" id="slotsFp1Button">Exporter les .FP1</button>
-          </div>
-          <h3 class="acc-sub">Profil X RAW Studio (.FP1)</h3>
-          <div class="export-group fp1-group">
-            <div class="field-text">
-              <span>Recette en cours vers le boîtier</span>
-              <p class="hint" id="fp1Status"></p>
-            </div>
-            <label class="secondary-button" for="fp1TemplateFile">Charger le modèle de mon boîtier</label>
-            <input id="fp1TemplateFile" type="file" accept=".fp1,.FP1,.xml,application/xml" hidden>
-            <button type="button" class="secondary-button" id="fp1Button" disabled>Profil .FP1</button>
-          </div>
-          <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Fuji Looks reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
-        </div>
-      </details>
-
-      <details class="acc" id="libraryPanel">
-        <summary class="acc-head">
-          <h2>Importer et bibliothèque</h2>
-          <span class="acc-meta" id="libraryMeta"></span>
-        </summary>
-        <div class="acc-body">
-          <h3 class="acc-sub">Importer une recette</h3>
-          <p class="hint">Colle une recette (texte, code de partage <code>FR1.…</code> ou lien de partage), charge un profil X RAW Studio (.FP1/.FP2/.FP3), un fichier <code>.recipe.json</code> ou une <strong>capture d’écran</strong> de recette (lue sur ton appareil). Tu peux aussi faire Ctrl+V n’importe où sur la page.</p>
-          <textarea id="importText" rows="6" aria-label="Recette à importer" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
-          <div class="button-row">
-            <button type="button" class="secondary-button" id="importButton">Appliquer</button>
-            <label class="secondary-button" for="importFile">Fichier ou capture d’écran</label>
-            <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json,image/*,.heic,.heif" hidden>
-          </div>
-          <p class="import-status" id="importStatus" role="status" aria-live="polite"></p>
-          <h3 class="acc-sub">Bibliothèque <small id="libraryCount"></small></h3>
-          <p class="hint">Les recettes enregistrées restent sur cet appareil et apparaissent en tête de l’onglet « Recettes ». Sauvegarde-les pour les transférer ailleurs.</p>
-          <ul class="library-list" id="libraryList"></ul>
-          <p class="hint" id="libraryEmpty">Aucune recette enregistrée pour l’instant. Utilise « Enregistrer » dans « Recette ».</p>
-          <div class="button-row">
-            <button type="button" class="secondary-button" id="libraryExportButton">Sauvegarder la bibliothèque</button>
-            <label class="secondary-button" for="libraryFile">Restaurer une sauvegarde</label>
-            <input id="libraryFile" type="file" accept=".json,application/json" hidden>
-          </div>
-        </div>
-      </details>
-
-      <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>, avec un lien vers l’article d’origine. Le rendu s’approche de celui du boîtier sans le reproduire exactement.</p>
-    </div>
+        </section>
+        <p class="hint">Visible dans l’aperçu et dans la photo exportée. Rien n’est ajouté par défaut : choisis les infos à afficher, et écris ton nom pour ajouter une signature.</p>
+      </section>
+    </aside>
   </main>
 
-  <dialog class="result-dialog contact-dialog" id="contactDialog" aria-labelledby="contactTitle">
-    <div class="result-head">
-      <h2 id="contactTitle">Planche contact</h2>
-      <button type="button" class="ghost-button icon-button" id="contactClose" aria-label="Fermer">✕</button>
+  <nav class="mobile-nav" aria-label="Navigation principale">
+    <button type="button" data-pane="looks" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>Looks</button>
+    <button type="button" data-pane="recipe"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg><span id="navRecipeLabel">Recette</span></button>
+    <button type="button" data-pane="edit"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg>Retouche</button>
+    <button type="button" data-open="exportDialog"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg>Partager</button>
+  </nav>
+
+  <!-- Exporter et partager -->
+  <dialog class="dialog" id="exportDialog" aria-labelledby="exportDialogTitle">
+    <div class="dialog-head">
+      <h2 id="exportDialogTitle">Exporter et partager</h2>
+      <button type="button" class="btn btn-icon" data-close aria-label="Fermer"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
     </div>
-    <p class="hint">Choisis de 2 à 9 looks. <strong id="contactCount"></strong></p>
-    <div class="contact-picker" id="contactPicker"></div>
-    <img class="result-image" id="contactPreview" alt="Aperçu de la planche contact">
-    <div class="result-actions">
-      <button type="button" class="export-button" id="contactExport">Créer la planche</button>
+    <div class="dialog-body">
+      <section class="group" id="photoExportSection">
+        <h3>Photo exportée</h3>
+        <div class="sub-row">
+          <span class="sub-label">Taille</span>
+          <div class="pill-row" id="exportSizeOptions" role="group" aria-label="Taille d’export">
+            <button type="button" class="chip" data-size="full" aria-pressed="true">Pleine résolution</button>
+            <button type="button" class="chip" data-size="web" aria-pressed="false">Web · 2048 px</button>
+            <button type="button" class="chip" data-size="insta" aria-pressed="false">Instagram · 1080 px</button>
+          </div>
+        </div>
+        <div class="sub-row">
+          <span class="sub-label">Qualité</span>
+          <div class="pill-row" id="exportQualityOptions" role="group" aria-label="Qualité JPEG">
+            <button type="button" class="chip" data-quality="max" aria-pressed="true">Maximale</button>
+            <button type="button" class="chip" data-quality="standard" aria-pressed="false">Standard</button>
+            <button type="button" class="chip" data-quality="light" aria-pressed="false">Légère</button>
+          </div>
+        </div>
+        <p class="hint">S’applique à « Exporter la photo » et aux séries. Instagram : 1080 px de large, cadre compris.</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" id="dialogExportButton" disabled>Exporter la photo</button>
+        </div>
+      </section>
+
+      <section class="group" id="shareSection">
+        <h3>Images à partager</h3>
+        <div class="share-grid">
+          <div class="share-card">
+            <strong>Avant / Après</strong>
+            <p class="hint">L’original et le look, dans une seule image.</p>
+            <div class="pill-row" id="beforeAfterLayout" role="group" aria-label="Disposition">
+              <button type="button" class="chip" data-layout="side" aria-pressed="true">Côte à côte</button>
+              <button type="button" class="chip" data-layout="split" aria-pressed="false">Coupé</button>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="beforeAfterButton">Créer l’avant / après</button>
+          </div>
+          <div class="share-card">
+            <strong>Planche contact</strong>
+            <p class="hint">Ta photo dans 2 à 9 looks, côte à côte.</p>
+            <button type="button" class="btn btn-secondary btn-sm" id="contactButton">Choisir les looks</button>
+          </div>
+          <div class="share-card" id="recipeCardCard">
+            <strong>Fiche recette</strong>
+            <p class="hint">Tous les réglages et un QR code qui ouvre la recette.</p>
+            <button type="button" class="btn btn-secondary btn-sm" id="cardButton">Créer la fiche</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="group" id="recipeFilesSection">
+        <h3 id="recipeFilesTitle">Fichiers de la recette</h3>
+        <div id="recipeFiles">
+          <label class="field"><span>Preset Lightroom pour</span><select id="xmpTarget" class="select"></select></label>
+          <p class="hint" id="xmpHint"></p>
+          <button type="button" class="btn btn-secondary btn-sm" id="xmpButton">Preset Lightroom (.xmp)</button>
+          <details class="fold">
+            <summary><span class="fold-title">Réglages Camera Raw écrits dans le preset</span><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+            <div class="fold-body xmp-details" id="xmpDetails"></div>
+          </details>
+        </div>
+        <div class="export-group">
+          <label class="field"><span>Taille de la LUT 3D</span>
+            <select id="lutSize" class="select">
+              <option value="17">17 (fichier le plus léger)</option>
+              <option value="33" selected>33 (recommandé)</option>
+              <option value="65">65 (précision maximale)</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-secondary btn-sm" id="cubeButton">LUT 3D (.cube)</button>
+        </div>
+        <p class="hint" id="filmFilesHint" hidden>Une pellicule s’exporte en LUT 3D : la couleur du film, sans grain ni halation. Elle s’ouvre dans Photoshop, Lightroom (profil créé dans Camera Raw), Capture One ou DaVinci Resolve.</p>
+        <div class="btn-row" id="recipeCodeButtons">
+          <button type="button" class="btn btn-secondary btn-sm" id="copyTextButton">Copier la recette</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="copyCodeButton">Copier le code de partage</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="copyLinkButton">Copier le lien</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="jsonButton">Télécharger .recipe.json</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="ofrButton" title="Format ouvert Open Fuji Recipe, lu par d’autres applications">Open Fuji Recipe (.json)</button>
+        </div>
+      </section>
     </div>
   </dialog>
 
-  <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultTitle">
-    <div class="result-head">
-      <h2 id="resultTitle">Photo prête</h2>
-      <button type="button" class="ghost-button icon-button" id="resultClose" aria-label="Fermer">✕</button>
+  <!-- Mon boîtier -->
+  <dialog class="dialog" id="cameraDialog" aria-labelledby="cameraDialogTitle">
+    <div class="dialog-head">
+      <h2 id="cameraDialogTitle">Mon boîtier</h2>
+      <button type="button" class="btn btn-icon" data-close aria-label="Fermer"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
     </div>
-    <img id="resultImage" class="result-image" alt="">
-    <p class="hint" id="resultHint"></p>
-    <div class="result-actions">
-      <button type="button" class="export-button" id="resultSave">Enregistrer dans Photos</button>
-      <button type="button" class="secondary-button" id="resultDownload">Télécharger le fichier</button>
+    <div class="dialog-body">
+      <section class="group">
+        <label class="field"><span>Modèle</span><select id="cameraSelect" class="select"></select></label>
+        <p class="hint">Les recettes impossibles sur ce boîtier sont signalées dans les looks et dans « Recette ».</p>
+      </section>
+      <section class="group">
+        <h3>Réglages perso C1–C7</h3>
+        <p class="hint">Range tes recettes dans les 7 emplacements, puis garde la fiche ou exporte les .FP1.</p>
+        <ol class="slot-list" id="slotList"></ol>
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary btn-sm" id="slotsCardButton">Fiche C1–C7 (image)</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="slotsFp1Button">Exporter les .FP1</button>
+        </div>
+      </section>
+      <section class="group" id="fp1Section">
+        <h3>Profil X RAW Studio (.FP1)</h3>
+        <p class="hint" id="fp1Status"></p>
+        <div class="btn-row">
+          <label class="btn btn-secondary btn-sm" for="fp1TemplateFile">Charger le modèle de mon boîtier</label>
+          <input id="fp1TemplateFile" type="file" accept=".fp1,.FP1,.xml,application/xml" hidden>
+          <button type="button" class="btn btn-secondary btn-sm" id="fp1Button" disabled>Profil .FP1 de la recette</button>
+        </div>
+        <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Fuji Looks reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
+      </section>
+    </div>
+  </dialog>
+
+  <!-- Importer et bibliothèque -->
+  <dialog class="dialog" id="importDialog" aria-labelledby="importDialogTitle">
+    <div class="dialog-head">
+      <h2 id="importDialogTitle">Importer et bibliothèque</h2>
+      <button type="button" class="btn btn-icon" data-close aria-label="Fermer"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="dialog-body">
+      <section class="group">
+        <h3>Importer une recette</h3>
+        <p class="hint">Colle une recette (texte, code de partage <code>FR1.…</code> ou lien de partage), charge un profil X RAW Studio (.FP1/.FP2/.FP3), un fichier <code>.recipe.json</code> ou une <strong>capture d’écran</strong> de recette (lue sur ton appareil). Tu peux aussi faire Ctrl+V n’importe où sur la page.</p>
+        <textarea id="importText" class="input" rows="6" aria-label="Recette à importer" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary btn-sm" id="importButton">Appliquer</button>
+          <label class="btn btn-secondary btn-sm" for="importFile">Fichier ou capture d’écran</label>
+          <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json,image/*,.heic,.heif" hidden>
+        </div>
+        <p class="import-status" id="importStatus" role="status" aria-live="polite"></p>
+      </section>
+      <section class="group" id="librarySection">
+        <h3>Bibliothèque <small class="muted" id="libraryCount"></small></h3>
+        <p class="hint">Les recettes enregistrées restent sur cet appareil et apparaissent en tête de l’onglet « Recettes ». Sauvegarde-les pour les transférer ailleurs.</p>
+        <ul class="library-list" id="libraryList"></ul>
+        <p class="hint" id="libraryEmpty">Aucune recette enregistrée pour l’instant. Utilise « Enregistrer… » dans « Recette ».</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary btn-sm" id="libraryExportButton">Sauvegarder la bibliothèque</button>
+          <label class="btn btn-secondary btn-sm" for="libraryFile">Restaurer une sauvegarde</label>
+          <input id="libraryFile" type="file" accept=".json,application/json" hidden>
+        </div>
+      </section>
+      <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>. La couleur des pellicules vient de la collection <a href="https://github.com/YahiaAngelo/Film-Luts" target="_blank" rel="noopener">Film-Luts</a> (MIT). Le rendu s’approche du boîtier ou du film sans le reproduire exactement.</p>
+    </div>
+  </dialog>
+
+  <dialog class="dialog result-dialog contact-dialog" id="contactDialog" aria-labelledby="contactTitle">
+    <div class="dialog-head">
+      <h2 id="contactTitle">Planche contact</h2>
+      <button type="button" class="btn btn-icon" id="contactClose" aria-label="Fermer"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="dialog-body">
+      <p class="hint">Choisis de 2 à 9 looks. <strong id="contactCount"></strong></p>
+      <div class="contact-picker" id="contactPicker"></div>
+      <img class="result-image" id="contactPreview" alt="Aperçu de la planche contact">
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="contactExport">Créer la planche</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dialog result-dialog" id="resultDialog" aria-labelledby="resultTitle">
+    <div class="dialog-head">
+      <h2 id="resultTitle">Photo prête</h2>
+      <button type="button" class="btn btn-icon" id="resultClose" aria-label="Fermer"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="dialog-body">
+      <img id="resultImage" class="result-image" alt="">
+      <p class="hint" id="resultHint"></p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="resultSave">Enregistrer dans Photos</button>
+        <button type="button" class="btn btn-secondary" id="resultDownload">Télécharger le fichier</button>
+      </div>
     </div>
   </dialog>
 
   <p id="statusMessage" class="toast" role="status" aria-live="polite"></p>
-
-  <footer>
-    <span>FUJI LOOKS <a class="footer-by" href="https://github.com/ostefnn" target="_blank" rel="noopener">by ostefnn</a></span>
-    <button type="button" class="text-button install-button" id="installButton" hidden>Installer l’application</button>
-    <span>FAIT POUR TON REGARD</span>
-  </footer>
 
   <script src="vendor/fuji-recipe-converter/data.js"></script>
   <script src="vendor/fuji-recipe-converter/engine.js"></script>
@@ -511,11 +689,13 @@
   <script src="custom-recipes.js"></script>
   <script src="js/kata-catalog.js"></script>
   <script src="js/pipeline.js"></script>
+  <script src="js/films.js"></script>
   <script src="js/state.js"></script>
   <script src="js/catalog.js"></script>
   <script src="js/render.js"></script>
   <script src="js/looks.js"></script>
   <script src="js/editor.js"></script>
+  <script src="js/film-editor.js"></script>
   <script src="js/history.js"></script>
   <script src="js/preview.js"></script>
   <script src="js/histogram.js"></script>
@@ -537,6 +717,7 @@
   <script src="js/share.js"></script>
   <script src="js/creations.js"></script>
   <script src="js/series.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
