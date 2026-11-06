@@ -7,7 +7,8 @@ function restoreDraft() {
   recipe = FR.normalize(draft.recipe);
   currentFilm = draft.film && filmByKey.has(draft.film.film) ? filmSpec(draft.film.film, draft.film) : null;
   applied = Boolean(draft.applied);
-  currentLookId = draft.lookId && lookById.has(draft.lookId) ? draft.lookId : null;
+  const lookId = migrateLookId(draft.lookId);
+  currentLookId = lookId && lookById.has(lookId) ? lookId : null;
   modified = Boolean(draft.modified) && Boolean(currentLookId);
 }
 
