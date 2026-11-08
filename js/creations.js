@@ -51,7 +51,7 @@ function drawPill(ctx, text, x, y, size, alignRight = false) {
 
 function buildBeforeAfter(layout) {
   const src = creationSource(1600);
-  const after = applyHalation(renderRecipe(src, activeRecipe(), getStrength(), sourceSize), halationFor(activeRecipe()));
+  const after = applyHalation(renderRecipe(src, activeRecipe(), getStrength(), sourceSize), halationFor(activeRecipe()), halationScaleFor(activeRecipe()));
   const before = imageDataToCanvas(src);
   const graded = imageDataToCanvas(after);
   const w = src.width;

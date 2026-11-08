@@ -127,13 +127,16 @@ async function renderExport() {
   if (!originalImage) throw new Error("Aucune photo sélectionnée.");
 
   // Le cadre ajoute des pixels : on garde de la marge sous la limite des canvas iOS.
-  const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * 0.8;
-  const out = applyHalation(await renderExportPixels(maxPixels, exportPhotoSide()), halationFor(activeRecipe()));
+  // Demi-format à deux vues : deux photos côte à côte, chacune deux fois plus petite.
+  const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * (halfPairActive() ? 0.38 : 0.8);
+  const look = activeRecipe();
+  const out = applyDateBack(applyHalation(await renderExportPixels(maxPixels, exportPhotoSide()), halationFor(look), halationScaleFor(look)));
+  const pair = frameStyle === "film" ? renderHalfPair(out, look, getStrength(), true) : null;
   await loadScriptFont(); // signature manuscrite prête avant de dessiner le cadre
 
   let canvas;
   if (frameStyle !== "none") {
-    canvas = composeFrame(out, frameStyle, activeRecipe());
+    canvas = composeFrame(out, frameStyle, look, frameInfo, pair);
   } else {
     canvas = document.createElement("canvas");
     canvas.width = out.width;

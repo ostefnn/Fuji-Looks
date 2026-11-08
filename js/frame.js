@@ -32,7 +32,9 @@ function capitalize(text) {
 // Pellicule : sensibilité, procédé et réglages de texture à la place des réglages Fujifilm.
 function filmFrameTokens(spec) {
   const film = filmByKey.get(spec.film);
+  const push = Number(spec.push) || 0;
   return [`ISO ${film.iso}`, film.process, FILM_SHELVES.find((s) => s.id === film.shelf).kindLabel,
+    filmFormatOf(filmFormat).label, ...(push ? [`${push > 0 ? "Poussé" : "Retenu"} ${Math.abs(push)} IL`] : []),
     `Grain ${spec.grain}`, `Halation ${spec.halation}`, `Douceur ${spec.softness}`];
 }
 
@@ -199,70 +201,41 @@ function drawSignature(ctx, x, y, size, theme, measureOnly = false) {
   return width;
 }
 
-// Perforations et marquages en bordure, façon pellicule 35 mm.
-function drawFilmStrip(ctx, x, y, width, height, holesOnTop, edgeLeft, edgeRight) {
-  const holeW = Math.round(height * 0.3);
-  const holeH = Math.round(height * 0.36);
-  const step = Math.round(height * 0.62);
-  const holeY = holesOnTop ? y + Math.round(height * 0.12) : y + height - Math.round(height * 0.12) - holeH;
-  ctx.fillStyle = "#d8d2c4";
-  for (let hx = x + Math.round(step / 3); hx + holeW < x + width; hx += step) {
-    if (ctx.roundRect) {
-      ctx.beginPath();
-      ctx.roundRect(hx, holeY, holeW, holeH, Math.round(holeW * 0.22));
-      ctx.fill();
-    } else {
-      ctx.fillRect(hx, holeY, holeW, holeH); // anciens navigateurs
-    }
-  }
-  if (edgeLeft || edgeRight) {
-    const size = Math.round(height * 0.2);
-    const textY = holesOnTop ? y + height - Math.round(height * 0.16) : y + Math.round(height * 0.16) + size;
-    ctx.fillStyle = "#e39b3a";
-    ctx.font = `600 ${size}px ${FRAME_FONT}`;
-    ctx.textAlign = "left";
-    if (edgeLeft) ctx.fillText(edgeLeft, x + Math.round(height * 0.3), textY, width * 0.7);
-    ctx.textAlign = "right";
-    if (edgeRight) ctx.fillText(edgeRight, x + width - Math.round(height * 0.3), textY, width * 0.25);
-    ctx.textAlign = "left";
-  }
-}
-
 // Bordure façon tirage, avec selon l'option le nom de la recette, la simulation et les réglages.
 // Toutes les tailles sont proportionnelles à la photo : l'aperçu et l'export sont identiques.
-function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
+// pair : seconde vue du demi-format (ImageData), dessinée à côté sur la bande de film.
+function composeFrame(imageData, style, frameRecipe, info = frameInfo, pair = null) {
   const cfg = FRAME_STYLES[style];
+  // Pellicule : la photo est posée sur une vraie bande de film (js/film-edge.js).
+  if (cfg.film) return composeFilmEdge(imageData, frameRecipe, info, pair);
   const W = imageData.width;
   const H = imageData.height;
   const long = Math.max(W, H);
   const side = Math.round(long * cfg.side);
-  const strip = cfg.film ? Math.round(long * 0.085) : 0;
-  const top = cfg.film ? strip : Math.round(long * cfg.top);
+  const top = Math.round(long * cfg.top);
   const pad = Math.round(long * 0.035);
   const titleSize = Math.max(10, Math.round(long * (cfg.center ? 0.03 : 0.024)));
   const textSize = Math.max(8, Math.round(long * 0.0145));
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
-  // Sur la pellicule, le nom et la simulation sont imprimés en bordure ; le cartouche ne sert qu'aux réglages.
-  const showTitle = Boolean(frameRecipe) && info !== "none" && !cfg.film;
+  const showTitle = Boolean(frameRecipe) && info !== "none";
   let lines = [];
   if (frameRecipe && info === "full") {
     ctx.font = `${textSize}px ${FRAME_FONT}`;
     lines = wrapTokens(ctx, frameTokens(frameRecipe), W);
     if (frameRecipe.author) lines.push(`Recette : ${frameRecipe.author}`);
   }
-  // Signature : sur sa propre ligne en bas du cartouche (imprimée en bordure sur la pellicule).
+  // Signature : sur sa propre ligne en bas du cartouche.
   const hasSignature = Boolean(signatureName.trim());
   // Seule dans le cadre, la signature est un peu plus grande (elle est alors centrée).
   const [withInfo, alone] = SIGNATURE_SIZES[signatureSize];
   const sigSize = Math.max(12, Math.round(long * (showTitle || lines.length ? withInfo : alone)));
-  const sigBlock = hasSignature && !cfg.film ? sigSize + (showTitle || lines.length ? Math.round(textSize * 1.2) : 0) : 0;
+  const sigBlock = hasSignature ? sigSize + (showTitle || lines.length ? Math.round(textSize * 1.2) : 0) : 0;
   const content = (showTitle ? titleSize * 1.25 : 0) + (showTitle && lines.length ? titleSize * 0.25 : 0) +
     lines.length * textSize * 1.55 + sigBlock;
   const band = content ? Math.round(pad * 0.9 * 2 + content) : 0;
-  const bottomBorder = cfg.film ? strip : Math.round(long * cfg.bottom);
-  const bottom = cfg.film ? strip + band : Math.max(bottomBorder, band);
+  const bottom = Math.max(Math.round(long * cfg.bottom), band);
 
   canvas.width = W + side * 2;
   canvas.height = top + H + bottom;
@@ -278,19 +251,9 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo) {
   canvas.photoY = top;
   ctx.textBaseline = "alphabetic";
 
-  if (cfg.film) {
-    const sim = frameRecipe ? frameSubtitle(frameRecipe) : "";
-    const edge = frameRecipe && info !== "none" ? `${frameRecipe.name || "Recette"}  ▸  ${sim}` : "";
-    drawFilmStrip(ctx, 0, 0, canvas.width, strip, true, edge, "▸ 24");
-    // Signature imprimée en bordure : à gauche (ou au centre, faute de place) ou à droite à la place du numéro.
-    const edgeSig = hasSignature ? `© ${signatureName.trim().toUpperCase()}` : "";
-    const sigRight = edgeSig && signaturePosition === "right";
-    drawFilmStrip(ctx, 0, top + H, canvas.width, strip, false, sigRight ? "" : edgeSig, sigRight ? edgeSig : "24A");
-  }
-
   if (content) {
-    const bandTop = cfg.film ? top + H + strip : top + H;
-    const bandHeight = cfg.film ? band : bottom;
+    const bandTop = top + H;
+    const bandHeight = bottom;
     // Cartouche centré verticalement dans la bordure du bas (utile pour le Polaroid).
     let y = Math.round(bandTop + (bandHeight - content) / 2);
     if (showTitle) {
@@ -339,6 +302,7 @@ function updateFrameOptions() {
   });
   signatureSizeRow.hidden = signatureStyleRow.hidden;
   signaturePositionRow.hidden = signatureStyleRow.hidden;
+  updateFilmEdgeOptions();
   signaturePositionOptions.querySelectorAll("[data-position]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.position === signaturePosition));
   });
@@ -400,10 +364,13 @@ signatureStyleOptions.addEventListener("click", (event) => {
 frameOptions.addEventListener("click", (event) => {
   const button = event.target.closest("[data-frame]");
   if (!button) return;
+  const gateBefore = frameStyle === "film";
   frameStyle = button.dataset.frame;
   store(FRAME_KEY, frameStyle);
   updateFrameOptions();
-  schedulePreview();
+  // La bande de film impose le format de la vue : on recadre la photo.
+  if (gateBefore || frameStyle === "film") filmGateChanged();
+  else schedulePreview();
   if (!originalImage && frameStyle !== "none") showStatus("Importe une photo pour voir le cadre.");
 });
 

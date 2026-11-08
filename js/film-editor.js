@@ -11,6 +11,7 @@ const filmSource = document.getElementById("filmSource");
 const filmResetButton = document.getElementById("filmResetButton");
 const filmBalance = document.getElementById("filmBalance");
 const filmGrainSize = document.getElementById("filmGrainSize");
+const filmPush = document.getElementById("filmPush");
 
 const frNumber = (value, digits = 1) => value.toFixed(digits).replace(".", ",");
 
@@ -19,7 +20,11 @@ const FILM_SLIDERS = [
   ["ev", "filmEv", (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${frNumber(Math.abs(v))} IL`],
   ["grain", "filmGrain", (v) => String(v)],
   ["halation", "filmHalation", (v) => String(v)],
-  ["softness", "filmSoftness", (v) => String(v)]
+  ["softness", "filmSoftness", (v) => String(v)],
+  ["couplers", "filmCouplers", (v) => String(v)],
+  ["grade", "filmGrade", (v) => (v === 2 ? "2 · normal" : v === 0 ? "0 · doux" : v === 5 ? "5 · dur" : String(v))],
+  ["filterY", "filmFilterY", (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)} Y`],
+  ["filterM", "filmFilterM", (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)} M`]
 ].map(([key, id, format]) => ({
   key,
   input: document.getElementById(id),
@@ -49,6 +54,7 @@ FILM_SLIDERS.forEach(({ key, input }) => {
 });
 filmBalance.addEventListener("change", () => filmEdited("balance", filmBalance.value));
 filmGrainSize.addEventListener("change", () => filmEdited("grainSize", filmGrainSize.value));
+filmPush.addEventListener("change", () => filmEdited("push", Number(filmPush.value)));
 
 filmResetButton.addEventListener("click", () => {
   if (!currentFilm) return;
@@ -92,14 +98,15 @@ function updateFilmEditor() {
   filmMeta.textContent = `ISO ${film.iso} · ${film.process} · ${shelf.kindLabel}`;
   filmTag.textContent = `« ${film.tag} »`;
   filmSource.textContent = FILM_MODELS[film.key]
-    ? "Couleur : modèle paramétrique Fuji Looks (pas de LUT pour ce film). Grain, halation et douceur : modèle Fuji Looks."
-    : "Couleur : LUT de la collection Film-Luts (MIT). Grain, halation et douceur : modèle Fuji Looks.";
+    ? "Couleur : modèle paramétrique Fuji Looks (pas de LUT pour ce film). Grain, halation, douceur, développement et tirage : modèle Fuji Looks."
+    : "Couleur : LUT de la collection Film-Luts (MIT). Grain, halation, douceur, développement et tirage : modèle Fuji Looks.";
   FILM_SLIDERS.forEach(({ key, input, output, format }) => {
     input.value = currentFilm[key];
     output.textContent = format(Number(currentFilm[key]));
   });
   filmBalance.value = currentFilm.balance;
   filmGrainSize.value = currentFilm.grainSize;
+  filmPush.value = String(currentFilm.push || 0);
   filmResetButton.disabled = filmIsDefault(currentFilm);
 }
 

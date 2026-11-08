@@ -2415,3 +2415,13 @@ body:not(.has-photo) .histogram-panel {
     transition: none !important;
   }
 }
+
+/* Bande de film : numéro de vue et format imposé au recadrage. */
+.input-num {
+  width: 72px;
+}
+
+.pill-row.is-locked {
+  opacity: 0.45;
+  pointer-events: none;
+}

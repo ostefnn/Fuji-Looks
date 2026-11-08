@@ -117,6 +117,38 @@ const FILMS = FILM_LIST.map(([key, name, iso, process, shelf, tag]) => {
 });
 const filmByKey = new Map(FILMS.map((film) => [film.key, film]));
 
+// --- Formats du négatif ----------------------------------------------------------
+
+/*
+ * Dimensions réelles, en mm, avec le film déroulé à l'horizontale :
+ *   along   longueur de la vue le long du film     across  hauteur de la vue en travers du film
+ *   film    largeur du film (35 mm ou 120)          gap     intervalle entre deux vues
+ *   perfs   perforations (35 mm seulement)          pair    deux vues par vue 24×36 (demi-format)
+ */
+const FILM_FORMATS = {
+  "135": { label: "24×36", along: 36, across: 24, film: 35, gap: 2, perfs: true },
+  half: { label: "Demi-format", along: 18, across: 24, film: 35, gap: 1, perfs: true, pair: true },
+  pano: { label: "Panoramique 24×65", along: 65, across: 24, film: 35, gap: 2.5, perfs: true },
+  "645": { label: "6×4,5", along: 41.5, across: 56, film: 61.5, gap: 5 },
+  "66": { label: "6×6", along: 56, across: 56, film: 61.5, gap: 5 },
+  "67": { label: "6×7", along: 69.5, across: 56, film: 61.5, gap: 5 },
+  "69": { label: "6×9", along: 84, across: 56, film: 61.5, gap: 5 }
+};
+
+function filmFormatOf(key) {
+  return FILM_FORMATS[key] || FILM_FORMATS["135"];
+}
+
+/*
+ * Le grain, le halo et la douceur ont une taille fixe sur le film, en micromètres. Rapportés à la
+ * photo, ils grossissent quand la vue est petite (demi-format) et s'affinent sur un grand négatif
+ * (6×9). Facteur relatif au 24×36, sur lequel les réglages sont calibrés : 1,5 en demi-format, 0,43 en 6×9.
+ */
+function formatScale(key) {
+  const f = filmFormatOf(key);
+  return 36 / Math.max(f.along, f.across);
+}
+
 // --- Réglages par défaut d'une pellicule -------------------------------------------
 
 // Plus le film est rapide, plus le grain est fort et gros (0 à 7 diaphs au-dessus de 25 ISO).
@@ -132,7 +164,14 @@ function filmDefaults(film) {
   const halation = film.kind === "cine" ? (film.key === "cinestill800t" ? 70 : 50)
     : film.kind === "neg" ? 12 : film.kind === "print" ? 8 : 6;
   const softness = film.kind === "cine" ? 30 : film.kind === "neg" ? 25 : film.kind === "bw" ? 20 : 15;
+  // Coupleurs DIR : les diapos en ont le plus (couleurs franches, bords nets), les copies cinéma le moins.
+  const couplers = film.kind === "slide" || film.kind === "xpro" ? 35 : film.kind === "print" ? 15 : film.kind === "bw" ? 15 : 25;
   return {
+    push: 0,
+    couplers,
+    grade: 2,
+    filterY: 0,
+    filterM: 0,
     ev: film.kind === "neg" ? 0.2 : 0,
     balance: film.tungsten ? "tungsten" : "day",
     grain: Math.round(grain),
@@ -221,11 +260,58 @@ function filmModelColor(model, lin, out) {
   for (let c = 0; c < 3; c++) out[c] = Math.min(1, Math.max(0, l + (out[c] - l) * model.sat));
 }
 
-// LUT 3D finale (exposition, équilibrage, couleur du film), au format de FR.applyLut.
+// --- Développement et tirage ---------------------------------------------------------
+
+/*
+ * Développement poussé (+1, +2 IL) ou retenu (−1 IL) : le film exposé à une autre sensibilité est
+ * développé plus ou moins longtemps. Poussé : plus de contraste, des ombres plus denses, un grain
+ * plus gros. Retenu : plus doux, grain plus fin.
+ *
+ * Tirage : grade du papier (0 doux à 5 dur, 2 normal) et filtration de l'agrandisseur en unités CC.
+ * Comme en chambre noire : ajouter du jaune rend le tirage plus bleu, ajouter du magenta le rend plus vert.
+ */
+const PAPER_GRADES = [0.72, 0.86, 1, 1.15, 1.32, 1.52];
+const CC_STOP = 0.005; // effet d'une unité CC sur la lumière du canal, en log10
+
+function printStage(spec) {
+  const push = Math.max(-1, Math.min(2, Number(spec.push) || 0));
+  const grade = PAPER_GRADES[Math.max(0, Math.min(5, Math.round(Number(spec.grade ?? 2))))];
+  const y = Number(spec.filterY) || 0;
+  const m = Number(spec.filterM) || 0;
+  const gains = [1, 10 ** (m * CC_STOP), 10 ** (y * CC_STOP)];
+  const luma = 0.2126 * gains[0] + 0.7152 * gains[1] + 0.0722 * gains[2];
+  const mono = filmByKey.get(spec.film).shelf === "bw";
+  return {
+    contrast: grade * (1 + 0.16 * push),
+    gains: mono ? [1, 1, 1] : gains.map((g) => g / luma),
+    // Inhibition entre couches (coupleurs DIR) : couleurs plus séparées. Sans effet en N&B.
+    sat: mono ? 1 : 1 + 0.3 * ((Number(spec.couplers) || 0) / 100)
+  };
+}
+
+// Courbe de contraste qui garde le noir et le blanc du papier (puissance symétrique autour du gris).
+function paperCurve(v, c) {
+  if (c === 1) return v;
+  return v < 0.5 ? 0.5 * (2 * v) ** c : 1 - 0.5 * (2 * (1 - v)) ** c;
+}
+
+function applyPrintStage(stage, out) {
+  if (stage.gains[1] !== 1 || stage.gains[2] !== 1 || stage.gains[0] !== 1) {
+    for (let c = 0; c < 3; c++) out[c] = filmLinearToSrgb(Math.min(1, filmSrgbToLinear(out[c]) * stage.gains[c]));
+  }
+  for (let c = 0; c < 3; c++) out[c] = paperCurve(Math.min(1, Math.max(0, out[c])), stage.contrast);
+  if (stage.sat !== 1) {
+    const l = 0.2126 * out[0] + 0.7152 * out[1] + 0.0722 * out[2];
+    for (let c = 0; c < 3; c++) out[c] = Math.min(1, Math.max(0, l + (out[c] - l) * stage.sat));
+  }
+}
+
+// LUT 3D finale (exposition, équilibrage, couleur du film, développement, tirage), au format de FR.applyLut.
 const filmLutCache = new Map();
 
 function bakeFilmLut(spec, size = 33) {
-  const key = `${spec.film}|${spec.ev}|${spec.balance}|${size}|${filmHasLut(spec.film)}`;
+  const stage = printStage(spec);
+  const key = `${spec.film}|${spec.ev}|${spec.balance}|${size}|${filmHasLut(spec.film)}|${JSON.stringify(stage)}`;
   if (filmLutCache.has(key)) return filmLutCache.get(key);
   const gains = filmBalanceGains(spec);
   const exposure = 2 ** (Number(spec.ev) || 0);
@@ -246,6 +332,7 @@ function bakeFilmLut(spec, size = 33) {
         } else {
           filmModelColor(model, lin, out);
         }
+        applyPrintStage(stage, out);
         lut[p++] = out[0];
         lut[p++] = out[1];
         lut[p++] = out[2];
@@ -257,7 +344,7 @@ function bakeFilmLut(spec, size = 33) {
   return lut;
 }
 
-// Fichier .cube (Adobe / Resolve) : la couleur seule, sans grain ni halation.
+// Fichier .cube (Adobe / Resolve) : la couleur (développement et tirage compris), sans grain ni halation.
 function filmCubeText(spec, size) {
   const lut = bakeFilmLut(spec, size);
   const lines = [
@@ -304,11 +391,11 @@ function boxBlurRgb(data, w, h, radius) {
 }
 
 // Douceur optique : mélange avec une version légèrement floue (rayon proportionnel à la photo).
-function applyFilmSoftness(img, amount, grainWidth) {
+function applyFilmSoftness(img, amount, grainWidth, scale = 1) {
   if (!amount) return;
-  const radius = Math.max(1, Math.round((grainWidth / 2400) * (0.6 + amount / 60)));
   // Sur une petite image, un rayon d'un pixel est déjà trop : on dose le mélange.
-  const exact = (grainWidth / 2400) * (0.6 + amount / 60);
+  const exact = (grainWidth / 2400) * (0.6 + amount / 60) * scale;
+  const radius = Math.max(1, Math.round(exact));
   const mix = (amount / 100) * 0.7 * Math.min(1, exact);
   if (mix < 0.02) return;
   const blur = boxBlurRgb(img.data, img.width, img.height, radius);
@@ -329,16 +416,20 @@ function hashNoise(x, y, seed) {
 }
 
 // Grain argentique : bruit de luminance, plus fort dans les tons moyens, taille liée au film.
-// Taille en pixels d'une photo de 3000 px de large, ramenée à la résolution rendue.
+// Taille en pixels d'une photo 24×36 de 3000 px de large, ramenée à la résolution rendue et au format.
 function applyFilmGrain(img, spec, grainWidth) {
   const amount = (Number(spec.grain) || 0) / 100;
   if (!amount) return;
   const film = filmByKey.get(spec.film);
-  const base = GRAIN_SIZES[spec.grainSize] || 0.7 + 0.13 * filmSpeedSteps(film.iso);
-  const exact = (base * grainWidth) / 3000;
+  // Développement poussé : grain plus gros et plus marqué ; retenu : plus fin.
+  const push = Math.max(-1, Math.min(2, Number(spec.push) || 0));
+  const base = (GRAIN_SIZES[spec.grainSize] || 0.7 + 0.13 * filmSpeedSteps(film.iso)) * (1 + 0.12 * push);
+  // Format du négatif : un petit négatif est plus agrandi, son grain est plus gros et plus marqué.
+  const scale = formatScale(spec.format);
+  const exact = (base * grainWidth * scale) / 3000;
   const cell = Math.max(1, exact);
   // Grain plus petit qu'un pixel : il se moyenne, donc il se voit moins.
-  const amp = amount * 46 * Math.min(1, Math.sqrt(exact));
+  const amp = amount * 46 * Math.min(1, Math.sqrt(exact)) * scale ** 0.35 * (1 + 0.3 * push);
   const { width: w, height: h, data: d } = img;
   const mono = film.shelf === "bw";
   for (let y = 0; y < h; y++) {
@@ -368,13 +459,38 @@ function applyFilmGrain(img, spec, grainWidth) {
   }
 }
 
+/*
+ * Effet de bord des coupleurs DIR (et du révélateur en N&B) : près d'une limite claire / sombre,
+ * le côté clair se densifie et le côté sombre s'éclaircit. Netteté « chimique » sur un rayon de
+ * quelques dizaines de micromètres, mis à l'échelle du format.
+ */
+function applyFilmCouplers(img, amount, grainWidth, scale = 1) {
+  const a = amount / 100;
+  if (a < 0.02) return;
+  const exact = (grainWidth / 1100) * scale;
+  const radius = Math.max(1, Math.round(exact));
+  const k = a * 0.9 * Math.min(1, exact);
+  if (k < 0.02) return;
+  const blur = boxBlurRgb(img.data, img.width, img.height, radius);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const l = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+    const lb = 0.2126 * blur[i] + 0.7152 * blur[i + 1] + 0.0722 * blur[i + 2];
+    const delta = (l - lb) * k;
+    d[i] += delta;
+    d[i + 1] += delta;
+    d[i + 2] += delta;
+  }
+}
+
 // Rendu complet d'une pellicule (la halation est ajoutée ensuite, avec celle de la retouche).
 function renderFilm(src, spec, strength, grainWidth = src.width) {
   const { width: w, height: h } = src;
   const out = new ImageData(new Uint8ClampedArray(src.data), w, h);
   if (strength <= 0) return out;
   FR.applyLut(src.data, out.data, w, h, bakeFilmLut(spec, 33), 33, 0);
-  applyFilmSoftness(out, Number(spec.softness) || 0, grainWidth);
+  applyFilmCouplers(out, Number(spec.couplers) || 0, grainWidth, formatScale(spec.format));
+  applyFilmSoftness(out, Number(spec.softness) || 0, grainWidth, formatScale(spec.format));
   applyFilmGrain(out, spec, grainWidth);
   if (strength < 1) {
     const a = src.data;

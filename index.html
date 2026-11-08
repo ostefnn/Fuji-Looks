@@ -300,6 +300,27 @@
             <output id="filmEvValue" for="filmEv">0,0 IL</output>
           </div>
           <div class="row">
+            <label for="filmPush">Traitement</label>
+            <select id="filmPush" class="select">
+              <option value="-1">Retenu · −1 IL</option>
+              <option value="0">Normal</option>
+              <option value="1">Poussé · +1 IL</option>
+              <option value="2">Poussé · +2 IL</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="filmFormatSelect">Format</label>
+            <select id="filmFormatSelect" class="select">
+              <option value="135">24×36</option>
+              <option value="half">Demi-format</option>
+              <option value="pano">Panoramique 24×65</option>
+              <option value="645">6×4,5</option>
+              <option value="66">6×6</option>
+              <option value="67">6×7</option>
+              <option value="69">6×9</option>
+            </select>
+          </div>
+          <div class="row">
             <label for="filmBalance">Équilibrage</label>
             <select id="filmBalance" class="select">
               <option value="day">Lumière du jour · 5500 K</option>
@@ -333,7 +354,31 @@
             <input type="range" id="filmSoftness" class="range-uni" min="0" max="100" step="1" value="0">
             <output id="filmSoftnessValue" for="filmSoftness">0</output>
           </div>
-          <p class="hint">Double-clic sur un curseur : valeur du film.</p>
+          <div class="row">
+            <label for="filmCouplers">Effet de bord</label>
+            <input type="range" id="filmCouplers" class="range-uni" min="0" max="100" step="1" value="0">
+            <output id="filmCouplersValue" for="filmCouplers">0</output>
+          </div>
+          <p class="hint">Double-clic sur un curseur : valeur du film. Poussé : plus de contraste et de grain. Le format du négatif règle la taille du grain, du halo et de la douceur : plus gros en demi-format, plus fins en 6×9. L’effet de bord imite les coupleurs du film : contours plus nets et couleurs mieux séparées.</p>
+        </section>
+        <section class="group">
+          <h3>Tirage</h3>
+          <div class="row">
+            <label for="filmGrade">Grade du papier</label>
+            <input type="range" id="filmGrade" class="range-uni" min="0" max="5" step="1" value="2">
+            <output id="filmGradeValue" for="filmGrade">2 · normal</output>
+          </div>
+          <div class="row">
+            <label for="filmFilterY">Filtre jaune</label>
+            <input type="range" id="filmFilterY" class="range-bi" min="-50" max="50" step="1" value="0">
+            <output id="filmFilterYValue" for="filmFilterY">0 Y</output>
+          </div>
+          <div class="row">
+            <label for="filmFilterM">Filtre magenta</label>
+            <input type="range" id="filmFilterM" class="range-bi" min="-50" max="50" step="1" value="0">
+            <output id="filmFilterMValue" for="filmFilterM">0 M</output>
+          </div>
+          <p class="hint">Comme sous l’agrandisseur : plus de jaune rend le tirage plus bleu, plus de magenta le rend plus vert. Grade 0 : papier doux ; grade 5 : papier dur.</p>
         </section>
         <section class="group">
           <h3>Source</h3>
@@ -363,6 +408,7 @@
             <button type="button" class="chip chip-tool" id="cropMoveButton" aria-pressed="false" hidden
               title="Fais glisser la photo pour choisir la partie gardée">Déplacer</button>
           </div>
+          <p class="hint" id="ratioGateHint" hidden></p>
           <div class="row">
             <label for="straighten">Redresser</label>
             <input type="range" id="straighten" class="range-bi" min="-15" max="15" step="0.1" value="0">
@@ -446,6 +492,42 @@
             <button type="button" class="chip" data-frame="film" aria-pressed="false"><span class="swatch swatch-film"></span>Pellicule</button>
           </div>
         </section>
+        <section class="group" id="filmEdgeRow" hidden>
+          <h3>Bande de film</h3>
+          <div class="sub-row">
+            <span class="sub-label">Format</span>
+            <div class="pill-row" id="filmFormatOptions" role="group" aria-label="Format du négatif">
+              <button type="button" class="chip" data-format="135" aria-pressed="false">24×36</button>
+              <button type="button" class="chip" data-format="half" aria-pressed="false">Demi-format</button>
+              <button type="button" class="chip" data-format="pano" aria-pressed="false">Panoramique 24×65</button>
+              <button type="button" class="chip" data-format="645" aria-pressed="false">6×4,5</button>
+              <button type="button" class="chip" data-format="66" aria-pressed="false">6×6</button>
+              <button type="button" class="chip" data-format="67" aria-pressed="false">6×7</button>
+              <button type="button" class="chip" data-format="69" aria-pressed="false">6×9</button>
+            </div>
+          </div>
+          <div class="sub-row" id="halfPairRow" hidden>
+            <span class="sub-label">Vues</span>
+            <div class="pill-row" id="halfPairOptions" role="group" aria-label="Vues du demi-format">
+              <button type="button" class="chip" data-pair="single" aria-pressed="true">Une vue</button>
+              <button type="button" class="chip" data-pair="pair" aria-pressed="false">Deux vues</button>
+            </div>
+          </div>
+          <div class="sub-row" id="halfPairPhotoRow" hidden>
+            <span class="sub-label">2e vue</span>
+            <div class="pill-row">
+              <button type="button" class="chip" id="halfPairPick">Choisir la 2e photo</button>
+              <button type="button" class="chip" id="halfPairSwap" hidden>Inverser</button>
+              <button type="button" class="chip" id="halfPairClear" hidden>Retirer</button>
+            </div>
+            <input type="file" id="halfPairInput" accept="image/*,.heic,.heif" hidden>
+          </div>
+          <div class="sub-row">
+            <label class="sub-label" for="frameNumberInput">N° de vue</label>
+            <input type="number" id="frameNumberInput" class="input input-num" min="0" max="99" step="1" value="24" inputmode="numeric">
+          </div>
+          <p class="hint">La photo est recadrée au format de la vue ; fais-la glisser pour choisir le cadrage. Perforations en 35 mm, marges et numéros du 120. En demi-format, « Deux vues » met deux photos sur une même vue 24×36.</p>
+        </section>
         <section class="group" id="frameInfoRow" hidden>
           <h3>Infos</h3>
           <div class="pill-row" id="frameInfoOptions" role="group" aria-label="Informations affichées">
@@ -482,7 +564,30 @@
             </div>
           </div>
         </section>
-        <p class="hint">Visible dans l’aperçu et dans la photo exportée. Rien n’est ajouté par défaut : choisis les infos à afficher, et écris ton nom pour ajouter une signature.</p>
+        <section class="group">
+          <h3>Dos dateur</h3>
+          <div class="pill-row" id="dateBackOptions" role="group" aria-label="Dos dateur">
+            <button type="button" class="chip" data-dateback="off" aria-pressed="true">Aucun</button>
+            <button type="button" class="chip" data-dateback="on" aria-pressed="false">Date</button>
+          </div>
+          <div class="sub-row" id="dateBackStyleRow" hidden>
+            <span class="sub-label">Ordre</span>
+            <div class="pill-row" id="dateBackStyleOptions" role="group" aria-label="Ordre de la date">
+              <button type="button" class="chip" data-datestyle="yymmdd" aria-pressed="true">'AA MM JJ</button>
+              <button type="button" class="chip" data-datestyle="ddmmyy" aria-pressed="false">JJ MM 'AA</button>
+              <button type="button" class="chip" data-datestyle="mmddyy" aria-pressed="false">MM JJ 'AA</button>
+            </div>
+          </div>
+          <div class="sub-row" id="dateBackSourceRow" hidden>
+            <span class="sub-label">Date</span>
+            <div class="pill-row" id="dateBackSourceOptions" role="group" aria-label="Date imprimée">
+              <button type="button" class="chip" data-datesource="photo" aria-pressed="true">De la photo</button>
+              <button type="button" class="chip" data-datesource="custom" aria-pressed="false">Autre</button>
+            </div>
+            <input type="date" id="dateBackInput" class="input" hidden aria-label="Date à imprimer">
+          </div>
+        </section>
+        <p class="hint">Visible dans l’aperçu et dans la photo exportée. Le dos dateur imprime la date en chiffres orange dans la photo, comme les compacts argentiques : la date de prise de vue (EXIF), ou aujourd’hui à défaut. Rien n’est ajouté par défaut : choisis les infos à afficher, et écris ton nom pour ajouter une signature.</p>
       </section>
     </aside>
   </main>
@@ -708,6 +813,8 @@
   <script src="js/frame.js"></script>
   <script src="js/exif.js"></script>
   <script src="js/edit.js"></script>
+  <script src="js/film-edge.js"></script>
+  <script src="js/dateback.js"></script>
   <script src="js/recipe-card.js"></script>
   <script src="js/fp1.js"></script>
   <script src="js/ofr.js"></script>

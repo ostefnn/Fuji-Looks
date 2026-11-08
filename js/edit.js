@@ -33,6 +33,11 @@ function isIdentityEdit(e = edit) {
     !e.highlights && !e.shadows && !e.whites && !e.blacks && !e.temp && !e.tint;
 }
 
+// La photo doit être recadrée : retouche de géométrie, ou format imposé par la bande de film.
+function usesGeometry(e = edit) {
+  return !isIdentityEdit(e) || filmEdgeActive();
+}
+
 // Géométrie en pixels de la photo d'origine : taille finale et angle total.
 function editGeometry(w, h, e = edit) {
   const quarter = e.rotate % 180 !== 0;
@@ -48,7 +53,8 @@ function editGeometry(w, h, e = edit) {
   const fh = rh * fit;
   let cw = fw;
   let ch = fh;
-  const ratio = RATIOS[e.ratio];
+  // Bande de film : la vue a le format de la fenêtre du boîtier (24×36, 6×6…), dans le sens de la photo.
+  const ratio = filmGateRatio(fw, fh) || RATIOS[e.ratio];
   if (ratio) {
     if (cw / ch > ratio) cw = ch * ratio;
     else ch = cw / ratio;
@@ -189,7 +195,8 @@ function applyToneRecovery(imageData, highlights, shadows) {
  */
 const HALATION_TINT = [1, 0.3, 0.1];
 
-function applyHalation(imageData, amount) {
+// scale : format du négatif (formatScale) ; le halo garde la même taille sur le film, en mm.
+function applyHalation(imageData, amount, scale = 1) {
   if (!amount) return imageData;
   const { width: w, height: h, data: d } = imageData;
   const mask = makeCanvas(w, h);
@@ -232,8 +239,8 @@ function applyHalation(imageData, amount) {
     return octx.getImageData(0, 0, w, h).data;
   }
   // Halo serré autour des lumières (≈ 1 % du grand côté) et lueur large plus discrète.
-  const tight = blurred(90);
-  const wide = blurred(36);
+  const tight = blurred(90 / scale);
+  const wide = blurred(36 / scale);
   const strength = amount / 100;
   for (let i = 0; i < d.length; i += 4) {
     const g = Math.min(1, ((tight[i] / 255) * 2.2 + (wide[i] / 255) * 0.6) * strength);
@@ -245,9 +252,10 @@ function applyHalation(imageData, amount) {
 }
 
 // Source retouchée, réduite à maxSide / maxPixels. Sans retouche, identique à drawToImageData.
-function buildEditedSource(maxSide, maxPixels, e = edit) {
-  const { w: W, h: H } = originalSize;
-  if (isIdentityEdit(e)) return drawToImageData(originalImage, W, H, maxSide, maxPixels);
+// image / size : une autre photo (seconde vue du demi-format), avec la même retouche.
+function buildEditedSource(maxSide, maxPixels, e = edit, image = originalImage, size = originalSize) {
+  const { w: W, h: H } = size;
+  if (!usesGeometry(e)) return drawToImageData(image, W, H, maxSide, maxPixels);
 
   const g = editGeometry(W, H, e);
   let k = Math.min(1, maxSide / Math.max(g.w, g.h));
@@ -263,7 +271,7 @@ function buildEditedSource(maxSide, maxPixels, e = edit) {
   ctx.scale(k, k);
   ctx.translate(-g.offX, -g.offY);
   ctx.rotate(g.angle);
-  ctx.drawImage(originalImage, -W / 2, -H / 2, W, H);
+  ctx.drawImage(image, -W / 2, -H / 2, W, H);
   const data = ctx.getImageData(0, 0, ow, oh);
   if (e.exposure || e.temp || e.tint) applyExposure(data, e.exposure, whiteBalanceEditGains(e.temp || 0, e.tint || 0));
   if (e.highlights || e.shadows) applyToneRecovery(data, e.highlights, e.shadows);
@@ -325,7 +333,7 @@ function schedulePreviewResolution() {
 // Recalcule l'aperçu après une retouche (ou un changement de photo).
 function rebuildSource() {
   if (!originalImage) return;
-  const g = isIdentityEdit() ? originalSize : editGeometry(originalSize.w, originalSize.h);
+  const g = usesGeometry() ? editGeometry(originalSize.w, originalSize.h) : originalSize;
   sourceSize = { w: g.w, h: g.h };
   previewSide = previewTargetSide();
   previewSource = buildEditedSource(previewSide);
@@ -412,7 +420,8 @@ function setPhotoTool(tool) {
 }
 
 function updateCropControls() {
-  const movable = edit.ratio !== "original" && originalSize &&
+  updateGateHint();
+  const movable = (edit.ratio !== "original" || filmEdgeActive()) && originalSize &&
     (() => { const g = editGeometry(originalSize.w, originalSize.h); return g.slackX > 1 || g.slackY > 1; })();
   cropMoveButton.hidden = !movable;
   if (!movable && photoTool === "crop") setPhotoTool(null);
