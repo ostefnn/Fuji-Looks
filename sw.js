@@ -1,5 +1,5 @@
 /* Fuji Looks — Service worker : l'app s'installe et fonctionne hors connexion. */
-const CACHE = "fuji-looks-v4";
+const CACHE = "fuji-looks-v5";
 
 // Fichiers de l'app, mis en cache dès l'installation.
 const APP_SHELL = [
@@ -51,6 +51,7 @@ const APP_SHELL = [
   "js/share.js",
   "js/creations.js",
   "js/series.js",
+  "js/theme.js",
   "js/ui.js",
   "js/main.js"
 ];
