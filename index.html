@@ -13,6 +13,18 @@
   </script>
   <meta name="description" content="Applique des recettes Fujifilm et des pellicules argentiques à tes photos, directement dans ton navigateur.">
   <title>Fuji Looks — Photo Studio</title>
+  <!-- Aperçu des liens partagés (messageries, réseaux) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Fuji Looks">
+  <meta property="og:title" content="Fuji Looks — recettes Fujifilm et pellicules argentiques">
+  <meta property="og:description" content="Applique des recettes Fujifilm et 72 pellicules argentiques à tes photos, directement dans ton navigateur. Rien n’est envoyé en ligne.">
+  <meta property="og:url" content="https://ostefnn.github.io/Fuji-Looks/">
+  <meta property="og:image" content="https://ostefnn.github.io/Fuji-Looks/docs/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Fuji Looks : une photo sur une bande de film Kodak Portra 400">
+  <meta property="og:locale" content="fr_FR">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -40,6 +52,7 @@
     <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12m0-12L7 8m5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
     <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-focus" viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   </svg>
 
@@ -192,6 +205,10 @@
         <button type="button" class="btn btn-icon btn-sm" id="histogramToggle" aria-pressed="false" aria-controls="histogramPanel"
           title="Afficher l’histogramme" aria-label="Histogramme">
           <svg class="icon" aria-hidden="true"><use href="#i-histogram"/></svg>
+        </button>
+        <button type="button" class="btn btn-icon btn-sm" id="focusToggle" aria-pressed="false"
+          title="Mode focus : masquer les looks et les réglages (F)" aria-label="Mode focus" aria-keyshortcuts="F">
+          <svg class="icon" aria-hidden="true"><use href="#i-focus"/></svg>
         </button>
       </div>
 

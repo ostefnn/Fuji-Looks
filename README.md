@@ -4,6 +4,10 @@ Applique des recettes Fujifilm et des pellicules argentiques à tes photos, dire
 
 **En ligne :** https://ostefnn.github.io/Fuji-Looks/
 
+![Fuji Looks sur ordinateur : la pellicule Kodak Portra 400 appliquée à l'image d'exemple](docs/screenshot.jpg)
+
+<p align="center"><img src="docs/screenshot-mobile.jpg" width="260" alt="Fuji Looks sur iPhone, en thème clair"></p>
+
 ## Fonctionnalités
 
 - **Un écran en trois zones** : choisir à gauche (looks), voir au centre (photo), régler à droite (Recette ou Pellicule, Retouche, Cadre). Sur téléphone, la photo reste en haut et une barre en bas passe de Looks à Recette, Retouche ou Partager. Le menu **Exporter** regroupe la photo, les images à partager et les fichiers du look ; **Mon boîtier** est dans la barre du haut.
@@ -25,6 +29,7 @@ Applique des recettes Fujifilm et des pellicules argentiques à tes photos, dire
 - **Partager** : image **Avant / Après** (côte à côte ou coupée), **planche contact** de ta photo dans 2 à 9 looks, et **fiche recette** avec un QR code qui ouvre la recette dans l'app.
 - **Recettes** : import par texte, code ou lien de partage, profil X RAW Studio (.FP1/.FP2/.FP3), `.recipe.json`, Open Fuji Recipe (une recette ou toute une bibliothèque) ou capture d'écran (lue sur l'appareil). Export en preset Lightroom (.xmp), LUT 3D (.cube), texte, lien de partage, **Open Fuji Recipe** (format JSON ouvert, compatible avec Kata) et **profil X RAW Studio (.FP1)** pour envoyer la recette vers le boîtier (à partir d'un .FP1 enregistré une fois depuis ton appareil, qui sert de modèle).
 - **Bibliothèque** sur l'appareil, avec sauvegarde et restauration compatibles avec Fuji Recipe Converter.
+- **Mode focus** : touche **F** (ou le bouton à droite de l'histogramme) pour masquer les looks et les réglages et voir la photo en grand ; Échap pour revenir.
 - **Thème clair ou sombre** : menu **…** → Thème (Auto suit le réglage de l'appareil).
 - **Application installable** et utilisable hors connexion. Sur iPhone : Partager → « Sur l'écran d'accueil ».
 
