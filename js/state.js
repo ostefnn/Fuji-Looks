@@ -63,3 +63,6 @@ const THUMB_H = 180;
 const THUMB_ZOOM = 0.55;
 // Limite de surface des canvas sur iOS Safari (~16,7 Mpx).
 const EXPORT_MAX_PIXELS = 16000000;
+
+// Format du négatif (js/films.js, FILM_FORMATS) : échelle du grain et du halo, et bande de film du cadre.
+let filmFormat = "135";

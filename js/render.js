@@ -8,7 +8,17 @@ function getStrength() {
 // Rendu appliqué : la pellicule en cours, sinon la recette (null = photo d'origine).
 function activeRecipe() {
   if (!applied) return null;
-  return currentFilm || recipe;
+  return currentFilm ? withFormat(currentFilm) : recipe;
+}
+
+// Une pellicule est rendue au format du négatif choisi (grain, douceur et halo à l'échelle).
+function withFormat(look) {
+  return look && look.film ? { ...look, format: filmFormat } : look;
+}
+
+// Échelle du halo : celle du format pour une pellicule, ou dès que la photo est sur une bande de film.
+function halationScaleFor(look) {
+  return (look && look.film) || frameStyle === "film" ? formatScale(filmFormat) : 1;
 }
 
 // Halation totale : celle de la retouche plus celle de la pellicule affichée.

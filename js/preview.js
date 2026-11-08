@@ -25,7 +25,7 @@ function updatePreviewLabel() {
 // Recette affichée : l'original pendant la comparaison, le look survolé, sinon la recette en cours.
 function shownRecipe() {
   if (comparing) return null;
-  if (hoverLookId) return lookRender(lookById.get(hoverLookId));
+  if (hoverLookId) return withFormat(lookRender(lookById.get(hoverLookId)));
   return activeRecipe();
 }
 
@@ -82,13 +82,19 @@ function updatePreview() {
     const ready = !(shown && shown.film) || filmLutsReady();
     if (!ready) ensureFilmLuts();
     const out = renderRecipe(src, ready ? shown : null, strength, sourceSize);
-    if (!comparing) applyHalation(out, halationFor(ready ? shown : null));
+    const look = ready ? shown : null;
+    if (!comparing) {
+      applyHalation(out, halationFor(look), halationScaleFor(look));
+      applyDateBack(out);
+    }
+    // Demi-format à deux vues : la seconde photo, avec le même look.
+    const pair = frameStyle === "film" ? renderHalfPair(out, look, strength, !comparing) : null;
     updateHistogram(out);
     if (splitView && !comparing) applySplit(out, src);
     if (clippingOn) markClipping(out);
-    const framed = frameStyle !== "none" ? composeFrame(out, frameStyle, shown) : null;
+    const framed = frameStyle !== "none" ? composeFrame(out, frameStyle, shown, frameInfo, pair) : null;
     previewPhotoRect = framed
-      ? { x: framed.photoX / framed.width, y: framed.photoY / framed.height, w: out.width / framed.width, h: out.height / framed.height }
+      ? { x: framed.photoX / framed.width, y: framed.photoY / framed.height, w: (framed.photoW || out.width) / framed.width, h: (framed.photoH || out.height) / framed.height }
       : { x: 0, y: 0, w: 1, h: 1 };
     const ctx = photoPreview.getContext("2d");
 

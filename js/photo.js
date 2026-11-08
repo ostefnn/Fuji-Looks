@@ -63,7 +63,7 @@ function setSource(drawable, w, h, { keepEdit = false } = {}) {
   originalSize = { w, h };
   sourceSize = { w, h };
   if (keepEdit) {
-    const g = isIdentityEdit() ? originalSize : editGeometry(w, h);
+    const g = usesGeometry() ? editGeometry(w, h) : originalSize;
     sourceSize = { w: g.w, h: g.h };
     updateEditControls();
   } else {

@@ -167,7 +167,7 @@ async function exportSeries() {
       const h = img.naturalHeight || img.height;
       originalImage = img;
       originalSize = { w, h };
-      const g = isIdentityEdit() ? originalSize : editGeometry(w, h);
+      const g = usesGeometry() ? editGeometry(w, h) : originalSize;
       sourceSize = { w: g.w, h: g.h };
       sourceExif = exif;
       const blob = await renderExport();
