@@ -360,7 +360,26 @@ const SLIDERS = [
   ["halation", "halationEdit"]
 ].map(([key, id]) => ({ key, input: document.getElementById(id), output: document.getElementById(`${id}Value`) }));
 
+// Grille Température / Teinte : chaud à droite, froid à gauche, magenta en haut, vert en bas.
+const editWbPad = createWbPad({
+  id: "editWbPad",
+  label: "Balance des blancs de la photo, température et teinte",
+  min: -100, max: 100, step: 1, bigStep: 10,
+  x: { label: "Temp." }, y: { label: "Teinte" },
+  tags: { top: "M", bottom: "V", left: "Froid", right: "Chaud" },
+  colors: ["rgba(70, 130, 230, .55)", "rgba(235, 150, 40, .55)", "rgba(210, 70, 200, .5)", "rgba(70, 190, 90, .5)"],
+  onChange(temp, tint) {
+    markInteractive();
+    setEdit({ temp, tint }, "edit:wb");
+  },
+  onReset() {
+    if (edit.temp || edit.tint) setEdit({ temp: 0, tint: 0 });
+  }
+});
+document.getElementById("editWbPadSlot").append(editWbPad.el);
+
 function updateEditControls() {
+  editWbPad.set(edit.temp || 0, edit.tint || 0);
   ratioOptions.querySelectorAll("[data-ratio]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.ratio === edit.ratio));
   });

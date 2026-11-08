@@ -498,12 +498,14 @@
             <button type="button" class="chip chip-tool" id="pipetteButton" aria-pressed="false"
               title="Touche sur la photo une zone qui devrait être grise ou blanche">Pipette</button>
           </div>
-          <div class="row">
+          <div id="editWbPadSlot"></div>
+          <!-- Curseurs gardés pour l'état interne ; la grille ci-dessus les remplace à l'écran. -->
+          <div class="row" hidden>
             <label for="tempEdit">Température</label>
             <input type="range" class="range-bi range-temp" id="tempEdit" min="-100" max="100" step="1" value="0">
             <output id="tempEditValue" for="tempEdit">0</output>
           </div>
-          <div class="row">
+          <div class="row" hidden>
             <label for="tintEdit">Teinte</label>
             <input type="range" class="range-bi range-tint" id="tintEdit" min="-100" max="100" step="1" value="0">
             <output id="tintEditValue" for="tintEdit">0</output>
@@ -842,6 +844,7 @@
   <script src="js/catalog.js"></script>
   <script src="js/render.js"></script>
   <script src="js/looks.js"></script>
+  <script src="js/wb-pad.js"></script>
   <script src="js/editor.js"></script>
   <script src="js/film-editor.js"></script>
   <script src="js/history.js"></script>
