@@ -38,6 +38,7 @@ function buildFieldRow(field) {
 
   let control;
   let output = null;
+  if (field.key === "whiteBalance") return buildWbModeRow(field, row, label);
   if (field.type === "select") {
     control = document.createElement("select");
     control.className = "select";
@@ -82,6 +83,93 @@ function buildFieldRow(field) {
   return row;
 }
 
+// --- Balance des blancs : pastilles de mode et grille WB Shift ---------------------------
+
+// Noms courts des modes, comme sur l'écran du boîtier.
+const WB_SHORT = {
+  auto: "Auto", "auto-white": "Auto White", "auto-ambience": "Auto Ambience", daylight: "Daylight", shade: "Shade",
+  "fluorescent-1": "Fluo 1", "fluorescent-2": "Fluo 2", "fluorescent-3": "Fluo 3", incandescent: "Incandescent",
+  underwater: "Underwater", kelvin: "Kelvin", custom: "Custom"
+};
+
+function buildWbModeRow(field, row, label) {
+  row.classList.add("row-block");
+  label.removeAttribute("for");
+  label.id = "wbModeLabel";
+  const control = document.createElement("div");
+  control.className = "wb-modes";
+  control.setAttribute("role", "radiogroup");
+  control.setAttribute("aria-labelledby", "wbModeLabel");
+  field.options.forEach(([value, text]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chip";
+    button.dataset.value = value;
+    button.setAttribute("role", "radio");
+    button.title = text;
+    button.textContent = WB_SHORT[value] || text;
+    control.append(button);
+  });
+  let current = null;
+  // Même interface qu'un <select> pour updateRecipeEditor : control.value.
+  Object.defineProperty(control, "value", {
+    get: () => current,
+    set: (v) => {
+      current = v;
+      control.querySelectorAll("[data-value]").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.value === v)));
+    }
+  });
+  control.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-value]");
+    if (!button || button.dataset.value === recipe.whiteBalance) return;
+    commit(`field:${field.key}`);
+    recipe.whiteBalance = button.dataset.value;
+    onRecipeEdited();
+    button.scrollIntoView({ block: "nearest", inline: "nearest" });
+  });
+  row.appendChild(control);
+  fieldRows.push({ field, row, control, output: null });
+  return row;
+}
+
+// Grille WB Shift : R à l'horizontale (rouge à droite, cyan à gauche), B à la verticale
+// (bleu en haut, jaune en bas), comme sur le boîtier.
+const WB_SHIFT_KEYS = ["wbShiftRed", "wbShiftBlue"];
+let wbShiftPad = null;
+let wbShiftRow = null;
+
+function buildWbShiftPad() {
+  wbShiftRow = document.createElement("div");
+  wbShiftRow.className = "row row-block recipe-row";
+  const label = document.createElement("span");
+  label.className = "row-title";
+  label.textContent = "WB Shift";
+  wbShiftPad = createWbPad({
+    id: "wbShiftPad",
+    label: "Décalage de la balance des blancs, R et B",
+    min: -9, max: 9, step: 1, bigStep: 3,
+    x: { label: "R" }, y: { label: "B" },
+    tags: { top: "B", bottom: "Y", left: "C", right: "R" },
+    colors: ["rgba(40, 190, 210, .5)", "rgba(230, 60, 60, .55)", "rgba(60, 100, 240, .55)", "rgba(235, 200, 40, .5)"],
+    onChange(r, b) {
+      markInteractive();
+      commit("field:wbShift");
+      recipe.wbShiftRed = r;
+      recipe.wbShiftBlue = b;
+      onRecipeEdited();
+    },
+    onReset() {
+      if (!recipe.wbShiftRed && !recipe.wbShiftBlue) return;
+      commit();
+      recipe.wbShiftRed = 0;
+      recipe.wbShiftBlue = 0;
+      onRecipeEdited();
+    }
+  });
+  wbShiftRow.append(label, wbShiftPad.el);
+  return wbShiftRow;
+}
+
 function buildRecipeEditor() {
   const placed = new Set();
   FIELD_GROUPS.forEach((group, i) => {
@@ -115,7 +203,12 @@ function buildRecipeEditor() {
       body.appendChild(h);
       recipeFields.appendChild(body);
     }
-    fields.forEach((field) => body.appendChild(buildFieldRow(field)));
+    fields.forEach((field) => {
+      // R et B : une seule grille à la place de deux curseurs.
+      if (field.key === "wbShiftRed") body.appendChild(buildWbShiftPad());
+      if (WB_SHIFT_KEYS.includes(field.key)) return;
+      body.appendChild(buildFieldRow(field));
+    });
   });
 
   recipeName.addEventListener("input", () => {
@@ -175,6 +268,10 @@ function updateRecipeEditor() {
     if (diff && !row.hidden) changed++;
     row.classList.toggle("changed", diff);
   });
+  wbShiftPad.set(recipe.wbShiftRed, recipe.wbShiftBlue);
+  const shiftDiff = Boolean(baseline && WB_SHIFT_KEYS.some((key) => baseline[key] !== recipe[key]));
+  if (shiftDiff) changed++;
+  wbShiftRow.classList.toggle("changed", shiftDiff);
   foldSummaries.forEach(({ el, keys }) => { el.textContent = fieldSummary(keys); });
   modifiedRow.hidden = !baseline;
   if (baseline) {

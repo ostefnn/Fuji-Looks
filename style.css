@@ -1574,7 +1574,8 @@ body:not(.has-photo) .histogram-panel {
 }
 
 /* Point d'accent : réglage modifié par rapport à la recette d'origine. */
-.row.changed > label::after {
+.row.changed > label::after,
+.row.changed > .row-title::after {
   content: "";
   display: inline-block;
   width: 6px;
@@ -2659,4 +2660,145 @@ body:not(.has-photo) .histogram-panel {
 body.versions-comparing .photo-label,
 body.versions-comparing .compare-button {
   display: none;
+}
+
+/* Ligne pleine largeur : le titre au-dessus, le contrôle en dessous (modes de balance, grille). */
+.row.row-block {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.row-title {
+  color: var(--text-2);
+}
+
+/* Modes de balance des blancs : pastilles qui défilent à l'horizontale. */
+.wb-modes {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.wb-modes::-webkit-scrollbar {
+  display: none;
+}
+
+.wb-modes .chip {
+  flex: 0 0 auto;
+}
+
+.wb-modes .chip[aria-checked="true"] {
+  border-color: var(--sel);
+  background: var(--sel-bg);
+  color: var(--sel);
+}
+
+/* Grille de balance des blancs (js/wb-pad.js). */
+.wb-pad {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.wb-pad-area {
+  --pad-cells: 21;
+  position: relative;
+  flex: 0 1 220px;
+  aspect-ratio: 1;
+  min-width: 150px;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--text) 30%, transparent) 1px, transparent 1.4px) 0 0 / calc(100% / var(--pad-cells)) calc(100% / var(--pad-cells)),
+    linear-gradient(to right, transparent calc(50% - 0.5px), color-mix(in srgb, var(--text) 28%, transparent) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), color-mix(in srgb, var(--text) 28%, transparent) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to right, var(--pad-left), transparent 50%, var(--pad-right)),
+    linear-gradient(to bottom, var(--pad-top), transparent 50%, var(--pad-bottom)),
+    var(--field);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.wb-pad-area.wb-pad-fine {
+  --pad-cells: 20;
+}
+
+.wb-pad-thumb {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  transform: translate(-50%, -50%);
+  transition: left 0.08s, top 0.08s;
+}
+
+.wb-pad-area.is-dragging .wb-pad-thumb {
+  transition: none;
+}
+
+.wb-pad-thumb:focus-visible {
+  outline: 2px solid var(--sel);
+  outline-offset: 3px;
+}
+
+.wb-pad-tag {
+  position: absolute;
+  color: var(--text-2);
+  font-size: 10px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.wb-pad-tag-top { top: 4px; left: 50%; transform: translateX(-50%); }
+.wb-pad-tag-bottom { bottom: 4px; left: 50%; transform: translateX(-50%); }
+.wb-pad-tag-left { top: 50%; left: 6px; transform: translateY(-50%); }
+.wb-pad-tag-right { top: 50%; right: 6px; transform: translateY(-50%); }
+
+.wb-pad-readout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  min-width: 72px;
+}
+
+.wb-pad-name {
+  display: block;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wb-pad-value {
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.wb-pad-value.is-set {
+  color: var(--sel);
+}
+
+.wb-pad-reset {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sel);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wb-pad-reset:disabled {
+  color: var(--disabled);
+  cursor: default;
 }
