@@ -29,6 +29,7 @@ Applique des recettes Fujifilm et des pellicules argentiques à tes photos, dire
 - **Partager** : image **Avant / Après** (côte à côte ou coupée), **planche contact** de ta photo dans 2 à 9 looks, et **fiche recette** avec un QR code qui ouvre la recette dans l'app.
 - **Recettes** : import par texte, code ou lien de partage, profil X RAW Studio (.FP1/.FP2/.FP3), `.recipe.json`, Open Fuji Recipe (une recette ou toute une bibliothèque) ou capture d'écran (lue sur l'appareil). Export en preset Lightroom (.xmp), LUT 3D (.cube), texte, lien de partage, **Open Fuji Recipe** (format JSON ouvert, compatible avec Kata) et **profil X RAW Studio (.FP1)** pour envoyer la recette vers le boîtier (à partir d'un .FP1 enregistré une fois depuis ton appareil, qui sert de modèle).
 - **Bibliothèque** sur l'appareil, avec sauvegarde et restauration compatibles avec Fuji Recipe Converter.
+- **Versions** : bouton **+ Version** (ou touche **V**) au-dessus de la photo pour garder un essai (look, réglages, retouche, intensité). Touche une version pour y revenir, ou **Comparer** pour voir 2 à 4 versions côte à côte sur la photo ; Échap pour finir.
 - **Mode focus** : touche **F** (ou le bouton à droite de l'histogramme) pour masquer les looks et les réglages et voir la photo en grand ; Échap pour revenir.
 - **Thème clair ou sombre** : menu **…** → Thème (Auto suit le réglage de l'appareil).
 - **Application installable** et utilisable hors connexion. Sur iPhone : Partager → « Sur l'écran d'accueil ».

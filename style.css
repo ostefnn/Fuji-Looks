@@ -2536,3 +2536,127 @@ body:not(.has-photo) .histogram-panel {
   padding: 6px 10px;
   color: var(--text-2);
 }
+
+/* Versions de la photo : vignettes au-dessus de l'aperçu, comparaison côte à côte. */
+.versions-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--field);
+}
+
+.version-list {
+  display: flex;
+  flex: 0 1 auto;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.version-list:empty {
+  display: none;
+}
+
+.version-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-3);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.versions-bar .chip {
+  margin-left: auto;
+}
+
+.version-item {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.version-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 220px;
+  padding: 3px 26px 3px 3px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.version-chip:hover {
+  background: var(--hover);
+}
+
+.version-chip[aria-pressed="true"] {
+  border-color: var(--sel);
+  background: var(--sel-bg);
+}
+
+.version-chip img {
+  width: 40px;
+  height: 30px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.version-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.version-pick {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--sel);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.version-remove {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 15px;
+  line-height: 1;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.version-remove:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+@media (max-width: 599px) {
+  .version-hint {
+    display: none;
+  }
+}
+
+/* En comparaison, chaque version porte déjà son nom ; « Avant » n'a pas de sens. */
+body.versions-comparing .photo-label,
+body.versions-comparing .compare-button {
+  display: none;
+}
