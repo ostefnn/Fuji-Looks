@@ -50,6 +50,11 @@
   --ok: #9fe0ae;
   --warn: #ffd98a;
   --err: #ffb0a9;
+  --clip: #ff8a80; /* zones brûlées / bouchées */
+  --sel-hover: #ff8a7a;
+  --track: #34343a; /* rail des curseurs */
+  --overlay: rgba(15, 15, 16, 0.82); /* pastilles posées sur la photo ou les vignettes */
+  --shadow: rgba(0, 0, 0, 0.55);
   --radius: 8px;
   --radius-lg: 12px;
   --font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -59,6 +64,81 @@
   --muted: var(--text-2);
   --accent: var(--sel);
   --border: var(--line-2);
+}
+
+/* Thème clair : choisi dans le menu « … », ou suivant le système en mode Auto.
+ * Les mêmes rôles que le thème sombre ; la scène photo reste un gris neutre pour juger les couleurs. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --stage: #e6e6e9;
+  --bg: #f3f3f5;
+  --bar: #fbfbfc;
+  --panel: #ffffff;
+  --card: #f5f5f7;
+  --field: #eeeef1;
+  --hover: #e6e6ea;
+  --raised: #ffffff;
+  --line: #e4e4e8;
+  --line-2: #d8d8dd;
+  --line-3: #c2c2c9;
+  --text: #18181b;
+  --text-2: #51515a;
+  --text-3: #62626b;
+  --disabled: #a1a1aa;
+  --primary: #c8392b;
+  --primary-hover: #b0301f;
+  --sel: #c13427;
+  --sel-bg: #fbe8e5;
+  --ok: #1e7a36;
+  --warn: #8a5a00;
+  --err: #b3261e;
+  --clip: #d93025;
+  --sel-hover: #9f2a1f;
+  --track: #d4d4da;
+  --overlay: rgba(255, 255, 255, 0.86);
+  --shadow: rgba(20, 20, 30, 0.16);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --stage: #e6e6e9;
+    --bg: #f3f3f5;
+    --bar: #fbfbfc;
+    --panel: #ffffff;
+    --card: #f5f5f7;
+    --field: #eeeef1;
+    --hover: #e6e6ea;
+    --raised: #ffffff;
+    --line: #e4e4e8;
+    --line-2: #d8d8dd;
+    --line-3: #c2c2c9;
+    --text: #18181b;
+    --text-2: #51515a;
+    --text-3: #62626b;
+    --disabled: #a1a1aa;
+    --sel: #c13427;
+    --sel-bg: #fbe8e5;
+    --ok: #1e7a36;
+    --warn: #8a5a00;
+    --err: #b3261e;
+    --clip: #d93025;
+    --sel-hover: #9f2a1f;
+    --track: #d4d4da;
+    --overlay: rgba(255, 255, 255, 0.86);
+    --shadow: rgba(20, 20, 30, 0.16);
+  }
+}
+
+/* L'histogramme reste sombre dans les deux thèmes : ses courbes se mélangent en mode « écran ». */
+.histogram-panel {
+  --text: #ededef;
+  --text-2: #a6a6ae;
+  --text-3: #8c8c95;
+  --line-2: #2e2e33;
+  --line-3: #3a3a40;
+  --clip: #ff8a80;
+  color: var(--text);
 }
 
 * {
@@ -105,7 +185,7 @@ a {
 }
 
 a:hover {
-  color: #ff8a7a;
+  color: var(--sel-hover);
 }
 
 :focus-visible {
@@ -337,21 +417,21 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 2px;
-  background: #34343a;
+  background: var(--track);
 }
 
 input[type="range"]::-moz-range-track {
   height: 4px;
   border-radius: 2px;
-  background: #34343a;
+  background: var(--track);
 }
 
 input[type="range"].range-bi::-webkit-slider-runnable-track {
-  background: linear-gradient(#6a6a72, #6a6a72) center / 2px 100% no-repeat, #34343a;
+  background: linear-gradient(var(--disabled), var(--disabled)) center / 2px 100% no-repeat, var(--track);
 }
 
 input[type="range"].range-bi::-moz-range-track {
-  background: linear-gradient(#6a6a72, #6a6a72) center / 2px 100% no-repeat, #34343a;
+  background: linear-gradient(var(--disabled), var(--disabled)) center / 2px 100% no-repeat, var(--track);
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -374,11 +454,11 @@ input[type="range"]::-moz-range-thumb {
 }
 
 input[type="range"].range-temp::-webkit-slider-runnable-track {
-  background: linear-gradient(#6a6a72, #6a6a72) center / 2px 100% no-repeat, linear-gradient(90deg, #3c6d9e, #34343a 45% 55%, #b8822e);
+  background: linear-gradient(var(--disabled), var(--disabled)) center / 2px 100% no-repeat, linear-gradient(90deg, #3c6d9e, var(--track) 45% 55%, #b8822e);
 }
 
 input[type="range"].range-tint::-webkit-slider-runnable-track {
-  background: linear-gradient(#6a6a72, #6a6a72) center / 2px 100% no-repeat, linear-gradient(90deg, #4e8a4e, #34343a 45% 55%, #a34ea0);
+  background: linear-gradient(var(--disabled), var(--disabled)) center / 2px 100% no-repeat, linear-gradient(90deg, #4e8a4e, var(--track) 45% 55%, #a34ea0);
 }
 
 /* Interrupteur, pastilles, segments */
@@ -583,7 +663,7 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   border: 1px solid var(--line-2);
   border-radius: var(--radius-lg);
   background: var(--field);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 32px var(--shadow);
 }
 
 .menu-right,
@@ -803,7 +883,7 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   left: 6px;
   padding: 1px 5px;
   border-radius: 3px;
-  background: rgba(10, 10, 11, 0.8);
+  background: var(--overlay);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -815,7 +895,7 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   left: 6px;
   padding: 1px 6px;
   border-radius: 3px;
-  background: rgba(10, 10, 11, 0.8);
+  background: var(--overlay);
   color: var(--text-2);
   font-size: 10px;
   font-weight: 600;
@@ -858,7 +938,7 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   height: 28px;
   border: 0;
   border-radius: 50%;
-  background: rgba(10, 10, 11, 0.75);
+  background: var(--overlay);
   color: var(--text);
   opacity: 0;
   transition: opacity 0.15s;
@@ -1029,7 +1109,7 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   top: 50%;
   left: 50%;
   max-width: none;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px var(--shadow);
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -1066,7 +1146,7 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   place-items: center;
   border: 2px dashed var(--sel);
   border-radius: inherit;
-  background: rgba(10, 10, 11, 0.85);
+  background: var(--overlay);
   font-weight: 600;
   opacity: 0;
   pointer-events: none;
@@ -1082,7 +1162,7 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
 .split-label {
   position: absolute;
   border-radius: 18px;
-  background: rgba(15, 15, 16, 0.8);
+  background: var(--overlay);
   color: var(--text);
   font-size: 12px;
   font-weight: 500;
@@ -1186,7 +1266,7 @@ body:not(.has-photo) .histogram-panel {
 }
 
 .histogram-clip .is-clipped {
-  color: #ff8a80;
+  color: var(--clip);
   font-weight: 700;
 }
 
@@ -1201,8 +1281,8 @@ body:not(.has-photo) .histogram-panel {
 }
 
 .clipping-button[aria-pressed="true"] {
-  border-color: #ff8a80;
-  color: #ff8a80;
+  border-color: var(--clip);
+  color: var(--clip);
 }
 
 .intensity-bar {
@@ -1297,8 +1377,8 @@ body:not(.has-photo) .histogram-panel {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: rgba(15, 15, 16, 0.85);
-  color: #fff;
+  background: var(--overlay);
+  color: var(--text);
   font-size: 10px;
   opacity: 0;
   transition: opacity 0.15s;
@@ -1803,7 +1883,7 @@ body:not(.has-photo) .histogram-panel {
   border-radius: var(--radius-lg);
   background: var(--panel);
   color: var(--text);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 32px var(--shadow);
 }
 
 .dialog[open] {
@@ -2124,7 +2204,7 @@ body:not(.has-photo) .histogram-panel {
   border: 1px solid var(--line-2);
   border-radius: var(--radius);
   background: var(--field) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23A6A6AE' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 11v6M12 7.5v.5'/%3E%3C/svg%3E") no-repeat 12px 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 32px var(--shadow);
   font-size: 13px;
   line-height: 1.4;
   opacity: 0;
@@ -2424,4 +2504,14 @@ body:not(.has-photo) .histogram-panel {
 .pill-row.is-locked {
   opacity: 0.45;
   pointer-events: none;
+}
+
+/* Choix du thème, dans le menu « … ». */
+.menu-theme {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px;
+  color: var(--text-2);
 }
