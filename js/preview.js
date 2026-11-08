@@ -12,7 +12,8 @@ function schedulePreview() {
 
 function updatePreviewLabel() {
   let text;
-  if (comparing) text = "Original";
+  if (versionCompare) text = "Comparaison des versions";
+  else if (comparing) text = "Original";
   else if (hoverLookId) text = `${lookById.get(hoverLookId).name} · aperçu`;
   else {
     const name = applied ? (currentFilm ? currentFilm.name : recipe.name || "Recette") : "Original";
@@ -73,7 +74,17 @@ function updatePreview() {
 
   intensityValue.textContent = `${Math.round(strength * 100)} %`;
 
-  if (previewSource) {
+  // Comparaison des versions : les versions choisies côte à côte, à la place de l'aperçu.
+  const compareCanvas = previewSource && versionCompare ? drawVersionCompare() : null;
+  if (compareCanvas) {
+    previewPhotoRect = { x: 0, y: 0, w: 1, h: 1 };
+    if (photoPreview.width !== compareCanvas.width || photoPreview.height !== compareCanvas.height) {
+      photoPreview.width = compareCanvas.width;
+      photoPreview.height = compareCanvas.height;
+      applyView();
+    }
+    photoPreview.getContext("2d").drawImage(compareCanvas, 0, 0);
+  } else if (previewSource) {
     const shown = shownRecipe();
     // Pendant un glissement de curseur : rendu en demi-définition, affiché à la taille normale.
     const lite = performance.now() < interactiveUntil && photoPreview.width > 0;
@@ -155,6 +166,7 @@ function setSplitView(value) {
 
 function selectLook(id) {
   const look = lookById.get(id);
+  if (versionCompare) setVersionCompare(false); // choisir un look ramène à l'aperçu normal
   if (id !== currentLookId || modified) commit();
   currentLookId = id;
   modified = false;

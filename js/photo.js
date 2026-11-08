@@ -68,6 +68,7 @@ function setSource(drawable, w, h, { keepEdit = false } = {}) {
     updateEditControls();
   } else {
     resetEdit();
+    clearVersions(); // les versions appartenaient à l'ancienne photo
   }
   document.body.classList.add("has-photo"); // le cadre prend sa taille finale avant le calcul de l'aperçu
   view.zoom = 1;
@@ -91,6 +92,7 @@ function setSource(drawable, w, h, { keepEdit = false } = {}) {
   sourceToken++;
   updatePreview();
   renderThumbnails(drawable, w, h);
+  renderVersions(); // vignettes des versions refaites sur la nouvelle photo
 }
 
 async function loadFile(file, { keepEdit = false, quiet = false } = {}) {

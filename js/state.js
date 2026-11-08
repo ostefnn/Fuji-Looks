@@ -66,3 +66,6 @@ const EXPORT_MAX_PIXELS = 16000000;
 
 // Format du négatif (js/films.js, FILM_FORMATS) : échelle du grain et du halo, et bande de film du cadre.
 let filmFormat = "135";
+
+// Versions comparées côte à côte (js/versions.js) : identifiants, ou null hors comparaison.
+let versionCompare = null;

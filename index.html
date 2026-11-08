@@ -212,6 +212,16 @@
         </button>
       </div>
 
+      <div class="versions-bar" id="versionsBar" hidden>
+        <button type="button" class="btn btn-sm" id="versionAddButton" title="Garder l’état actuel comme version (V)" aria-keyshortcuts="V">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg>Version
+        </button>
+        <div class="version-list" id="versionList" role="group" aria-label="Versions de la photo"></div>
+        <span class="version-hint" id="versionHint">Garde plusieurs essais de look sur cette photo pour les comparer côte à côte.</span>
+        <button type="button" class="chip" id="versionCompareButton" aria-pressed="false" disabled
+          title="Voir les versions côte à côte ; touche une version pour l’ajouter ou la retirer (Échap pour finir)">Comparer</button>
+      </div>
+
       <div class="photo-frame" id="photoFrame">
         <label class="photo-placeholder" id="placeholder" for="photoInput">
           <span class="placeholder-icon" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg></span>
@@ -857,6 +867,7 @@
   <script src="js/share.js"></script>
   <script src="js/creations.js"></script>
   <script src="js/series.js"></script>
+  <script src="js/versions.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
