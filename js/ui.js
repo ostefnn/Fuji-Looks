@@ -215,6 +215,23 @@ function visibleLookIds() {
   return panel ? [...panel.querySelectorAll(".look-item:not([hidden])")].map((item) => item.dataset.look) : [];
 }
 
+// --- Mode focus : la photo seule, sur toute la largeur (grand écran) ----------------------
+
+const focusToggle = document.getElementById("focusToggle");
+const wideScreen = window.matchMedia("(min-width: 1100px)");
+
+function setFocusMode(on) {
+  document.body.classList.toggle("focus-mode", on);
+  focusToggle.setAttribute("aria-pressed", String(on));
+  focusToggle.title = on ? "Quitter le mode focus (F ou Échap)" : "Mode focus : masquer les looks et les réglages (F)";
+}
+
+focusToggle.addEventListener("click", () => setFocusMode(!document.body.classList.contains("focus-mode")));
+// En dessous de 1100 px, la mise en page mobile n'a pas de mode focus.
+wideScreen.addEventListener("change", () => {
+  if (!wideScreen.matches) setFocusMode(false);
+});
+
 document.addEventListener("keydown", (event) => {
   if (document.querySelector("dialog[open]")) return;
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "e") {
@@ -224,6 +241,15 @@ document.addEventListener("keydown", (event) => {
   }
   if (event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
   if (event.target.type === "range" || event.target.closest?.('[role="tablist"], [role="menu"]')) return;
+  if ((event.key === "f" || event.key === "F") && wideScreen.matches) {
+    event.preventDefault();
+    setFocusMode(!document.body.classList.contains("focus-mode"));
+    return;
+  }
+  if (event.key === "Escape" && document.body.classList.contains("focus-mode")) {
+    setFocusMode(false);
+    return;
+  }
   if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
     const ids = visibleLookIds();
     if (!ids.length) return;
