@@ -31,8 +31,9 @@ function lookMatches(look) {
   if (!isRealLook(look)) return true; // « Original » reste toujours visible
   if (favOnly && !favorites.has(look.id)) return false;
   let words;
-  if (look.nikon) {
-    words = [look.name, look.desc, look.nikon.comment, "nikon picture control np3"];
+  if (look.nikon || look.nikonRemote) {
+    if (!nikonSetMatches(look)) return false;
+    words = [look.name, look.desc, look.nikon && look.nikon.comment, "nikon picture control np3"];
   } else if (look.film) {
     // Le rayon ne filtre que sans recherche : une recherche parcourt toutes les pellicules.
     if (!lookQuery && look.shelf !== filmShelf) return false;
@@ -220,10 +221,11 @@ function createLookCard(look) {
   thumb.setAttribute("aria-hidden", "true");
   frame.appendChild(thumb);
   // Type du look, pour ne pas confondre une recette « Tri-X 400 » et la pellicule Tri-X 400.
-  if (look.film || look.nikon || look.group === "custom" || look.group === "catalog") {
+  const isNikon = Boolean(look.nikon || look.nikonRemote);
+  if (look.film || isNikon || look.group === "custom" || look.group === "catalog") {
     const kind = document.createElement("span");
-    kind.className = `look-kind ${look.film ? "is-film" : look.nikon ? "is-nikon" : "is-recipe"}`;
-    kind.textContent = look.film ? "Pellicule" : look.nikon ? "Nikon" : "Recette";
+    kind.className = `look-kind ${look.film ? "is-film" : isNikon ? "is-nikon" : "is-recipe"}`;
+    kind.textContent = look.film ? "Pellicule" : isNikon ? "Nikon" : "Recette";
     frame.appendChild(kind);
   }
   if (look.film) {
@@ -253,6 +255,10 @@ function createLookCard(look) {
     clearTimeout(hoverTimer);
     hoverTimer = setTimeout(() => {
       if (look.film && !filmLutsReady()) return;
+      if (look.nikonRemote && !look.nikon) {
+        ensureNikonRemote(look);
+        return;
+      }
       hoverLookId = look.id;
       schedulePreview();
     }, 90);
@@ -347,6 +353,7 @@ function showTab(groupId) {
   // Le filtre par capteur ne concerne que le catalogue ; les simulations ne concernent pas les pellicules.
   lookSensorSelect.hidden = groupId !== "catalog";
   lookSimSelect.hidden = groupId === "films" || groupId === "nikon";
+  lookNikonSet.hidden = groupId !== "nikon";
   filmTools.hidden = groupId !== "films";
   GROUPS.forEach(({ id }) => {
     const active = id === groupId;
@@ -435,6 +442,7 @@ function thumbSourceFor(look) {
 }
 
 function thumbJobKey(look, data) {
+  if (look.nikonRemote) return `${data.job}|${Boolean(look.nikon)}`;
   return look.film ? `${data.job}|${filmLutsReady()}` : String(data.job);
 }
 
@@ -452,6 +460,11 @@ function processThumbQueue() {
     if (card.dataset.thumbJob === key) continue;
     if (look.film && !filmLutsReady()) {
       ensureFilmLuts();
+      continue;
+    }
+    // Preset Nikon du catalogue : vignette calculée une fois le fichier téléchargé.
+    if (look.nikonRemote && !look.nikon) {
+      ensureNikonRemote(look);
       continue;
     }
     const canvas = card.querySelector("canvas");

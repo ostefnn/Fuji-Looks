@@ -1,5 +1,5 @@
 /* Fuji Looks — Service worker : l'app s'installe et fonctionne hors connexion. */
-const CACHE = "fuji-looks-v8";
+const CACHE = "fuji-looks-v9";
 
 // Fichiers de l'app, mis en cache dès l'installation.
 const APP_SHELL = [
@@ -22,6 +22,7 @@ const APP_SHELL = [
   "js/pipeline.js",
   "js/tone-curve.js",
   "js/nikon.js",
+  "js/nikon-catalog.js",
   "js/films.js",
   "js/film-luts-data.js",
   "js/export-worker.js",

@@ -21,6 +21,7 @@ const nikonBlenderColors = document.getElementById("nikonBlenderColors");
 const nikonZones = document.getElementById("nikonZones");
 const nikonNameInput = document.getElementById("nikonNameInput");
 const nikonCommentInput = document.getElementById("nikonCommentInput");
+const nikonSource = document.getElementById("nikonSource");
 
 let nikonColor = "red"; // couleur réglée dans le mélangeur
 let nikonZone = "shadows"; // zone réglée dans l'étalonnage
@@ -53,8 +54,133 @@ function syncNikonLooks() {
     group: "nikon",
     nikon: item.spec
   }));
-  LOOKS.push(...looks);
+  // Tes fichiers passent avant le catalogue en ligne.
+  const firstCatalog = LOOKS.findIndex((look) => look.nikonRemote);
+  LOOKS.splice(firstCatalog < 0 ? LOOKS.length : firstCatalog, 0, ...looks);
   looks.forEach((look) => lookById.set(look.id, look));
+}
+
+// --- Catalogue en ligne (js/nikon-catalog.js) -------------------------------------------
+// Les presets de shouryan01/Nikon-Recipes ne sont pas copiés dans l'app : chaque .NP3 est
+// téléchargé depuis le dépôt d'origine (à un commit figé) quand sa vignette s'affiche ou qu'on
+// l'ouvre, puis gardé sur l'appareil pour les fois suivantes.
+
+const NIKON_REMOTE_KEY = "fuji-looks.nikon-catalog.v1";
+const NIKON_REMOTE_PARALLEL = 4;
+const nikonCatalog = window.NIKON_CATALOG || { repo: "", commit: "", sets: [], items: [] };
+const nikonRemoteCache = (() => {
+  const saved = load(NIKON_REMOTE_KEY);
+  return saved && saved.commit === nikonCatalog.commit && saved.specs ? saved.specs : {};
+})();
+const nikonRemotePending = new Map(); // chemin -> promesse
+const nikonRemoteFailed = new Map(); // chemin -> heure de l'échec
+const nikonRemoteQueue = [];
+let nikonRemoteActive = 0;
+let nikonRemoteSaveTimer = 0;
+
+const nikonPathUrl = (path, kind = "raw") => {
+  const encoded = path.split("/").map(encodeURIComponent).join("/");
+  return kind === "raw"
+    ? `https://raw.githubusercontent.com/${nikonCatalog.repo}/${nikonCatalog.commit}/${encoded}`
+    : `https://github.com/${nikonCatalog.repo}/blob/${nikonCatalog.commit}/${encoded}`;
+};
+
+function addNikonCatalogLooks() {
+  nikonCatalog.items.forEach(([set, path, name, creator]) => {
+    const id = `nkc-${path.toLowerCase().replace(/\.np3$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
+    const cached = nikonRemoteCache[path];
+    const look = {
+      id,
+      name,
+      desc: creator && creator !== nikonCatalog.sets[set] ? `${nikonCatalog.sets[set]} · ${creator}` : nikonCatalog.sets[set],
+      group: "nikon",
+      nikonSet: nikonCatalog.sets[set],
+      nikonCreator: creator,
+      nikonRemote: path,
+      nikon: cached ? normalizeNikon(cached) : null
+    };
+    LOOKS.push(look);
+    lookById.set(id, look);
+  });
+}
+
+function saveNikonRemoteCache() {
+  clearTimeout(nikonRemoteSaveTimer);
+  nikonRemoteSaveTimer = setTimeout(() => store(NIKON_REMOTE_KEY, { commit: nikonCatalog.commit, specs: nikonRemoteCache }), 800);
+}
+
+function pumpNikonRemote() {
+  while (nikonRemoteActive < NIKON_REMOTE_PARALLEL && nikonRemoteQueue.length) {
+    const job = nikonRemoteQueue.shift();
+    nikonRemoteActive++;
+    fetch(nikonPathUrl(job.look.nikonRemote))
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then((buffer) => {
+        const buf = new Uint8Array(buffer);
+        if (!NP3.isNp3(buf)) throw new Error("pas un .NP3");
+        const spec = nikonFromNp3(NP3.deserialize(buf), job.look.name);
+        job.look.nikon = spec;
+        nikonRemoteCache[job.look.nikonRemote] = spec;
+        saveNikonRemoteCache();
+        observeThumbs(`.look-card[data-look="${CSS.escape(job.look.id)}"]`);
+        job.resolve(true);
+      })
+      .catch(() => {
+        nikonRemoteFailed.set(job.look.nikonRemote, Date.now());
+        job.resolve(false);
+      })
+      .finally(() => {
+        nikonRemoteActive--;
+        nikonRemotePending.delete(job.look.nikonRemote);
+        pumpNikonRemote();
+      });
+  }
+}
+
+// Télécharge un preset du catalogue (une seule fois). Renvoie une promesse : true s'il est prêt.
+// urgent : passe devant les vignettes en attente (look qu'on vient de toucher).
+function ensureNikonRemote(look, urgent = false) {
+  if (!look || !look.nikonRemote || look.nikon) return Promise.resolve(Boolean(look && look.nikon));
+  const path = look.nikonRemote;
+  if (nikonRemotePending.has(path)) return nikonRemotePending.get(path);
+  // Après un échec (hors connexion), on ne réessaie pas en boucle pour les vignettes.
+  if (!urgent && Date.now() - (nikonRemoteFailed.get(path) || 0) < 30000) return Promise.resolve(false);
+  const promise = new Promise((resolve) => {
+    const job = { look, resolve };
+    if (urgent) nikonRemoteQueue.unshift(job);
+    else nikonRemoteQueue.push(job);
+  });
+  nikonRemotePending.set(path, promise);
+  pumpNikonRemote();
+  return promise;
+}
+
+// Un look du catalogue pas encore téléchargé : on le télécharge, puis on l'applique.
+function openNikonRemote(look) {
+  showStatus(`Téléchargement de « ${look.name} »…`);
+  ensureNikonRemote(look, true).then((ok) => {
+    if (ok) selectLook(look.id);
+    else showStatus(`Impossible de télécharger « ${look.name} ». Vérifie la connexion.`);
+  });
+}
+
+// Filtre de l'onglet Nikon : toutes les collections, tes fichiers, ou une collection du catalogue.
+const lookNikonSet = document.getElementById("lookNikonSet");
+let nikonSetFilter = "";
+lookNikonSet.add(new Option("Mes fichiers", "mine"));
+nikonCatalog.sets.forEach((set) => lookNikonSet.add(new Option(set, set)));
+lookNikonSet.addEventListener("change", () => {
+  nikonSetFilter = lookNikonSet.value;
+  resetLookPaging();
+  applyLookFilter();
+});
+
+function nikonSetMatches(look) {
+  if (!nikonSetFilter) return true;
+  return nikonSetFilter === "mine" ? !look.nikonRemote : look.nikonSet === nikonSetFilter;
 }
 
 function refreshNikonLibrary() {
@@ -271,8 +397,16 @@ function updateNikonEditor() {
     : kind === "mono"
       ? "Picture Control basé sur Monochrome : rendu en noir et blanc avec sa courbe. Les filtres et virages Monochrome du fichier ne sont pas lus."
       : "Picture Control basé sur une autre base Nikon : seuls la courbe et les réglages Flexible Color sont lus, le rendu peut s’écarter de NX Studio.";
-  nikonResetButton.disabled = !modified || !item;
+  const baseLook = currentLookId && lookById.get(currentLookId);
+  nikonResetButton.disabled = !modified || !(baseLook && baseLook.nikon);
   nikonDeleteButton.hidden = !item;
+  // Preset du catalogue : créateur et lien vers le fichier d'origine.
+  const remote = baseLook && baseLook.nikonRemote ? baseLook : null;
+  nikonSource.hidden = !remote;
+  if (remote) {
+    nikonSource.href = nikonPathUrl(remote.nikonRemote, "page");
+    nikonSource.textContent = `${remote.nikonCreator || remote.nikonSet} · source ↗`;
+  }
 
   NIKON_SLIDERS.forEach(({ key, input, output }) => {
     input.value = spec[key];
@@ -344,7 +478,8 @@ nikonSaveButton.addEventListener("click", () => {
 });
 
 nikonResetButton.addEventListener("click", () => {
-  if (nikonItemForLook(currentLookId)) selectLook(currentLookId);
+  const look = currentLookId && lookById.get(currentLookId);
+  if (look && look.nikon) selectLook(currentLookId);
 });
 
 nikonDeleteButton.addEventListener("click", () => {

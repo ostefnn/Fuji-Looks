@@ -164,6 +164,9 @@
           <option value="color">Couleur</option>
           <option value="mono">Noir &amp; blanc</option>
         </select>
+        <select id="lookNikonSet" class="select select-sm" aria-label="Collection Nikon" title="Collection (onglet Nikon)" hidden>
+          <option value="">Toutes les collections</option>
+        </select>
         <select id="lookSensor" class="select select-sm" aria-label="Capteur" title="Capteur (onglet Catalogue)" hidden>
           <option value="">Capteur</option>
         </select>
@@ -440,6 +443,7 @@
             <strong id="nikonName"></strong>
             <span class="muted" id="nikonMeta"></span>
             <em class="muted film-tag" id="nikonComment"></em>
+            <a class="source-link" id="nikonSource" href="#" target="_blank" rel="noopener" hidden></a>
           </div>
           <button type="button" class="btn btn-secondary btn-sm" id="nikonSaveButton" title="Enregistrer dans l’onglet Nikon (sur cet appareil)">Enregistrer</button>
           <button type="button" class="btn btn-ghost btn-sm" id="nikonResetButton" title="Revenir aux réglages du fichier">Rétablir</button>
@@ -954,7 +958,7 @@
           <input id="libraryFile" type="file" accept=".json,application/json" hidden>
         </div>
       </section>
-      <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>. La couleur des pellicules vient de la collection <a href="https://github.com/YahiaAngelo/Film-Luts" target="_blank" rel="noopener">Film-Luts</a> (MIT). Les fichiers .NP3 sont lus et écrits avec <a href="https://github.com/ssssota/nikon-flexible-color-picture-control" target="_blank" rel="noopener">nikon-flexible-color-picture-control</a> (MIT). Le rendu s’approche du boîtier ou du film sans le reproduire exactement.</p>
+      <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>. La couleur des pellicules vient de la collection <a href="https://github.com/YahiaAngelo/Film-Luts" target="_blank" rel="noopener">Film-Luts</a> (MIT). Le catalogue Nikon liste les presets du dépôt <a href="https://github.com/shouryan01/Nikon-Recipes" target="_blank" rel="noopener">Nikon-Recipes</a> : chaque fichier est téléchargé depuis ce dépôt quand tu l’affiches, et reste la propriété de son créateur (Nikon Creators, Mark G Adams, Scott Tucker…). Les fichiers .NP3 sont lus et écrits avec <a href="https://github.com/ssssota/nikon-flexible-color-picture-control" target="_blank" rel="noopener">nikon-flexible-color-picture-control</a> (MIT). Le rendu s’approche du boîtier ou du film sans le reproduire exactement.</p>
     </div>
   </dialog>
 
@@ -1001,6 +1005,7 @@
   <script src="js/pipeline.js"></script>
   <script src="js/tone-curve.js"></script>
   <script src="js/nikon.js"></script>
+  <script src="js/nikon-catalog.js"></script>
   <script src="js/films.js"></script>
   <script src="js/state.js"></script>
   <script src="js/catalog.js"></script>
