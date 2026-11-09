@@ -144,7 +144,7 @@ function buildCameraSelect() {
 function updateCompat() {
   const camera = CAMERAS.get(cameraId);
   compatList.textContent = "";
-  if (camera && applied && !currentFilm) {
+  if (camera && applied && !currentFilm && !currentNikon) {
     const { errors, warnings, maybes } = checkCompat(recipe, camera);
     const items = [
       ...errors.map((text) => ["error", text]),

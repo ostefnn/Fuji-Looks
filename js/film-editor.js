@@ -72,25 +72,36 @@ function filmIsDefault(spec) {
 }
 
 // Affiche le panneau Recette ou Pellicule selon le look en cours, et les exports qui vont avec.
+// Même chose pour un Picture Control Nikon (panneau « Nikon », exports .NP3 et LUT).
 function updateFilmEditor() {
   const film = currentFilm && filmByKey.get(currentFilm.film);
   const filmMode = Boolean(film && applied);
+  const nikonMode = Boolean(!filmMode && currentNikon && applied);
+  const lookMode = filmMode || nikonMode;
+  const tabLabel = filmMode ? "Pellicule" : nikonMode ? "Nikon" : "Recette";
   recipePanel.dataset.film = String(filmMode);
-  tabRecipe.textContent = filmMode ? "Pellicule" : "Recette";
-  navRecipeLabel.textContent = filmMode ? "Pellicule" : "Recette";
+  tabRecipe.textContent = tabLabel;
+  navRecipeLabel.textContent = tabLabel;
   if (tabRecipe.getAttribute("aria-selected") === "true") {
-    recipePanel.hidden = filmMode;
+    recipePanel.hidden = lookMode;
     filmPanel.hidden = !filmMode;
+    nikonPanel.hidden = !nikonMode;
   }
   document.body.classList.toggle("film-mode", filmMode);
-  document.getElementById("recipeExportItems").hidden = filmMode;
+  document.body.classList.toggle("nikon-mode", nikonMode);
+  document.getElementById("recipeExportItems").hidden = lookMode;
   document.getElementById("filmExportItems").hidden = !filmMode;
-  document.getElementById("exportLookLabel").textContent = filmMode ? `Pellicule ${film.name}` : "Recette";
-  document.getElementById("recipeFiles").hidden = filmMode;
-  document.getElementById("recipeCodeButtons").hidden = filmMode;
+  document.getElementById("nikonExportItems").hidden = !nikonMode;
+  document.getElementById("exportLookLabel").textContent = filmMode ? `Pellicule ${film.name}`
+    : nikonMode ? `Picture Control ${currentNikon.name}` : "Recette";
+  document.getElementById("recipeFiles").hidden = lookMode;
+  document.getElementById("recipeCodeButtons").hidden = lookMode;
   document.getElementById("filmFilesHint").hidden = !filmMode;
-  document.getElementById("recipeCardCard").hidden = filmMode;
-  document.getElementById("recipeFilesTitle").textContent = filmMode ? "Fichier de la pellicule" : "Fichiers de la recette";
+  document.getElementById("nikonFiles").hidden = !nikonMode;
+  document.getElementById("recipeCardCard").hidden = lookMode;
+  document.getElementById("recipeFilesTitle").textContent = filmMode ? "Fichier de la pellicule"
+    : nikonMode ? "Fichiers du Picture Control" : "Fichiers de la recette";
+  if (nikonMode) updateNikonEditor();
   if (!filmMode) return;
 
   const shelf = FILM_SHELVES.find((s) => s.id === film.shelf);

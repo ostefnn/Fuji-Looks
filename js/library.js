@@ -63,6 +63,7 @@ saveButton.addEventListener("click", () => {
   commit();
   recipe = saved;
   currentFilm = null;
+  currentNikon = null;
   applied = true;
   modified = false;
   currentLookId = `lib-${item.id}`;

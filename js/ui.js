@@ -3,7 +3,8 @@
 // --- Onglets du panneau de droite (Recette / Pellicule, Retouche, Cadre) -----------
 
 const INSPECTOR_TABS = [
-  ["tabRecipe", () => (document.body.classList.contains("film-mode") ? filmPanel : recipePanel)],
+  ["tabRecipe", () => (document.body.classList.contains("film-mode") ? filmPanel
+    : document.body.classList.contains("nikon-mode") ? nikonPanel : recipePanel)],
   ["tabEdit", () => document.getElementById("editSection")],
   ["tabFrame", () => document.getElementById("framePanel")]
 ];
@@ -17,6 +18,7 @@ function showInspectorTab(id) {
   });
   recipePanel.hidden = true;
   filmPanel.hidden = true;
+  nikonPanel.hidden = true;
   document.getElementById("editSection").hidden = true;
   document.getElementById("framePanel").hidden = true;
   INSPECTOR_TABS.find(([tabId]) => tabId === id)[1]().hidden = false;
@@ -150,6 +152,9 @@ function updateStageTitle() {
   if (!applied) {
     lookTitle.textContent = "Original";
     lookBadge.textContent = "Sans look";
+  } else if (currentNikon) {
+    lookTitle.textContent = currentNikon.name + (modified ? " · modifié" : "");
+    lookBadge.textContent = `Nikon · ${nikonBaseLabel(currentNikon)}`;
   } else if (currentFilm) {
     const film = filmByKey.get(currentFilm.film);
     lookTitle.textContent = film.name + (modified ? " · modifiée" : "");
@@ -165,7 +170,8 @@ function updateStageTitle() {
     lookFavButton.setAttribute("aria-pressed", String(on));
     lookFavButton.setAttribute("aria-label", on ? "Retirer des favoris" : "Ajouter aux favoris");
   }
-  document.getElementById("intensityLabel").textContent = currentFilm ? "Intensité de la pellicule" : "Intensité du look";
+  document.getElementById("intensityLabel").textContent = currentFilm ? "Intensité de la pellicule"
+    : currentNikon ? "Intensité du Picture Control" : "Intensité du look";
 }
 
 lookFavButton.addEventListener("click", () => {

@@ -117,10 +117,17 @@ async function importScreenshot(blob) {
 
 importButton.addEventListener("click", () => applyImport(parseAnyRecipe(importText.value)));
 
+// Plusieurs fichiers : les .NP3 Nikon vont tous dans l'onglet « Nikon » ; sinon le premier est importé.
+function importRecipeFiles(files) {
+  const nikon = files.filter(isNikonFile);
+  if (nikon.length) importNikonFiles(nikon);
+  else importRecipeFile(files[0]);
+}
+
 importFile.addEventListener("change", () => {
-  const file = importFile.files?.[0];
+  const files = [...(importFile.files || [])];
   importFile.value = "";
-  importRecipeFile(file);
+  if (files.length) importRecipeFiles(files);
 });
 
 // Ctrl+V hors d'un champ de saisie : une image est lue comme capture de recette, un texte est importé.

@@ -142,7 +142,7 @@ document.addEventListener("drop", (event) => {
   photoFrame.classList.remove("dragging");
   const files = [...event.dataTransfer.files];
   if (isImageFile(files[0])) loadPhotos(files);
-  else importRecipeFile(files[0]);
+  else importRecipeFiles(files);
 });
 
 intensity.addEventListener("input", () => {

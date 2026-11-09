@@ -180,17 +180,20 @@ const ALL_GROUPS = [
   { id: "custom", title: "Recettes" },
   { id: "catalog", title: "Catalogue" },
   { id: "sims", title: "Simulations" },
-  { id: "films", title: "Pellicules" }
+  { id: "films", title: "Pellicules" },
+  { id: "nikon", title: "Nikon" }
 ];
 
-// Ce qu'un look applique : une recette Fujifilm, une pellicule (réglages par défaut du film) ou rien.
+// Ce qu'un look applique : une recette Fujifilm, une pellicule (réglages par défaut du film),
+// un Picture Control Nikon ou rien.
 function lookRender(look) {
   if (!look) return null;
+  if (look.nikon) return look.nikon;
   return look.film ? filmSpec(look.film) : look.recipe || null;
 }
 
 function isRealLook(look) {
-  return Boolean(look && (look.recipe || look.film));
+  return Boolean(look && (look.recipe || look.film || look.nikon));
 }
 let GROUPS = [];
 
@@ -248,6 +251,8 @@ let recipe = FR.normalize({ name: "Ma recette" });
 let applied = false;
 // Pellicule en cours (réglages compris), ou null : la recette s'applique alors.
 let currentFilm = null;
+// Picture Control Nikon en cours (js/nikon.js), ou null.
+let currentNikon = null;
 let modified = false;
 let renderPending = false;
 let thumbJob = 0;

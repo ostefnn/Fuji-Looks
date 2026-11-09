@@ -120,6 +120,10 @@
           <button type="button" class="menu-item" role="menuitem" data-open="exportDialog" data-section="recipeFilesSection">Preset Lightroom, LUT, codes…</button>
           <button type="button" class="menu-item" role="menuitem" data-open="cameraDialog" data-section="fp1Section">Profil X RAW Studio (.FP1)…</button>
         </div>
+        <div id="nikonExportItems" hidden>
+          <button type="button" class="menu-item" role="menuitem" id="np3Button"><span>Picture Control (.NP3)</span><small class="muted">pour le boîtier ou NX Studio</small></button>
+          <button type="button" class="menu-item" role="menuitem" id="nikonCubeButton"><span>LUT 3D (.cube)</span><small class="muted">tons et couleurs, sans clarté</small></button>
+        </div>
         <div id="filmExportItems" hidden>
           <button type="button" class="menu-item" role="menuitem" id="filmCubeButton"><span>LUT 3D (.cube)</span><small class="muted">couleur seule</small></button>
           <button type="button" class="menu-item" role="menuitem" aria-disabled="true">
@@ -429,6 +433,150 @@
         </section>
       </section>
 
+      <!-- PICTURE CONTROL NIKON -->
+      <section class="inspector-panel" id="nikonPanel" role="tabpanel" aria-labelledby="tabRecipe" hidden>
+        <div class="inspector-head">
+          <div class="inspector-title">
+            <strong id="nikonName"></strong>
+            <span class="muted" id="nikonMeta"></span>
+            <em class="muted film-tag" id="nikonComment"></em>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="nikonSaveButton" title="Enregistrer dans l’onglet Nikon (sur cet appareil)">Enregistrer</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="nikonResetButton" title="Revenir aux réglages du fichier">Rétablir</button>
+        </div>
+        <div class="note" role="note">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-info"/></svg>
+          <span id="nikonNote">Rendu approché, appliqué à la photo développée. La netteté n’est pas simulée. S’exporte en .NP3 (Flexible Color) et en LUT 3D.</span>
+        </div>
+        <section class="group">
+          <div class="group-head">
+            <h3>Tons</h3>
+            <button type="button" class="chip chip-tool" id="nikonCurveToggle" aria-pressed="false"
+              title="Remplace Contraste, Hautes lumières, Ombres, Blanc et Noir par une courbe, comme dans NX Studio">Courbe</button>
+          </div>
+          <div id="nikonToneSliders">
+            <div class="row">
+              <label for="nikonContrast">Contraste</label>
+              <input type="range" id="nikonContrast" class="range-bi" min="-100" max="100" step="1" value="0">
+              <output id="nikonContrastValue" for="nikonContrast">0</output>
+            </div>
+            <div class="row">
+              <label for="nikonHighlights">Hautes lumières</label>
+              <input type="range" id="nikonHighlights" class="range-bi" min="-100" max="100" step="1" value="0">
+              <output id="nikonHighlightsValue" for="nikonHighlights">0</output>
+            </div>
+            <div class="row">
+              <label for="nikonShadows">Ombres</label>
+              <input type="range" id="nikonShadows" class="range-bi" min="-100" max="100" step="1" value="0">
+              <output id="nikonShadowsValue" for="nikonShadows">0</output>
+            </div>
+            <div class="row">
+              <label for="nikonWhiteLevel">Niveau de blanc</label>
+              <input type="range" id="nikonWhiteLevel" class="range-bi" min="-100" max="100" step="1" value="0">
+              <output id="nikonWhiteLevelValue" for="nikonWhiteLevel">0</output>
+            </div>
+            <div class="row">
+              <label for="nikonBlackLevel">Niveau de noir</label>
+              <input type="range" id="nikonBlackLevel" class="range-bi" min="-100" max="100" step="1" value="0">
+              <output id="nikonBlackLevelValue" for="nikonBlackLevel">0</output>
+            </div>
+          </div>
+          <div id="nikonCurveBox" hidden>
+            <div id="nikonCurveSlot"></div>
+            <p class="hint">La courbe remplace les curseurs de tons, comme dans NX Studio. « Courbe » à nouveau : retour aux curseurs.</p>
+          </div>
+        </section>
+        <section class="group">
+          <h3>Couleur et détail</h3>
+          <div class="row">
+            <label for="nikonSaturation">Saturation</label>
+            <input type="range" id="nikonSaturation" class="range-bi" min="-100" max="100" step="1" value="0">
+            <output id="nikonSaturationValue" for="nikonSaturation">0</output>
+          </div>
+          <div class="row">
+            <label for="nikonClarity">Clarté</label>
+            <input type="range" id="nikonClarity" class="range-bi" min="-5" max="5" step="0.25" value="0">
+            <output id="nikonClarityValue" for="nikonClarity">0</output>
+          </div>
+        </section>
+        <section class="group">
+          <h3>Mélangeur de couleurs</h3>
+          <div class="nikon-swatches" id="nikonBlenderColors" role="radiogroup" aria-label="Couleur à régler"></div>
+          <div class="row">
+            <label for="nikonBlendHue">Teinte</label>
+            <input type="range" id="nikonBlendHue" class="range-bi" min="-100" max="100" step="1" value="0">
+            <output id="nikonBlendHueValue" for="nikonBlendHue">0</output>
+          </div>
+          <div class="row">
+            <label for="nikonBlendChroma">Intensité</label>
+            <input type="range" id="nikonBlendChroma" class="range-bi" min="-100" max="100" step="1" value="0">
+            <output id="nikonBlendChromaValue" for="nikonBlendChroma">0</output>
+          </div>
+          <div class="row">
+            <label for="nikonBlendBrightness">Luminosité</label>
+            <input type="range" id="nikonBlendBrightness" class="range-bi" min="-100" max="100" step="1" value="0">
+            <output id="nikonBlendBrightnessValue" for="nikonBlendBrightness">0</output>
+          </div>
+        </section>
+        <section class="group">
+          <h3>Étalonnage</h3>
+          <div class="pill-row" id="nikonZones" role="radiogroup" aria-label="Zone à régler"></div>
+          <div class="row">
+            <label for="nikonGradeHue">Teinte</label>
+            <input type="range" id="nikonGradeHue" class="range-uni range-hue" min="0" max="359" step="1" value="0">
+            <output id="nikonGradeHueValue" for="nikonGradeHue">0°</output>
+          </div>
+          <div class="row">
+            <label for="nikonGradeChroma">Intensité</label>
+            <input type="range" id="nikonGradeChroma" class="range-bi" min="-100" max="100" step="1" value="0">
+            <output id="nikonGradeChromaValue" for="nikonGradeChroma">0</output>
+          </div>
+          <div class="row">
+            <label for="nikonGradeBrightness">Luminosité</label>
+            <input type="range" id="nikonGradeBrightness" class="range-bi" min="-100" max="100" step="1" value="0">
+            <output id="nikonGradeBrightnessValue" for="nikonGradeBrightness">0</output>
+          </div>
+          <div class="row">
+            <label for="nikonBlending">Mélange</label>
+            <input type="range" id="nikonBlending" class="range-uni" min="0" max="100" step="1" value="50">
+            <output id="nikonBlendingValue" for="nikonBlending">50</output>
+          </div>
+          <div class="row">
+            <label for="nikonBalance">Équilibre</label>
+            <input type="range" id="nikonBalance" class="range-bi" min="-100" max="100" step="1" value="0">
+            <output id="nikonBalanceValue" for="nikonBalance">0</output>
+          </div>
+          <p class="hint">Double-clic sur un curseur : remise à zéro. Le mélange adoucit le passage d’une zone à l’autre ; l’équilibre agrandit les hautes lumières (+) ou les ombres (−).</p>
+        </section>
+        <details class="fold">
+          <summary><span class="fold-title">Netteté (gardée pour le boîtier)</span><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <div class="fold-body">
+            <div class="row">
+              <label for="nikonSharpening">Netteté</label>
+              <input type="range" id="nikonSharpening" class="range-uni" min="-3" max="9" step="0.25" value="2">
+              <output id="nikonSharpeningValue" for="nikonSharpening">2</output>
+            </div>
+            <div class="row">
+              <label for="nikonMidSharpening">Netteté tons moyens</label>
+              <input type="range" id="nikonMidSharpening" class="range-bi" min="-5" max="5" step="0.25" value="1">
+              <output id="nikonMidSharpeningValue" for="nikonMidSharpening">1</output>
+            </div>
+            <p class="hint">Non visibles dans l’aperçu : ces valeurs sont écrites dans le .NP3 exporté.</p>
+          </div>
+        </details>
+        <details class="fold">
+          <summary><span class="fold-title">Nom et commentaire</span><svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <div class="fold-body recipe-meta">
+            <label class="field"><span>Nom</span><input id="nikonNameInput" class="input" type="text" maxlength="60"></label>
+            <label class="field"><span>Commentaire</span><textarea id="nikonCommentInput" class="input" rows="2" maxlength="256" placeholder="Optionnel"></textarea></label>
+            <p class="hint">Dans le .NP3, le nom est limité à 19 caractères sans accents : il est raccourci à l’export.</p>
+          </div>
+        </details>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost btn-sm danger" id="nikonDeleteButton" hidden>Supprimer de l’onglet Nikon</button>
+        </div>
+      </section>
+
       <!-- RETOUCHE -->
       <section class="inspector-panel" id="editSection" role="tabpanel" aria-labelledby="tabEdit" hidden>
         <div class="inspector-head">
@@ -490,6 +638,12 @@
             <input type="range" id="blacksEdit" class="range-bi" min="-100" max="100" step="1" value="0">
             <output id="blacksEditValue" for="blacksEdit">0</output>
           </div>
+        </section>
+
+        <section class="group">
+          <h3>Courbe</h3>
+          <div id="editCurveSlot"></div>
+          <p class="hint">Glisse un point, touche la courbe pour en ajouter un (16 au plus), double-clic sur un point pour le retirer. RVB agit sur toute l’image ; R, V et B sur une seule couleur. Appliquée après la lumière, avant le look.</p>
         </section>
 
         <section class="group">
@@ -721,6 +875,10 @@
           </label>
           <button type="button" class="btn btn-secondary btn-sm" id="cubeButton">LUT 3D (.cube)</button>
         </div>
+        <div id="nikonFiles" hidden>
+          <p class="hint">Le .NP3 se charge dans un boîtier Nikon Z (carte mémoire, dossier NIKON/CUSTOMPC) ou dans NX Studio. Il est écrit en Flexible Color.</p>
+          <button type="button" class="btn btn-secondary btn-sm" id="np3FileButton">Picture Control (.NP3)</button>
+        </div>
         <p class="hint" id="filmFilesHint" hidden>Une pellicule s’exporte en LUT 3D : la couleur du film, sans grain ni halation. Elle s’ouvre dans Photoshop, Lightroom (profil créé dans Camera Raw), Capture One ou DaVinci Resolve.</p>
         <div class="btn-row" id="recipeCodeButtons">
           <button type="button" class="btn btn-secondary btn-sm" id="copyTextButton">Copier la recette</button>
@@ -776,11 +934,12 @@
       <section class="group">
         <h3>Importer une recette</h3>
         <p class="hint">Colle une recette (texte, code de partage <code>FR1.…</code> ou lien de partage), charge un profil X RAW Studio (.FP1/.FP2/.FP3), un fichier <code>.recipe.json</code> ou une <strong>capture d’écran</strong> de recette (lue sur ton appareil). Tu peux aussi faire Ctrl+V n’importe où sur la page.</p>
+        <p class="hint">Picture Controls Nikon : charge un ou plusieurs fichiers <strong>.NP3</strong> (Nikon Z, NX Studio). Ils s’ajoutent à l’onglet « Nikon ».</p>
         <textarea id="importText" class="input" rows="6" aria-label="Recette à importer" placeholder="Film Simulation: Classic Chrome&#10;Dynamic Range: DR200&#10;White Balance: Daylight, +3 Red & -5 Blue&#10;…"></textarea>
         <div class="btn-row">
           <button type="button" class="btn btn-primary btn-sm" id="importButton">Appliquer</button>
           <label class="btn btn-secondary btn-sm" for="importFile">Fichier ou capture d’écran</label>
-          <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,text/plain,application/json,image/*,.heic,.heif" hidden>
+          <input id="importFile" type="file" accept=".txt,.json,.fp1,.fp2,.fp3,.xml,.np3,.ncp,text/plain,application/json,image/*,.heic,.heif" multiple hidden>
         </div>
         <p class="import-status" id="importStatus" role="status" aria-live="polite"></p>
       </section>
@@ -795,7 +954,7 @@
           <input id="libraryFile" type="file" accept=".json,application/json" hidden>
         </div>
       </section>
-      <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>. La couleur des pellicules vient de la collection <a href="https://github.com/YahiaAngelo/Film-Luts" target="_blank" rel="noopener">Film-Luts</a> (MIT). Le rendu s’approche du boîtier ou du film sans le reproduire exactement.</p>
+      <p class="hint credits">Le moteur de couleur et les simulations viennent de <a href="https://github.com/sadziu/Fuji-Recipe-Converter" target="_blank" rel="noopener">Fuji Recipe Converter</a> (MIT). Le catalogue reprend la bibliothèque <a href="https://github.com/parth181195/kata" target="_blank" rel="noopener">Kata</a> (MIT) ; les recettes sont signées <a href="https://fujixweekly.com" target="_blank" rel="noopener">Fuji X Weekly</a>. La couleur des pellicules vient de la collection <a href="https://github.com/YahiaAngelo/Film-Luts" target="_blank" rel="noopener">Film-Luts</a> (MIT). Les fichiers .NP3 sont lus et écrits avec <a href="https://github.com/ssssota/nikon-flexible-color-picture-control" target="_blank" rel="noopener">nikon-flexible-color-picture-control</a> (MIT). Le rendu s’approche du boîtier ou du film sans le reproduire exactement.</p>
     </div>
   </dialog>
 
@@ -838,7 +997,10 @@
   <script src="vendor/qrcode/qrcode.js"></script>
   <script src="custom-recipes.js"></script>
   <script src="js/kata-catalog.js"></script>
+  <script src="vendor/nikon-np3/np3.js"></script>
   <script src="js/pipeline.js"></script>
+  <script src="js/tone-curve.js"></script>
+  <script src="js/nikon.js"></script>
   <script src="js/films.js"></script>
   <script src="js/state.js"></script>
   <script src="js/catalog.js"></script>
@@ -846,7 +1008,9 @@
   <script src="js/looks.js"></script>
   <script src="js/wb-pad.js"></script>
   <script src="js/editor.js"></script>
+  <script src="js/curve-editor.js"></script>
   <script src="js/film-editor.js"></script>
+  <script src="js/nikon-editor.js"></script>
   <script src="js/history.js"></script>
   <script src="js/preview.js"></script>
   <script src="js/histogram.js"></script>

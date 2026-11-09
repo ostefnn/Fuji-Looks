@@ -8,6 +8,7 @@ function getStrength() {
 // Rendu appliqué : la pellicule en cours, sinon la recette (null = photo d'origine).
 function activeRecipe() {
   if (!applied) return null;
+  if (currentNikon) return currentNikon;
   return currentFilm ? withFormat(currentFilm) : recipe;
 }
 

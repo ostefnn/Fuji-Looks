@@ -19,12 +19,13 @@ let versionSeq = 0;
 // Nom lisible d'un état : le look, et « modifiée » si on a touché à ses réglages.
 function stateName(state) {
   if (!state.applied) return "Original";
-  const name = state.film ? filmByKey.get(state.film.film).name : state.recipe.name || "Recette";
+  const name = state.film ? filmByKey.get(state.film.film).name : state.nikon ? state.nikon.name : state.recipe.name || "Recette";
   return state.modified ? `${name} · modifiée` : name;
 }
 
 function versionLook(state) {
   if (!state.applied) return null;
+  if (state.nikon) return state.nikon;
   return state.film ? { ...state.film, format: filmFormat } : FR.normalize(state.recipe);
 }
 

@@ -5,6 +5,8 @@ importScripts(
   "../vendor/fuji-recipe-converter/data.js",
   "../vendor/fuji-recipe-converter/engine.js",
   "pipeline.js",
+  "tone-curve.js",
+  "nikon.js",
   "films.js",
   "film-luts-data.js"
 );

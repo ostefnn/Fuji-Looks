@@ -151,7 +151,7 @@ async function renderExport() {
 }
 
 function exportFileName(suffix = "") {
-  const name = applied ? (currentFilm ? currentFilm.name : recipe.name) : "original";
+  const name = applied ? (currentFilm ? currentFilm.name : currentNikon ? currentNikon.name : recipe.name) : "original";
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "photo";
   return `fuji-looks-${slug}${suffix}.jpg`;
 }
