@@ -168,6 +168,10 @@ function setSplitView(value) {
 
 function selectLook(id) {
   const look = lookById.get(id);
+  if (look && look.nikonRemote && !look.nikon) {
+    openNikonRemote(look);
+    return;
+  }
   if (versionCompare) setVersionCompare(false); // choisir un look ramène à l'aperçu normal
   if (id !== currentLookId || modified) commit();
   currentLookId = id;

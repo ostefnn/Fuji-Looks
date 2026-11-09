@@ -193,7 +193,7 @@ function lookRender(look) {
 }
 
 function isRealLook(look) {
-  return Boolean(look && (look.recipe || look.film || look.nikon));
+  return Boolean(look && (look.recipe || look.film || look.nikon || look.nikonRemote));
 }
 let GROUPS = [];
 

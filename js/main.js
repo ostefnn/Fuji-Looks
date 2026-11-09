@@ -14,6 +14,7 @@ function restoreDraft() {
 }
 
 syncLibraryLooks();
+addNikonCatalogLooks();
 syncNikonLooks();
 restoreDraft();
 buildCameraSelect();
