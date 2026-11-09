@@ -104,6 +104,8 @@ function renderRecipe(src, lookRecipe, strength, source = { w: src.width, h: src
   const { width: w, height: h } = src;
   // Pellicule argentique (js/films.js) : son propre rendu, couleur, douceur et grain.
   if (lookRecipe && lookRecipe.film) return renderFilm(src, lookRecipe, strength, grainWidth);
+  // Picture Control Nikon (js/nikon.js) : tons, couleurs et clarté.
+  if (lookRecipe && lookRecipe.nikon) return renderNikon(src, lookRecipe, strength);
   const out = new ImageData(new Uint8ClampedArray(src.data), w, h);
   if (!lookRecipe || strength <= 0) return out;
 

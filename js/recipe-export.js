@@ -93,6 +93,10 @@ document.getElementById("cubeButton").addEventListener("click", () => {
     document.getElementById("filmCubeButton").click();
     return;
   }
+  if (currentNikon) {
+    downloadNikonCube();
+    return;
+  }
   downloadText(FR.fileName(recipe, `-${size}.cube`), FR.toCube(recipe, size), "text/plain");
   showStatus(`LUT téléchargée (${size}×${size}×${size}).`);
 });

@@ -326,7 +326,8 @@ code {
   cursor: default;
 }
 
-.secondary-button.danger {
+.secondary-button.danger,
+.btn.danger {
   color: var(--err);
 }
 
@@ -455,6 +456,14 @@ input[type="range"]::-moz-range-thumb {
 
 input[type="range"].range-temp::-webkit-slider-runnable-track {
   background: linear-gradient(var(--disabled), var(--disabled)) center / 2px 100% no-repeat, linear-gradient(90deg, #3c6d9e, var(--track) 45% 55%, #b8822e);
+}
+
+input[type="range"].range-hue::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, #f00, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00);
+}
+
+input[type="range"].range-hue::-moz-range-track {
+  background: linear-gradient(90deg, #f00, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00);
 }
 
 input[type="range"].range-tint::-webkit-slider-runnable-track {
@@ -904,6 +913,11 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
 .look-kind.is-film {
   color: var(--text);
   box-shadow: inset 0 0 0 1px var(--line-3);
+}
+
+.look-kind.is-nikon {
+  color: var(--warn);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn) 45%, transparent);
 }
 
 .look-name {
@@ -2801,4 +2815,182 @@ body.versions-comparing .compare-button {
 .wb-pad-reset:disabled {
   color: var(--disabled);
   cursor: default;
+}
+
+/* Éditeur de courbe (js/curve-editor.js) : retouche et Picture Controls Nikon. */
+.curve-editor {
+  display: grid;
+  gap: 8px;
+}
+
+.curve-channels {
+  display: flex;
+  gap: 6px;
+}
+
+.curve-channel {
+  min-width: 40px;
+  justify-content: center;
+}
+
+.curve-channel[aria-pressed="true"] {
+  border-color: var(--curve-color);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--curve-color);
+}
+
+.curve-channel.is-set::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sel);
+}
+
+.curve-area {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 1;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background:
+    linear-gradient(to top right, color-mix(in srgb, var(--text) 6%, transparent), transparent 70%),
+    var(--field);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.curve-area svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.curve-grid,
+.curve-diagonal {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text) 16%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.curve-diagonal {
+  stroke-dasharray: 3 4;
+}
+
+.curve-line,
+.curve-ghosts path {
+  fill: none;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+.curve-ghosts path {
+  stroke-width: 1.25;
+  opacity: 0.45;
+}
+
+.curve-handles {
+  position: absolute;
+  inset: 0;
+}
+
+.curve-point {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--panel);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+}
+
+.curve-point.is-active {
+  background: var(--primary);
+}
+
+.curve-point:focus-visible {
+  outline: 2px solid var(--sel);
+  outline-offset: 2px;
+}
+
+.curve-area.is-dragging .curve-point {
+  cursor: grabbing;
+}
+
+.curve-readout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 280px;
+}
+
+.curve-value {
+  color: var(--text-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mélangeur de couleurs Nikon : une pastille par couleur. */
+.nikon-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.nikon-swatch {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 2px var(--panel);
+  cursor: pointer;
+}
+
+.nikon-swatch[aria-checked="true"] {
+  border-color: var(--text);
+}
+
+.nikon-swatch.is-set::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--panel);
+  border-radius: 50%;
+  background: var(--sel);
+}
+
+.nikon-swatch:focus-visible {
+  outline: 2px solid var(--sel);
+  outline-offset: 2px;
+}
+
+#nikonZones .chip[aria-checked="true"] {
+  border-color: var(--sel);
+  background: var(--sel-bg);
+  color: var(--sel);
+}
+
+#nikonZones .chip.is-set::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sel);
 }

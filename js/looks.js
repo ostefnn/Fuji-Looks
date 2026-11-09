@@ -31,7 +31,9 @@ function lookMatches(look) {
   if (!isRealLook(look)) return true; // « Original » reste toujours visible
   if (favOnly && !favorites.has(look.id)) return false;
   let words;
-  if (look.film) {
+  if (look.nikon) {
+    words = [look.name, look.desc, look.nikon.comment, "nikon picture control np3"];
+  } else if (look.film) {
     // Le rayon ne filtre que sans recherche : une recherche parcourt toutes les pellicules.
     if (!lookQuery && look.shelf !== filmShelf) return false;
     const film = filmByKey.get(look.film);
@@ -218,10 +220,10 @@ function createLookCard(look) {
   thumb.setAttribute("aria-hidden", "true");
   frame.appendChild(thumb);
   // Type du look, pour ne pas confondre une recette « Tri-X 400 » et la pellicule Tri-X 400.
-  if (look.film || look.group === "custom" || look.group === "catalog") {
+  if (look.film || look.nikon || look.group === "custom" || look.group === "catalog") {
     const kind = document.createElement("span");
-    kind.className = `look-kind ${look.film ? "is-film" : "is-recipe"}`;
-    kind.textContent = look.film ? "Pellicule" : "Recette";
+    kind.className = `look-kind ${look.film ? "is-film" : look.nikon ? "is-nikon" : "is-recipe"}`;
+    kind.textContent = look.film ? "Pellicule" : look.nikon ? "Nikon" : "Recette";
     frame.appendChild(kind);
   }
   if (look.film) {
@@ -294,7 +296,7 @@ function buildLookGrid() {
 
   GROUPS.forEach((group) => {
     const groupLooks = LOOKS.filter((look) => look.group === group.id);
-    const looks = group.id === "sims" || group.id === "films" ? groupLooks : sortBySim(groupLooks);
+    const looks = group.id === "sims" || group.id === "films" || group.id === "nikon" ? groupLooks : sortBySim(groupLooks);
 
     const tab = document.createElement("button");
     tab.type = "button";
@@ -327,7 +329,7 @@ function buildLookGrid() {
       applyLookFilter(); // les vignettes des nouveaux looks se calculent quand elles deviennent visibles
     });
     moreObserver.observe(more);
-    const items = group.id === "films" ? looks.map(createLookItem) : [createLookItem(original), ...looks.map(createLookItem)];
+    const items = group.id === "films" || group.id === "nikon" ? looks.map(createLookItem) : [createLookItem(original), ...looks.map(createLookItem)];
     grid.append(...items, more, empty);
     lookGroups.appendChild(grid);
   });
@@ -344,7 +346,7 @@ function buildLookGrid() {
 function showTab(groupId) {
   // Le filtre par capteur ne concerne que le catalogue ; les simulations ne concernent pas les pellicules.
   lookSensorSelect.hidden = groupId !== "catalog";
-  lookSimSelect.hidden = groupId === "films";
+  lookSimSelect.hidden = groupId === "films" || groupId === "nikon";
   filmTools.hidden = groupId !== "films";
   GROUPS.forEach(({ id }) => {
     const active = id === groupId;
@@ -455,8 +457,10 @@ function processThumbQueue() {
     const canvas = card.querySelector("canvas");
     canvas.width = data.src.width;
     canvas.height = data.src.height;
-    canvas.getContext("2d").putImageData(
-      renderRecipe(data.src, lookRender(look), 1, { w: data.w, h: data.h }, data.grainWidth), 0, 0);
+    NIKON_OPTIONS.lutSize = 17; // vignettes : LUT réduite, invisible à cette taille
+    const thumb = renderRecipe(data.src, lookRender(look), 1, { w: data.w, h: data.h }, data.grainWidth);
+    NIKON_OPTIONS.lutSize = 33;
+    canvas.getContext("2d").putImageData(thumb, 0, 0);
     card.dataset.thumbJob = key;
   }
   if (thumbQueue.size) scheduleThumbs();

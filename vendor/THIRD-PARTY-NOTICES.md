@@ -16,6 +16,7 @@ It bundles the following third-party work, unmodified, each under its own licenc
 | QR Code Generator for JavaScript v1.4.4 (Kazuhiko Arase), added by Fuji Looks | `vendor/qrcode/qrcode.js` | MIT |
 | Great Vibes (Google Fonts, via @fontsource/great-vibes 5.0.8), added by Fuji Looks | `vendor/fonts/great-vibes-*.woff2` (licence: `vendor/fonts/GreatVibes-OFL.txt`) | SIL OFL 1.1 |
 | Recipe library snapshot from Kata (parth181195/kata, commit 0c47ee2, MIT), recipes by Fuji X Weekly, used by Fuji Looks | `js/kata-catalog.js` (settings, names, sensors and source links only) | MIT (Kata); recipes credited to Fuji X Weekly with a link to each post |
+| nikon-flexible-color-picture-control (ssssota/nikon-flexible-color-picture-control, commit ed0397f, MIT), ported to plain JavaScript by Fuji Looks (adds the `baseCode` field) | `vendor/nikon-np3/np3.js` (licence: `vendor/nikon-np3/LICENSE`) | MIT (Copyright (c) 2025 TOMIKAWA Sotaro) |
 | Film colour LUTs from Film-Luts (YahiaAngelo/Film-Luts, commit af957b6, MIT): 69 G'MIC film CLUTs, 13×13×13, packed to 8 bits by `tools/build-film-luts.py` | `js/film-luts-data.js` | MIT (Copyright (c) 2024 Yahia) |
 
 ## Lucide icons

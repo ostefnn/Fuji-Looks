@@ -3,9 +3,10 @@
 const RATIOS = { original: null, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "16:9": 16 / 9, "9:16": 9 / 16 };
 // cropX / cropY : position du cadrage dans la marge disponible, de -1 (gauche / haut) à 1 (droite / bas).
 // temp / tint : balance des blancs de la photo d'origine (avant la recette), de -100 à +100.
+// curve : courbes de tons { rgb, r, g, b } (js/tone-curve.js), ou null.
 const DEFAULT_EDIT = {
   ratio: "original", cropX: 0, cropY: 0, rotate: 0, straighten: 0,
-  exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, temp: 0, tint: 0, halation: 0
+  exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, temp: 0, tint: 0, halation: 0, curve: null
 };
 let edit = { ...DEFAULT_EDIT };
 let originalSize = null; // dimensions de la photo importée, avant retouche
@@ -30,7 +31,7 @@ function hasEdits(e = edit) {
 
 function isIdentityEdit(e = edit) {
   return e.ratio === "original" && e.rotate === 0 && e.straighten === 0 && e.exposure === 0 &&
-    !e.highlights && !e.shadows && !e.whites && !e.blacks && !e.temp && !e.tint;
+    !e.highlights && !e.shadows && !e.whites && !e.blacks && !e.temp && !e.tint && !curvesActive(e.curve);
 }
 
 // La photo doit être recadrée : retouche de géométrie, ou format imposé par la bande de film.
@@ -276,6 +277,7 @@ function buildEditedSource(maxSide, maxPixels, e = edit, image = originalImage, 
   if (e.exposure || e.temp || e.tint) applyExposure(data, e.exposure, whiteBalanceEditGains(e.temp || 0, e.tint || 0));
   if (e.highlights || e.shadows) applyToneRecovery(data, e.highlights, e.shadows);
   if (e.whites || e.blacks) applyWhitesBlacks(data, e.whites || 0, e.blacks || 0);
+  if (curvesActive(e.curve)) applyCurves(data, e.curve);
   return data;
 }
 
@@ -285,7 +287,7 @@ function buildEditedSource(maxSide, maxPixels, e = edit, image = originalImage, 
  * hautes lumières et des ombres selon la part de pixels presque blancs ou presque noirs.
  */
 function autoExposure() {
-  const base = { ...edit, exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0 };
+  const base = { ...edit, exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, curve: null };
   const d = buildEditedSource(256, null, base).data;
   const lum = [];
   for (let i = 0; i < d.length; i += 4) {
@@ -378,8 +380,26 @@ const editWbPad = createWbPad({
 });
 document.getElementById("editWbPadSlot").append(editWbPad.el);
 
+// Courbes de tons : RVB, puis rouge, vert et bleu séparément.
+const editCurveEditor = createCurveEditor({
+  id: "editCurve",
+  label: "Courbe de tons de la photo",
+  channels: CURVE_CHANNELS,
+  onChange(points, channel) {
+    markInteractive();
+    setEdit({ curve: { ...(edit.curve || {}), [channel]: points } }, "edit:curve");
+  },
+  onReset(channel) {
+    if (!edit.curve || curveIsIdentity(edit.curve[channel])) return;
+    const curve = { ...edit.curve, [channel]: null };
+    setEdit({ curve: curvesActive(curve) ? curve : null });
+  }
+});
+document.getElementById("editCurveSlot").append(editCurveEditor.el);
+
 function updateEditControls() {
   editWbPad.set(edit.temp || 0, edit.tint || 0);
+  editCurveEditor.set(edit.curve);
   ratioOptions.querySelectorAll("[data-ratio]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.ratio === edit.ratio));
   });

@@ -6,6 +6,7 @@ function restoreDraft() {
   if (!draft || !draft.recipe) return;
   recipe = FR.normalize(draft.recipe);
   currentFilm = draft.film && filmByKey.has(draft.film.film) ? filmSpec(draft.film.film, draft.film) : null;
+  currentNikon = !currentFilm && draft.nikon ? normalizeNikon(draft.nikon) : null;
   applied = Boolean(draft.applied);
   const lookId = migrateLookId(draft.lookId);
   currentLookId = lookId && lookById.has(lookId) ? lookId : null;
@@ -13,6 +14,7 @@ function restoreDraft() {
 }
 
 syncLibraryLooks();
+syncNikonLooks();
 restoreDraft();
 buildCameraSelect();
 renderSlots();

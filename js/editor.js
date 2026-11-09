@@ -244,7 +244,7 @@ function baselineRecipe() {
 function updateRecipeEditor() {
   updateFilmEditor();
   updateStageTitle();
-  if (currentFilm) {
+  if (currentFilm || currentNikon) {
     updateCompat();
     saveDraft();
     return;
@@ -288,12 +288,13 @@ function updateRecipeEditor() {
 
 // Brouillon : la recette en cours est retrouvée au prochain chargement, comme dans le convertisseur.
 function saveDraft() {
-  store(DRAFT_KEY, { recipe, film: currentFilm, applied, modified, lookId: currentLookId });
+  store(DRAFT_KEY, { recipe, film: currentFilm, nikon: currentNikon, applied, modified, lookId: currentLookId });
 }
 
 function onRecipeEdited() {
   recipe = FR.normalize(recipe);
   currentFilm = null;
+  currentNikon = null;
   applied = true;
   modified = true;
   updateRecipeEditor();

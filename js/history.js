@@ -7,7 +7,7 @@ const redoStack = [];
 let lastCommit = { key: null, time: 0 };
 
 function snapshot() {
-  return { recipe: { ...recipe }, film: currentFilm && { ...currentFilm }, applied, modified, lookId: currentLookId, intensity: intensityState, edit: { ...edit } };
+  return { recipe: { ...recipe }, film: currentFilm && { ...currentFilm }, nikon: currentNikon, applied, modified, lookId: currentLookId, intensity: intensityState, edit: { ...edit } };
 }
 
 // À appeler juste avant une modification. Les modifications répétées d'un même réglage
@@ -28,6 +28,7 @@ function commit(key = null) {
 function restoreSnapshot(state) {
   recipe = FR.normalize(state.recipe);
   currentFilm = state.film ? { ...state.film } : null;
+  currentNikon = state.nikon ? normalizeNikon(state.nikon) : null;
   applied = state.applied;
   modified = state.modified;
   currentLookId = state.lookId;
@@ -81,6 +82,7 @@ function loadRecipe(newRecipe) {
   commit();
   recipe = FR.normalize(newRecipe);
   currentFilm = null;
+  currentNikon = null;
   applied = true;
   modified = false;
   currentLookId = null;

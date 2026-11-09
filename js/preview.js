@@ -16,7 +16,7 @@ function updatePreviewLabel() {
   else if (comparing) text = "Original";
   else if (hoverLookId) text = `${lookById.get(hoverLookId).name} · aperçu`;
   else {
-    const name = applied ? (currentFilm ? currentFilm.name : recipe.name || "Recette") : "Original";
+    const name = applied ? (currentFilm ? currentFilm.name : currentNikon ? currentNikon.name : recipe.name || "Recette") : "Original";
     text = modified ? `${name} · modifiée` : name;
   }
   photoLabel.textContent = text.toUpperCase();
@@ -92,7 +92,9 @@ function updatePreview() {
     // Pellicule pas encore chargée : on garde l'original le temps du chargement.
     const ready = !(shown && shown.film) || filmLutsReady();
     if (!ready) ensureFilmLuts();
+    NIKON_OPTIONS.lutSize = lite ? 17 : 33;
     const out = renderRecipe(src, ready ? shown : null, strength, sourceSize);
+    NIKON_OPTIONS.lutSize = 33;
     const look = ready ? shown : null;
     if (!comparing) {
       applyHalation(out, halationFor(look), halationScaleFor(look));
@@ -170,10 +172,15 @@ function selectLook(id) {
   if (id !== currentLookId || modified) commit();
   currentLookId = id;
   modified = false;
+  currentNikon = null;
   if (look.film) {
     currentFilm = filmSpec(look.film);
     applied = true;
     ensureFilmLuts();
+  } else if (look.nikon) {
+    currentFilm = null;
+    currentNikon = normalizeNikon(look.nikon);
+    applied = true;
   } else if (look.recipe) {
     currentFilm = null;
     recipe = FR.normalize(look.recipe);

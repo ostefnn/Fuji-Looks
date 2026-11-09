@@ -40,6 +40,7 @@ function filmFrameTokens(spec) {
 
 // Sous-titre d'un look dans un cadre : la simulation, ou le procédé de la pellicule.
 function frameSubtitle(r) {
+  if (r.nikon) return `NIKON · ${nikonBaseLabel(r).toUpperCase()}`;
   if (r.film) {
     const film = filmByKey.get(r.film);
     return `ISO ${film.iso} · ${film.process}`;
@@ -49,6 +50,7 @@ function frameSubtitle(r) {
 
 function frameTokens(r) {
   if (r.film) return filmFrameTokens(r);
+  if (r.nikon) return nikonFrameTokens(r);
   const wbName = r.whiteBalance === "kelvin" ? `${r.kelvin}K` : FR.wbById(r.whiteBalance).name;
   const tokens = [
     FR.formatValue(FR.fieldByKey("dynamicRange"), r),
