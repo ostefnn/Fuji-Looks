@@ -24,6 +24,23 @@ ISO: Auto, up to ISO 6400
 Exposure Compensation: +1/3 to +2/3 (typically)`
   },
   {
+    name: "Classic Autumn",
+    text: `Film Simulation: Classic Neg
+Dynamic Range: DR400
+Highlight: -1.5
+Shadow: +0.5
+Color: 0
+Noise Reduction: -4
+Sharpening: -2
+Clarity: -3
+Grain Effect: Weak, Small
+Color Chrome Effect: Strong
+Color Chrome Effect Blue: Weak
+White Balance: Auto, +6 Red & -6 Blue
+ISO: Auto, up to ISO 6400
+Exposure Compensation: +1/3(typically)`
+  },
+  {
     // Fonctionne aussi avec ACROS +Ye, +R ou +G : changer « Film Simulation » dans l'éditeur.
     name: "Kodak T-Max P3200",
     text: `Film Simulation: Acros
