@@ -3066,3 +3066,118 @@ body.versions-comparing .compare-button {
   border-radius: 50%;
   background: var(--sel);
 }
+
+/* --- Téléphone : les looks en bande horizontale sous la photo ---------------------------
+   La photo reste grande, une rangée de looks défile au pouce (comme une pellicule) ;
+   le curseur d'intensité passe dans les volets de réglage, les versions restent sur ordinateur. */
+@media (max-width: 699px) {
+  .versions-bar {
+    display: none !important;
+  }
+
+  body[data-pane="looks"] .intensity-bar {
+    display: none;
+  }
+
+  body[data-pane="looks"] .looks-pane {
+    gap: 8px;
+    padding: 8px 0 12px;
+  }
+
+  body[data-pane="looks"] .looks-pane > :not(.look-strip) {
+    margin: 0 12px;
+  }
+
+  .looks-pane .pane-head,
+  .film-tools .hint {
+    display: none;
+  }
+
+  /* La bande de looks juste sous la photo ; onglets, filtres et recherche en dessous. */
+  body[data-pane="looks"] .look-strip {
+    order: -1;
+  }
+
+  .film-tools {
+    gap: 6px;
+  }
+
+  .look-tabs {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .look-tabs::-webkit-scrollbar,
+  .look-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .look-tabs > button {
+    flex: none;
+    padding-inline: 12px;
+  }
+
+  .look-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 104px;
+    gap: 6px;
+    padding: 0 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 12px;
+    scrollbar-width: none;
+  }
+
+  .look-grid > * {
+    scroll-snap-align: start;
+  }
+
+  .look-grid .look-empty {
+    grid-column: auto;
+    width: calc(100vw - 24px);
+  }
+
+  .look-name {
+    font-size: 12px;
+    padding-top: 6px;
+  }
+
+  .look-desc {
+    font-size: 10px;
+  }
+
+  .look-kind {
+    display: none;
+  }
+
+  /* Avec une photo, le reste de l'écran va à la photo. */
+  body.has-photo[data-pane="looks"] .photo-frame {
+    height: calc(100svh - 56px - 45px - 64px - 290px - env(safe-area-inset-bottom));
+    min-height: 220px;
+  }
+}
+
+/* Petits téléphones (iPhone SE) : la barre du haut tient sur une ligne. */
+@media (max-width: 380px) {
+  #cameraButtonName,
+  .file-label,
+  .camera-button > .icon-sm,
+  #undoButton {
+    display: none;
+  }
+
+  .stage-toolbar {
+    flex-wrap: nowrap;
+  }
+
+  .stage-title {
+    flex: 1 1 auto;
+  }
+
+  .stage-title .badge {
+    display: none;
+  }
+}
