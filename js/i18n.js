@@ -401,8 +401,12 @@ const I18N_EN = new Map(Object.entries({
   "Glisse un point, touche la courbe pour en ajouter un (16 au plus), double-clic sur un point pour le retirer. RVB agit sur toute l’image ; R, V et B sur une seule couleur. Appliquée après la lumière, avant le look.":
     "Drag a point, tap the curve to add one (16 at most), double-click a point to remove it. RGB acts on the whole image; R, G and B on a single color. Applied after light, before the look.",
   "Effet pellicule": "Film effect",
-  "Double-clic sur un curseur : remise à zéro. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue avant la recette. La halation ajoute le halo rouge des pellicules sans couche anti-halo autour des zones les plus claires ; elle s’ajoute à celle d’une pellicule.":
-    "Double-click a slider: reset. Highlights and Shadows act by range; Whites and Blacks set the ends of the histogram. White balance corrects the shooting light before the recipe. Halation adds the red glow of films without an anti-halation layer around the brightest areas; it adds to a film’s own halation.",
+  "Double-clic sur un curseur : remise à zéro. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue avant la recette.":
+    "Double-click a slider: reset. Highlights and Shadows act by range; Whites and Blacks set the ends of the histogram. White balance corrects the shooting light before the recipe.",
+  "Halo rouge des pellicules sans couche anti-halo, autour des zones claires.": "The red glow of films without an anti-halation layer, around bright areas.",
+  "Tout est désactivé par défaut et visible dans l’aperçu comme dans la photo exportée. Le dos dateur imprime la date de prise de vue (EXIF) en chiffres orange.":
+    "Everything is off by default and shows in the preview and the exported photo. The date back prints the capture date (EXIF) in orange digits.",
+  "Cadre & effets": "Frame & effects",
   "0,0 IL": "0.0 EV",
   "0.0 IL": "0.0 EV",
 

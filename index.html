@@ -315,7 +315,7 @@
       <div class="inspector-tabs" role="tablist" aria-label="Panneau de réglages">
         <button type="button" role="tab" id="tabRecipe" aria-controls="recipePanel" aria-selected="true">Recette</button>
         <button type="button" role="tab" id="tabEdit" aria-controls="editSection" aria-selected="false">Retouche <span class="tab-dot" id="editMeta"></span></button>
-        <button type="button" role="tab" id="tabFrame" aria-controls="framePanel" aria-selected="false">Cadre <span class="tab-dot" id="frameMeta"></span></button>
+        <button type="button" role="tab" id="tabFrame" aria-controls="framePanel" aria-selected="false">Cadre &amp; effets <span class="tab-dot" id="frameMeta"></span></button>
       </div>
 
       <!-- RECETTE -->
@@ -703,15 +703,7 @@
           </div>
         </section>
 
-        <section class="group">
-          <h3>Effet pellicule</h3>
-          <div class="row">
-            <label for="halationEdit">Halation</label>
-            <input type="range" id="halationEdit" class="range-uni range-halation" min="0" max="100" step="1" value="0">
-            <output id="halationEditValue" for="halationEdit">0</output>
-          </div>
-        </section>
-        <p class="hint">Double-clic sur un curseur : remise à zéro. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue avant la recette. La halation ajoute le halo rouge des pellicules sans couche anti-halo autour des zones les plus claires ; elle s’ajoute à celle d’une pellicule.</p>
+        <p class="hint">Double-clic sur un curseur : remise à zéro. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue avant la recette.</p>
       </section>
 
       <!-- CADRE -->
@@ -823,7 +815,16 @@
             <input type="date" id="dateBackInput" class="input" hidden aria-label="Date à imprimer">
           </div>
         </section>
-        <p class="hint">Visible dans l’aperçu et dans la photo exportée. Le dos dateur imprime la date en chiffres orange dans la photo, comme les compacts argentiques : la date de prise de vue (EXIF), ou aujourd’hui à défaut. Rien n’est ajouté par défaut : choisis les infos à afficher, et écris ton nom pour ajouter une signature.</p>
+        <section class="group">
+          <h3>Effet pellicule</h3>
+          <p class="hint">Halo rouge des pellicules sans couche anti-halo, autour des zones claires.</p>
+          <div class="row">
+            <label for="halationEdit">Halation</label>
+            <input type="range" id="halationEdit" class="range-uni range-halation" min="0" max="100" step="1" value="0">
+            <output id="halationEditValue" for="halationEdit">0</output>
+          </div>
+        </section>
+        <p class="hint">Tout est désactivé par défaut et visible dans l’aperçu comme dans la photo exportée. Le dos dateur imprime la date de prise de vue (EXIF) en chiffres orange.</p>
       </section>
     </aside>
   </main>

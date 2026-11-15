@@ -417,7 +417,8 @@ function updateEditControls() {
   shadowsInput.value = edit.shadows;
   shadowsValue.textContent = `${edit.shadows > 0 ? "+" : ""}${edit.shadows}`;
   editResetButton.disabled = !hasEdits();
-  editMeta.hidden = !hasEdits();
+  editMeta.hidden = isIdentityEdit(); // la halation est signalée sur « Cadre & effets »
+  updateFrameMeta();
 }
 
 function setEdit(changes, historyKey = null) {

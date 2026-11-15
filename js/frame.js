@@ -287,6 +287,13 @@ function composeFrame(imageData, style, frameRecipe, info = frameInfo, pair = nu
   return canvas;
 }
 
+// Point sur l'onglet « Cadre & effets » : cadre, halation ou dos dateur actifs.
+function updateFrameMeta() {
+  const halation = typeof edit !== "undefined" && edit.halation > 0;
+  const date = typeof dateBack !== "undefined" && dateBack.on;
+  frameMeta.hidden = frameStyle === "none" && !halation && !date;
+}
+
 function updateFrameOptions() {
   frameOptions.querySelectorAll("[data-frame]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.frame === frameStyle));
@@ -294,7 +301,7 @@ function updateFrameOptions() {
   frameInfoOptions.querySelectorAll("[data-info]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.info === frameInfo));
   });
-  frameMeta.hidden = frameStyle === "none";
+  updateFrameMeta();
   frameInfoRow.hidden = frameStyle === "none";
   signatureRow.hidden = frameStyle === "none";
   signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();
