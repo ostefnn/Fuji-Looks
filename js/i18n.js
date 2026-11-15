@@ -46,6 +46,7 @@ const I18N_EN = new Map(Object.entries({
   "Langue": "Language",
   "Installer l’application": "Install the app",
   "À propos et crédits ↗": "About and credits ↗",
+  "Donner mon avis ↗": "Send feedback ↗",
   "Importer des photos": "Import photos",
   "Exporter": "Export",
   "Photo": "Photo",

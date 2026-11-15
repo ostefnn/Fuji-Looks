@@ -8,9 +8,9 @@ Applique des recettes Fujifilm et des pellicules argentiques à tes photos, dire
 
 **En ligne :** https://ostefnn.github.io/Fuji-Looks/
 
-![Dialed sur ordinateur : la pellicule Kodak Portra 400 appliquée à l'image d'exemple](docs/screenshot.jpg)
+![Dialed sur ordinateur : la recette Kodak Gold 200 sur la photo d'exemple de rue, catalogue filtré pour un X-T5](docs/screenshot.jpg)
 
-<p align="center"><img src="docs/screenshot-mobile.jpg" width="260" alt="Dialed sur iPhone, en thème clair"></p>
+<p align="center"><img src="docs/screenshot-mobile.jpg" width="260" alt="Dialed sur iPhone : la photo en haut, les looks en bande horizontale dessous"></p>
 
 ## Fonctionnalités
 
