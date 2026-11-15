@@ -40,6 +40,37 @@ function drawToImageData(drawable, srcW, srcH, maxSide, maxPixels) {
   return ctx.getImageData(0, 0, w, h);
 }
 
+// --- Photos d'exemple -----------------------------------------------------------
+
+// Vraies photos (jour et nuit) pour juger un look ; le jardin sert aussi de scène de référence.
+const SAMPLE_PHOTOS = {
+  garden: { src: "samples/garden.jpg", file: "exemple-jardin" },
+  night: { src: "samples/night.jpg", file: "exemple-nuit" }
+};
+const samplePhotoCache = {};
+
+function loadSamplePhoto(id) {
+  samplePhotoCache[id] ||= new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      SAMPLE_PHOTOS[id].image = img;
+      resolve(img);
+    };
+    img.onerror = () => {
+      delete samplePhotoCache[id];
+      reject(new Error("Photo d'exemple introuvable"));
+    };
+    img.src = SAMPLE_PHOTOS[id].src;
+  });
+  return samplePhotoCache[id];
+}
+
+// Scène de référence : la photo du jardin dès qu'elle est chargée, sinon la scène dessinée.
+function referenceScene() {
+  const img = SAMPLE_PHOTOS.garden.image;
+  return img ? { drawable: img, w: img.naturalWidth, h: img.naturalHeight } : { drawable: drawSampleScene(), w: 900, h: 600 };
+}
+
 // Scène d'exemple du convertisseur (paysage, patchs de couleur, rampe de gris), dessinée en code.
 function drawSampleScene() {
   var c = document.createElement("canvas"), w = 900, h = 600, x = c.getContext("2d"), g, i;

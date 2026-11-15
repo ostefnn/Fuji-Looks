@@ -191,4 +191,6 @@ async function exportSeries() {
 seriesExportButton.addEventListener("click", exportSeries);
 seriesExportPanelButton.addEventListener("click", exportSeries);
 // L'image d'exemple remplace la série.
-sampleButton.addEventListener("click", clearSeries);
+sampleButton.addEventListener("click", (event) => {
+  if (event.target.closest("[data-sample]")) clearSeries();
+});

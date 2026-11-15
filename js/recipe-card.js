@@ -7,7 +7,8 @@ const CARD_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-s
 
 // Photo (ou image d'exemple) avec la recette, recadrée pour remplir le haut de la fiche.
 function cardPhoto(cardRecipe) {
-  const src = previewSource || drawToImageData(drawSampleScene(), 900, 600, 900);
+  const scene = referenceScene();
+  const src = previewSource || drawToImageData(scene.drawable, scene.w, scene.h, 900);
   const size = previewSource ? sourceSize : { w: src.width, h: src.height };
   const graded = renderRecipe(src, cardRecipe, 1, size);
   const canvas = document.createElement("canvas");

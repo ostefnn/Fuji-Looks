@@ -432,9 +432,9 @@ let thumbPending = false;
 function thumbSourceFor(look) {
   if (look.film && filmPreview === "ref") {
     if (!refThumbData) {
-      const scene = drawSampleScene();
-      const { data: src, grainWidth } = thumbnailSource(scene, scene.width, scene.height);
-      refThumbData = { src, grainWidth, w: scene.width, h: scene.height, job: "ref" };
+      const scene = referenceScene();
+      const { data: src, grainWidth } = thumbnailSource(scene.drawable, scene.w, scene.h);
+      refThumbData = { src, grainWidth, w: scene.w, h: scene.h, job: "ref" };
     }
     return refThumbData;
   }

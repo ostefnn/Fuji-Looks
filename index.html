@@ -234,9 +234,21 @@
           <span class="placeholder-icon" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg></span>
           <strong>Glisse une photo ici</strong>
           <span>ou touche pour en choisir une ou plusieurs (JPEG, PNG, HEIC…)</span>
-          <span class="placeholder-steps">Choisis à gauche, vois au centre, règle à droite.</span>
+          <span class="placeholder-steps">Choisis un look à gauche, règle-le à droite.</span>
         </label>
-        <button type="button" class="btn btn-secondary sample-button" id="sampleButton">Essayer avec l’image d’exemple</button>
+        <div class="sample-picker" id="sampleButton" role="group" aria-label="Photos d’exemple">
+          <span class="sample-title">Pas de photo sous la main ?</span>
+          <div class="sample-row">
+            <button type="button" class="sample-option" data-sample="garden">
+              <img src="samples/garden-thumb.jpg" alt="" width="36" height="36" loading="lazy">
+              <span>Jardin · jour</span>
+            </button>
+            <button type="button" class="sample-option" data-sample="night">
+              <img src="samples/night-thumb.jpg" alt="" width="36" height="36" loading="lazy">
+              <span>Ville · nuit</span>
+            </button>
+          </div>
+        </div>
         <canvas id="photoPreview" role="img" aria-label="Aperçu de ta photo" hidden></canvas>
         <div class="drop-overlay" aria-hidden="true">Dépose ta photo ici</div>
         <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>

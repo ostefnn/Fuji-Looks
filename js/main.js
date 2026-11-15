@@ -32,7 +32,16 @@ if (currentFilm) ensureFilmLuts();
 else (window.requestIdleCallback || ((fn) => setTimeout(fn, 1500)))(() => ensureFilmLuts());
 
 importFromHash();
-renderThumbnails(drawSampleScene(), 900, 600);
+// Vignettes sur la photo du jardin tant qu'aucune photo n'est importée.
+loadSamplePhoto("garden")
+  .then((img) => {
+    refThumbData = null;
+    if (!originalImage) renderThumbnails(img, img.naturalWidth, img.naturalHeight);
+    else refreshFilmThumbs();
+  })
+  .catch(() => {
+    if (!originalImage) renderThumbnails(drawSampleScene(), 900, 600);
+  });
 updatePreview();
 
 // Application installable et utilisable hors connexion (pas en file://).

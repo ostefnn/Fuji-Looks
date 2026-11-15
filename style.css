@@ -1110,11 +1110,62 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   font-size: 12px !important;
 }
 
-.sample-button {
+.photo-placeholder {
+  padding-bottom: 112px; /* place pour les photos d'exemple, sans chevauchement */
+}
+
+.sample-picker {
   position: absolute;
-  bottom: 24px;
+  bottom: 20px;
   left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 32px);
   transform: translateX(-50%);
+}
+
+.sample-picker[hidden] {
+  display: none;
+}
+
+.sample-title {
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.sample-row {
+  display: flex;
+  gap: 8px;
+}
+
+.sample-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--surface-2, var(--surface));
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.sample-option:hover,
+.sample-option:focus-visible {
+  border-color: var(--primary);
+}
+
+.sample-option img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* Taille et position calculées en JS (ajusté au cadre par défaut, puis zoom / déplacement). */
@@ -2385,6 +2436,27 @@ body:not(.has-photo) .histogram-panel {
     min-height: 200px;
     margin: 0;
     border-radius: 0;
+  }
+
+  /* Écran vide : pas de « gauche / droite » sur mobile, et place pour les photos d'exemple. */
+  .photo-placeholder {
+    gap: 2px;
+    padding: 12px 16px 76px;
+  }
+
+  .photo-placeholder .placeholder-steps,
+  .sample-title {
+    display: none;
+  }
+
+  .placeholder-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 4px;
+  }
+
+  .sample-picker {
+    bottom: 14px;
   }
 
   .intensity-bar {
