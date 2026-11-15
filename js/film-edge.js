@@ -82,11 +82,42 @@ const EDGE_COLORS = {
   emptyGate: "#191714"
 };
 
-// Ce qui est imprimé en bordure : le nom du film, ou celui de la recette.
-function edgeLabel(look, info) {
-  if (!look || info === "none") return "";
-  if (look.film) return filmByKey.get(look.film).name.toUpperCase();
-  return `${(look.name || "Recette").toUpperCase()}  ▸  ${frameSubtitle(look)}`;
+// Marquage en bordure, comme sur un vrai film : le nom de la pellicule, jamais celui de la recette.
+// Recette : la pellicule dont elle s'inspire si son nom la cite (« Superia Xtra 400 » → Superia 400).
+const EDGE_BRANDS = /^(fujicolor|fujifilm|fuji|kodak|ilford|agfa|agfaphoto|cinestill|lomography)\s+/i;
+function edgeFilmFor(look) {
+  if (!look) return null;
+  if (look.film) return filmByKey.get(look.film);
+  const name = ` ${(look.name || "").toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
+  let best = null;
+  FILMS.forEach((film) => {
+    const words = film.name.replace(EDGE_BRANDS, "").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    if (words.length && words.every((w) => name.includes(` ${w} `)) && (!best || words.length > best.words)) best = { film, words: words.length };
+  });
+  return best && best.film;
+}
+
+function edgeLabel(look) {
+  const film = edgeFilmFor(look);
+  return film ? film.name.toUpperCase() : "FUJIFILM";
+}
+
+// Grain de la base du film : un motif de bruit léger, répété (calculé une fois).
+let edgeNoise = null;
+function edgeNoisePattern(ctx) {
+  if (!edgeNoise) {
+    edgeNoise = document.createElement("canvas");
+    edgeNoise.width = edgeNoise.height = 128;
+    const nctx = edgeNoise.getContext("2d");
+    const img = nctx.createImageData(128, 128);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = Math.random() * 255;
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+      img.data[i + 3] = 14;
+    }
+    nctx.putImageData(img, 0, 0);
+  }
+  return ctx.createPattern(edgeNoise, "repeat");
 }
 
 function photoCanvas(imageData, rotate) {
@@ -138,7 +169,7 @@ function composeFilmEdge(imageData, look, info, pair) {
   const gateH = rotate ? W : H; // en travers
   const mm = gateH / f.across;
   const frames = twoUp ? 2 : 1;
-  const lead = 4 + f.gap / 2; // film visible avant et après la vue
+  const lead = 2.5 + f.gap / 2; // film visible avant et après la vue
   const stripW = Math.round(gateW * frames + f.gap * mm * (frames - 1) + lead * 2 * mm);
   const stripH = Math.round(f.film * mm);
   const strip = document.createElement("canvas");
@@ -151,17 +182,30 @@ function composeFilmEdge(imageData, look, info, pair) {
   // Les vues, centrées en travers du film.
   const gateY = Math.round(((f.film - f.across) / 2) * mm);
   const gateX = (i) => Math.round(lead * mm + i * (gateW + f.gap * mm));
-  const main = photoCanvas(imageData, rotate);
-  const mainIndex = twoUp && halfPair.swap ? 1 : 0;
-  ctx.drawImage(main, gateX(mainIndex), gateY);
-  if (twoUp) {
-    const other = 1 - mainIndex;
-    if (pair) ctx.drawImage(photoCanvas(pair, false), gateX(other), gateY);
+  // Base du film : pas un noir parfait, un léger grain.
+  ctx.fillStyle = edgeNoisePattern(ctx);
+  ctx.fillRect(0, 0, stripW, stripH);
+  // La fenêtre du boîtier laisse des coins légèrement arrondis et un bord un peu doux.
+  const gateRadius = 0.35 * mm;
+  const drawGate = (source, x) => {
+    ctx.save();
+    roundedRect(ctx, x, gateY, gateW, gateH, gateRadius);
+    ctx.clip();
+    if (source) ctx.drawImage(source, x, gateY);
     else {
       ctx.fillStyle = EDGE_COLORS.emptyGate;
-      ctx.fillRect(gateX(other), gateY, gateW, gateH);
+      ctx.fillRect(x, gateY, gateW, gateH);
     }
-  }
+    ctx.lineWidth = Math.max(1, 0.12 * mm);
+    ctx.strokeStyle = "rgba(13, 12, 11, 0.55)";
+    roundedRect(ctx, x, gateY, gateW, gateH, gateRadius);
+    ctx.stroke();
+    ctx.restore();
+  };
+  const main = photoCanvas(imageData, rotate);
+  const mainIndex = twoUp && halfPair.swap ? 1 : 0;
+  drawGate(main, gateX(mainIndex));
+  if (twoUp) drawGate(pair ? photoCanvas(pair, false) : null, gateX(1 - mainIndex));
 
   // Perforations du 35 mm : pas de 4,75 mm, 2,8 × 2 mm, à 2 mm du bord.
   if (f.perfs) {
@@ -181,11 +225,12 @@ function composeFilmEdge(imageData, look, info, pair) {
   // Marquages : entre le bord du film et les perforations (35 mm), ou dans la marge du 120.
   const isMono = look && look.film && filmByKey.get(look.film).shelf === "bw";
   ctx.fillStyle = isMono ? EDGE_COLORS.printMono : EDGE_COLORS.print;
+  ctx.globalAlpha = 0.82; // marquage latent : présent mais discret
   const band = f.perfs ? 2 * mm : ((f.film - f.across) / 2) * mm;
-  const textSize = Math.min(band * 0.62, 1.35 * mm);
+  const textSize = Math.min(band * 0.5, 1.05 * mm);
   const topY = band / 2;
   const bottomY = stripH - band / 2;
-  const label = edgeLabel(look, info);
+  const label = edgeLabel(look);
   const firstX = gateX(0);
   const endX = gateX(frames - 1) + gateW;
   if (label) drawEdgeText(ctx, label, firstX + 1.5 * mm, topY, textSize, "left", (endX - firstX) * 0.6);
@@ -201,14 +246,7 @@ function composeFilmEdge(imageData, look, info, pair) {
     drawEdgeText(ctx, `◂ ${n}`, endX - 3 * mm, topY, textSize, "right");
   }
   if (f.perfs) drawEdgeBars(ctx, firstX + gateW * 0.68, bottomY - textSize * 0.42, textSize * 0.84, mm, label || String(n));
-  // Signature imprimée en bordure : sur la ligne du nom en 35 mm (à droite si le nom occupe la gauche),
-  // sur l'autre marge en 120.
-  const sig = signatureName.trim();
-  if (sig) {
-    const position = f.perfs && label && signaturePosition !== "right" ? "right" : signaturePosition;
-    const sx = position === "left" ? firstX + 1.5 * mm : position === "center" ? (firstX + endX) / 2 : endX - 1.5 * mm;
-    drawEdgeText(ctx, `© ${sig.toUpperCase()}`, sx, f.perfs ? topY : bottomY, textSize * 0.9, position, gateW * 0.35);
-  }
+  ctx.globalAlpha = 1;
 
   // Redresse la bande quand la photo a été couchée.
   let canvas = strip;

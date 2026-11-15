@@ -408,6 +408,18 @@ const I18N_EN = new Map(Object.entries({
   "Tout est désactivé par défaut et visible dans l’aperçu comme dans la photo exportée. Le dos dateur imprime la date de prise de vue (EXIF) en chiffres orange.":
     "Everything is off by default and shows in the preview and the exported photo. The date back prints the capture date (EXIF) in orange digits.",
   "Cadre & effets": "Frame & effects",
+  "Tirage": "Print",
+  "Scan de négatif": "Negative scan",
+  "Papier": "Paper",
+  "Papier du tirage": "Print paper",
+  "Légende": "Caption",
+  "Lieu, date ou ton nom": "Place, date or your name",
+  "Texte": "Text",
+  "Style de la légende": "Caption style",
+  "Taille de la légende": "Caption size",
+  "Position de la légende": "Caption position",
+  "La photo est recadrée au format de la vue ; fais-la glisser pour choisir le cadrage. Le marquage en bordure reprend la pellicule du look. En demi-format, « Deux vues » met deux photos sur une même vue 24×36.":
+    "The photo is cropped to the frame format; drag it to choose the crop. The edge marking follows the look’s film stock. In half frame, “Two frames” puts two photos on one 24×36 frame.",
   "0,0 IL": "0.0 EV",
   "0.0 IL": "0.0 EV",
 
