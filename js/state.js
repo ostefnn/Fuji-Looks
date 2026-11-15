@@ -61,8 +61,12 @@ const ZOOM_STEP = 1.5;
 const THUMB_W = 240;
 const THUMB_H = 180;
 const THUMB_ZOOM = 0.55;
-// Limite de surface des canvas sur iOS Safari (~16,7 Mpx).
-const EXPORT_MAX_PIXELS = 16000000;
+// Surface maximale d'un export. iOS Safari refuse les canvas de plus de ~16,7 Mpx ;
+// Android garde de la marge mémoire ; un ordinateur exporte jusqu'à 105 Mpx (GFX 100).
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const IS_ANDROID = /Android/i.test(navigator.userAgent);
+const SAFE_EXPORT_PIXELS = 16000000;
+const EXPORT_MAX_PIXELS = IS_IOS ? SAFE_EXPORT_PIXELS : IS_ANDROID ? 52000000 : 105000000;
 
 // Format du négatif (js/films.js, FILM_FORMATS) : échelle du grain et du halo, et bande de film du cadre.
 let filmFormat = "135";

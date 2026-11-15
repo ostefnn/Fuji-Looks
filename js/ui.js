@@ -90,6 +90,7 @@ document.addEventListener("click", (event) => {
 
 function openDialog(id, sectionId) {
   const dialog = document.getElementById(id);
+  if (id === "exportDialog" && typeof updateExportSizeLabel === "function") updateExportSizeLabel();
   if (!dialog.open) dialog.showModal();
   const section = sectionId && document.getElementById(sectionId);
   if (section) requestAnimationFrame(() => section.scrollIntoView({ block: "start" }));
