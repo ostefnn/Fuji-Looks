@@ -1,4 +1,4 @@
-/* Fuji Looks — Écran « prêt » : enregistrer dans Photos (iPhone / Android) ou télécharger. */
+/* Dialed — Écran « prêt » : enregistrer dans Photos (iPhone / Android) ou télécharger. */
 
 const resultDialog = document.getElementById("resultDialog");
 const resultTitle = document.getElementById("resultTitle");

@@ -1,4 +1,4 @@
-/* Fuji Looks — Import de recette : texte, code ou lien de partage, fichiers, capture d'écran (OCR). */
+/* Dialed — Import de recette : texte, code ou lien de partage, fichiers, capture d'écran (OCR). */
 // --- Import de recette -----------------------------------------------------
 
 function setImportStatus(message, isError = false) {

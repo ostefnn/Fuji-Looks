@@ -1,4 +1,4 @@
-/* Fuji Looks — Mon boîtier : préparer les 7 réglages personnalisés C1–C7. */
+/* Dialed — Mon boîtier : préparer les 7 réglages personnalisés C1–C7. */
 
 const SLOTS_KEY = "fuji-looks.slots";
 const SLOT_COUNT = 7;
@@ -97,58 +97,60 @@ function renderSlots() {
   });
 }
 
-// Fiche image des 7 emplacements, à garder sous les yeux en réglant le boîtier.
+// Fiche image des 7 emplacements, à garder sur le téléphone en réglant le boîtier :
+// format de l'écran (9:16), fond clair et gros caractères pour rester lisible en plein soleil.
 function buildSlotsCard() {
   const W = 1080;
-  const H = 1350;
+  const H = 1920;
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d");
   const font = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-  const pad = 64;
-  ctx.fillStyle = "#111214";
+  const pad = 56;
+  const ink = "#111111";
+  const red = "#c8322a";
+  ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = "#e45b52";
-  ctx.font = `700 22px ${font}`;
-  ctx.fillText("MES RÉGLAGES PERSONNALISÉS", pad, 92);
-  ctx.fillStyle = "#f4f4f0";
-  ctx.font = `700 50px ${font}`;
+  ctx.fillStyle = red;
+  ctx.font = `800 30px ${font}`;
+  ctx.fillText("MES RÉGLAGES PERSONNALISÉS", pad, 100);
+  ctx.fillStyle = ink;
+  ctx.font = `800 64px ${font}`;
   const camera = CAMERAS.get(cameraId);
-  ctx.fillText(camera ? `${camera.name} · C1–C7` : "C1–C7", pad, 150);
+  ctx.fillText(camera ? `${camera.name} · C1–C7` : "C1–C7", pad, 176, W - pad * 2);
 
-  const top = 200;
-  const rowH = (H - top - 70) / SLOT_COUNT;
+  const top = 230;
+  const rowH = (H - top - 80) / SLOT_COUNT;
+  const textX = pad + 128;
+  const textW = W - textX - pad;
   slots.forEach((slot, i) => {
     const y = top + i * rowH;
-    ctx.fillStyle = "rgba(255,255,255,.08)";
-    ctx.fillRect(pad, y, W - pad * 2, 1);
-    ctx.fillStyle = "#e45b52";
-    ctx.font = `700 40px ${font}`;
-    ctx.fillText(`C${i + 1}`, pad, y + 58);
+    ctx.fillStyle = "#d0d0d0";
+    ctx.fillRect(pad, y, W - pad * 2, 2);
+    ctx.fillStyle = red;
+    ctx.font = `800 56px ${font}`;
+    ctx.fillText(`C${i + 1}`, pad, y + 70);
     if (!slot) {
-      ctx.fillStyle = "#5f656d";
-      ctx.font = `500 26px ${font}`;
-      ctx.fillText("Vide", pad + 110, y + 56);
+      ctx.fillStyle = "#8a8a8a";
+      ctx.font = `600 34px ${font}`;
+      ctx.fillText("Vide", textX, y + 66);
       return;
     }
-    ctx.fillStyle = "#f4f4f0";
-    ctx.font = `700 30px ${font}`;
-    ctx.fillText(slot.recipe.name || "Recette", pad + 110, y + 50, W - pad * 2 - 420);
-    ctx.fillStyle = "#a3a8b0";
-    ctx.font = `600 20px ${font}`;
-    ctx.textAlign = "right";
-    ctx.fillText(FR.simById(slot.recipe.filmSim).name.toUpperCase(), W - pad, y + 50, 300);
-    ctx.textAlign = "left";
-    ctx.font = `400 19px ${font}`;
-    ctx.fillStyle = "#c9cdd3";
-    const lines = wrapTokens(ctx, frameTokens(slot.recipe), W - pad * 2 - 110).slice(0, 3);
-    lines.forEach((line, j) => ctx.fillText(line, pad + 110, y + 82 + j * 25));
+    ctx.fillStyle = ink;
+    ctx.font = `800 40px ${font}`;
+    ctx.fillText(slot.recipe.name || "Recette", textX, y + 64, textW);
+    // La simulation d'abord, puis tous les réglages, en gros et en noir.
+    ctx.font = `600 28px ${font}`;
+    ctx.fillStyle = "#222222";
+    const tokens = [FR.simById(slot.recipe.filmSim).name, ...frameTokens(slot.recipe)];
+    const lines = wrapTokens(ctx, tokens, textW).slice(0, 5);
+    lines.forEach((line, j) => ctx.fillText(line, textX, y + 112 + j * 34, textW));
   });
-  ctx.fillStyle = "#5f656d";
-  ctx.font = `500 18px ${font}`;
+  ctx.fillStyle = "#8a8a8a";
+  ctx.font = `600 24px ${font}`;
   ctx.textAlign = "right";
-  ctx.fillText("FUJI LOOKS", W - pad, H - 32);
+  ctx.fillText("DIALED", W - pad, H - 36);
   ctx.textAlign = "left";
   return canvas;
 }
@@ -159,7 +161,7 @@ document.getElementById("slotsCardButton").addEventListener("click", () => {
     return;
   }
   buildSlotsCard().toBlob((blob) => {
-    if (blob) presentResult(new File([blob], "fuji-looks-c1-c7.png", { type: "image/png" }),
+    if (blob) presentResult(new File([blob], "dialed-c1-c7.png", { type: "image/png" }),
       { title: "Fiche C1–C7 prête", savedMessage: "Fiche C1–C7 enregistrée." });
   }, "image/png");
 });

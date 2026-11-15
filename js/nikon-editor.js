@@ -1,4 +1,4 @@
-/* Fuji Looks — Picture Controls Nikon : onglet « Nikon » (fichiers .NP3 importés, gardés sur l'appareil),
+/* Dialed — Picture Controls Nikon : onglet « Nikon » (fichiers .NP3 importés, gardés sur l'appareil),
  * panneau de réglages et exports (.NP3, LUT 3D). Le rendu est dans js/nikon.js. */
 
 const NIKON_KEY = "fuji-looks.nikon.v1";

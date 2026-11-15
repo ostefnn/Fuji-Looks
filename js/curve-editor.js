@@ -1,4 +1,4 @@
-/* Fuji Looks — Éditeur de courbe de tons : des points à déplacer sur un carré, comme dans Lightroom
+/* Dialed — Éditeur de courbe de tons : des points à déplacer sur un carré, comme dans Lightroom
  * ou NX Studio. Utilisé par la retouche (courbes RVB, R, V, B) et par les Picture Controls Nikon.
  *
  *   createCurveEditor({ id, label, channels, onChange(points, channel), onReset(channel) })

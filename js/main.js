@@ -1,4 +1,4 @@
-/* Fuji Looks — Démarrage de l'application. */
+/* Dialed — Démarrage de l'application. */
 // --- Démarrage ---------------------------------------------------------------
 
 function restoreDraft() {
@@ -18,6 +18,8 @@ addNikonCatalogLooks();
 syncNikonLooks();
 restoreDraft();
 buildCameraSelect();
+applyCameraSensorFilter();
+setupCameraPrompt();
 renderSlots();
 updateFp1Status();
 updateEditControls();
@@ -29,10 +31,22 @@ updateRecipeEditor();
 // Pellicule retrouvée dans le brouillon : ses couleurs sont chargées tout de suite.
 // Sinon, on les charge quand le navigateur est libre, pour que l'onglet Pellicules soit prêt.
 if (currentFilm) ensureFilmLuts();
-else (window.requestIdleCallback || ((fn) => setTimeout(fn, 1500)))(() => ensureFilmLuts());
+// Économiseur de données ou réseau lent : rien n'est préchargé (environ 600 Ko).
+else if (!navigator.connection?.saveData && !/(^|-)[23]g$/.test(navigator.connection?.effectiveType || "")) {
+  (window.requestIdleCallback || ((fn) => setTimeout(fn, 1500)))(() => ensureFilmLuts());
+}
 
 importFromHash();
-renderThumbnails(drawSampleScene(), 900, 600);
+// Vignettes sur la photo du pont tant qu'aucune photo n'est importée.
+loadSamplePhoto("ref")
+  .then((img) => {
+    refThumbData = null;
+    if (!originalImage) renderThumbnails(img, img.naturalWidth, img.naturalHeight);
+    else refreshFilmThumbs();
+  })
+  .catch(() => {
+    if (!originalImage) renderThumbnails(drawSampleScene(), 900, 600);
+  });
 updatePreview();
 
 // Application installable et utilisable hors connexion (pas en file://).
@@ -59,5 +73,5 @@ installButton.addEventListener("click", async () => {
 });
 window.addEventListener("appinstalled", () => {
   installButton.hidden = true;
-  showStatus("Fuji Looks est installée.");
+  showStatus("Dialed est installée.");
 });

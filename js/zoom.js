@@ -1,4 +1,4 @@
-/* Fuji Looks — Zoom et déplacement de l'aperçu. */
+/* Dialed — Zoom et déplacement de l'aperçu. */
 // --- Zoom et déplacement de l'aperçu -------------------------------------
 
 function fitScale() {

@@ -1,4 +1,4 @@
-/* Fuji Looks — Panneau « Pellicule » : développement et texture du film choisi. */
+/* Dialed — Panneau « Pellicule » : développement et texture du film choisi. */
 
 const recipePanel = document.getElementById("recipePanel");
 const filmPanel = document.getElementById("filmPanel");
@@ -109,8 +109,8 @@ function updateFilmEditor() {
   filmMeta.textContent = `ISO ${film.iso} · ${film.process} · ${shelf.kindLabel}`;
   filmTag.textContent = `« ${film.tag} »`;
   filmSource.textContent = FILM_MODELS[film.key]
-    ? "Couleur : modèle paramétrique Fuji Looks (pas de LUT pour ce film). Grain, halation, douceur, développement et tirage : modèle Fuji Looks."
-    : "Couleur : LUT de la collection Film-Luts (MIT). Grain, halation, douceur, développement et tirage : modèle Fuji Looks.";
+    ? "Couleur : modèle paramétrique Dialed (pas de LUT pour ce film). Grain, halation, douceur, développement et tirage : modèle Dialed."
+    : "Couleur : LUT de la collection Film-Luts (MIT). Grain, halation, douceur, développement et tirage : modèle Dialed.";
   FILM_SLIDERS.forEach(({ key, input, output, format }) => {
     input.value = currentFilm[key];
     output.textContent = format(Number(currentFilm[key]));

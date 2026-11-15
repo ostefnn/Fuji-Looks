@@ -111,7 +111,7 @@ def main():
     data = base64.b64encode(bytes(out)).decode()
     target = pathlib.Path(__file__).resolve().parent.parent / "js" / "film-luts-data.js"
     target.write_text(
-        "/* Fuji Looks — Couleurs des pellicules : LUT 3D 13³ de la collection Film-Luts\n"
+        "/* Dialed — Couleurs des pellicules : LUT 3D 13³ de la collection Film-Luts\n"
         " * (https://github.com/YahiaAngelo/Film-Luts, MIT, voir vendor/THIRD-PARTY-NOTICES.md).\n"
         " * Généré par tools/build-film-luts.py : ne pas modifier à la main. */\n"
         f"self.FILM_LUTS = {{ n: {N}, keys: [{keys}],\n  data: \"{data}\" }};\n"

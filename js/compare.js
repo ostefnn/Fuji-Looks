@@ -1,4 +1,4 @@
-/* Fuji Looks — Comparer la recette en cours avec une autre : seuls les réglages qui changent. */
+/* Dialed — Comparer la recette en cours avec une autre : seuls les réglages qui changent. */
 
 const comparePanel = document.getElementById("comparePanel");
 const compareSelect = document.getElementById("compareSelect");

@@ -1,8 +1,8 @@
-/* Fuji Looks — Picture Controls Nikon (.NP3) : réglages et rendu, partagés par la page et le worker d'export.
+/* Dialed — Picture Controls Nikon (.NP3) : réglages et rendu, partagés par la page et le worker d'export.
  *
  * Un Picture Control « Flexible Color » se compose de curseurs de tons (ou d'une courbe), d'une
  * saturation, d'un mélangeur de couleurs (8 teintes : teinte, intensité, luminosité), d'un étalonnage
- * (ombres, tons moyens, hautes lumières) et de la clarté. Fuji Looks les applique à la photo déjà
+ * (ombres, tons moyens, hautes lumières) et de la clarté. Dialed les applique à la photo déjà
  * développée (JPEG, HEIC) : le rendu s'approche de celui du boîtier ou de NX Studio sans le reproduire
  * exactement. La netteté n'est pas simulée.
  *
@@ -87,7 +87,7 @@ function normalizeNikon(input = {}) {
   return spec;
 }
 
-// Fichier .NP3 lu par NP3.deserialize -> réglages Fuji Looks.
+// Fichier .NP3 lu par NP3.deserialize -> réglages Dialed.
 function nikonFromNp3(pc, fallbackName = "") {
   return normalizeNikon({
     name: pc.name || fallbackName,
@@ -109,7 +109,7 @@ function nikonFromNp3(pc, fallbackName = "") {
   });
 }
 
-// Réglages Fuji Looks -> options de NP3.serialize. Le fichier écrit est toujours un Flexible Color :
+// Réglages Dialed -> options de NP3.serialize. Le fichier écrit est toujours un Flexible Color :
 // une base Monochrome est rendue en noir et blanc par le mélangeur (intensité −100 sur les 8 couleurs).
 function nikonToNp3Options(spec) {
   const mono = nikonBaseKind(spec.baseCode) === "mono";
@@ -403,7 +403,7 @@ function renderNikon(src, spec, strength) {
 // LUT 3D au format .cube (couleur et tons, sans la clarté).
 function nikonCubeText(spec, size = 33) {
   const lut = nikonLut(spec, size);
-  const lines = [`TITLE "${String(spec.name).replace(/"/g, "'")}"`, "# Picture Control Nikon, rendu Fuji Looks", `LUT_3D_SIZE ${size}`, ""];
+  const lines = [`TITLE "${String(spec.name).replace(/"/g, "'")}"`, "# Picture Control Nikon, rendu Dialed", `LUT_3D_SIZE ${size}`, ""];
   for (let i = 0; i < lut.length; i += 3) lines.push(`${lut[i].toFixed(6)} ${lut[i + 1].toFixed(6)} ${lut[i + 2].toFixed(6)}`);
   return `${lines.join("\n")}\n`;
 }

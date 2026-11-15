@@ -1,4 +1,4 @@
-/* Fuji Looks — Retouches de base : format et cadrage, rotation, redressement, lumière, balance des blancs de la photo. */
+/* Dialed — Retouches de base : format et cadrage, rotation, redressement, lumière, balance des blancs de la photo. */
 
 const RATIOS = { original: null, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "16:9": 16 / 9, "9:16": 9 / 16 };
 // cropX / cropY : position du cadrage dans la marge disponible, de -1 (gauche / haut) à 1 (droite / bas).
@@ -417,7 +417,8 @@ function updateEditControls() {
   shadowsInput.value = edit.shadows;
   shadowsValue.textContent = `${edit.shadows > 0 ? "+" : ""}${edit.shadows}`;
   editResetButton.disabled = !hasEdits();
-  editMeta.hidden = !hasEdits();
+  editMeta.hidden = isIdentityEdit(); // la halation est signalée sur « Cadre & effets »
+  updateFrameMeta();
 }
 
 function setEdit(changes, historyKey = null) {

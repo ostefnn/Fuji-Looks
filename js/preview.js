@@ -1,4 +1,4 @@
-/* Fuji Looks — Aperçu de la photo et sélection des looks. */
+/* Dialed — Aperçu de la photo et sélection des looks. */
 // --- Aperçu --------------------------------------------------------------
 
 function schedulePreview() {

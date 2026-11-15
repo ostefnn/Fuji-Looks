@@ -1,4 +1,4 @@
-/* Fuji Looks — Histogramme de l'aperçu (après recette et retouche, sans le cadre). */
+/* Dialed — Histogramme de l'aperçu (après recette et retouche, sans le cadre). */
 
 const HISTO_KEY = "fuji-looks.histogram";
 const HISTO_W = 256;

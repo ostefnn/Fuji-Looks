@@ -1,13 +1,13 @@
-/* Fuji Looks — Éditeur de recette : réglages Fujifilm, brouillon. */
+/* Dialed — Éditeur de recette : réglages Fujifilm, brouillon. */
 // --- Éditeur de recette --------------------------------------------------
 
 const fieldRows = [];
 
-// Les réglages, regroupés comme sur le boîtier. Détail et Prise de vue se replient en résumé.
+// Les réglages, regroupés comme sur le boîtier. Couleur, Détail et Prise de vue se replient en résumé.
 const FIELD_GROUPS = [
   { title: "Base", keys: ["filmSim", "dynamicRange"] },
   { title: "Tonalité", keys: ["highlight", "shadow"] },
-  { title: "Couleur", keys: ["whiteBalance", "kelvin", "wbShiftRed", "wbShiftBlue", "color", "monoWC", "monoMG", "colorChromeEffect", "colorChromeFxBlue"] },
+  { title: "Couleur", fold: true, keys: ["whiteBalance", "kelvin", "wbShiftRed", "wbShiftBlue", "color", "monoWC", "monoMG", "colorChromeEffect", "colorChromeFxBlue"] },
   { title: "Détail", fold: true, keys: ["grainEffect", "grainSize", "sharpness", "noiseReduction", "clarity"] },
   { title: "Prise de vue", fold: true, keys: ["iso", "exposureComp", "camera"] }
 ];
@@ -33,7 +33,9 @@ function buildFieldRow(field) {
 
   const label = document.createElement("label");
   label.htmlFor = `f-${field.key}`;
-  label.textContent = field.label + (field.unit ? ` (${field.unit})` : "");
+  // Libellés du convertisseur corrigés : orthographe des menus Fujifilm (« Color »).
+  const fieldLabel = { kelvin: "Color Temperature" }[field.key] || field.label;
+  label.textContent = fieldLabel + (field.unit ? ` (${field.unit})` : "");
   row.appendChild(label);
 
   let control;

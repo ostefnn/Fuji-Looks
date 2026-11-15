@@ -1,4 +1,4 @@
-/* Fuji Looks — Catalogue de 340 recettes (réglages seulement).
+/* Dialed — Catalogue de 340 recettes (réglages seulement).
  * Source : instantané de la bibliothèque Kata (parth181195/kata, MIT, commit 0c47ee2),
  * elle-même tirée de Fuji X Weekly. Chaque recette garde le lien vers son article d'origine :
  * les textes et les photos restent sur fujixweekly.com. Soutiens l'auteur (App Patron).

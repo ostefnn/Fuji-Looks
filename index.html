@@ -12,17 +12,17 @@
     } catch {}
   </script>
   <meta name="description" content="Applique des recettes Fujifilm et des pellicules argentiques à tes photos, directement dans ton navigateur.">
-  <title>Fuji Looks — Photo Studio</title>
+  <title>Dialed — find your camera recipe</title>
   <!-- Aperçu des liens partagés (messageries, réseaux) -->
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Fuji Looks">
-  <meta property="og:title" content="Fuji Looks — recettes Fujifilm et pellicules argentiques">
+  <meta property="og:site_name" content="Dialed">
+  <meta property="og:title" content="Dialed — recettes Fujifilm et pellicules argentiques">
   <meta property="og:description" content="Applique des recettes Fujifilm et 72 pellicules argentiques à tes photos, directement dans ton navigateur. Rien n’est envoyé en ligne.">
   <meta property="og:url" content="https://ostefnn.github.io/Fuji-Looks/">
   <meta property="og:image" content="https://ostefnn.github.io/Fuji-Looks/docs/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Fuji Looks : une photo sur une bande de film Kodak Portra 400">
+  <meta property="og:image:alt" content="Dialed : une rue de San Francisco avec la recette Kodak Gold 200">
   <meta property="og:locale" content="fr_FR">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="manifest" href="manifest.webmanifest">
@@ -31,7 +31,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Fuji Looks">
+  <meta name="apple-mobile-web-app-title" content="Dialed">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-pane="looks">
@@ -57,9 +57,9 @@
   </svg>
 
   <header class="topbar">
-    <a class="brand" href="./" aria-label="Fuji Looks, accueil">
-      <span class="brand-mark" aria-hidden="true">F.</span>
-      <span class="brand-name">Fuji Looks</span>
+    <a class="brand" href="./" aria-label="Dialed, accueil">
+      <span class="brand-mark" aria-hidden="true">D.</span>
+      <span class="brand-name">Dialed</span>
     </a>
     <span class="topbar-sep" aria-hidden="true"></span>
     <button type="button" class="btn btn-ghost camera-button" id="cameraButton" aria-haspopup="dialog">
@@ -92,8 +92,16 @@
               <button type="button" class="chip" data-theme-choice="dark" aria-pressed="false">Sombre</button>
             </div>
           </div>
+          <div class="menu-theme">
+            <span id="langLabel">Langue</span>
+            <div class="pill-row" id="langOptions" role="group" aria-labelledby="langLabel">
+              <button type="button" class="chip" data-lang-choice="fr" aria-pressed="false" lang="fr">Français</button>
+              <button type="button" class="chip" data-lang-choice="en" aria-pressed="false" lang="en">English</button>
+            </div>
+          </div>
           <div class="menu-sep" role="separator"></div>
           <button type="button" class="menu-item" role="menuitem" id="installButton" hidden>Installer l’application</button>
+          <a class="menu-item" role="menuitem" href="https://github.com/ostefnn/Fuji-Looks/issues/new" target="_blank" rel="noopener">Donner mon avis ↗</a>
           <a class="menu-item" role="menuitem" href="https://github.com/ostefnn/Fuji-Looks" target="_blank" rel="noopener">À propos et crédits ↗</a>
         </div>
       </div>
@@ -139,7 +147,7 @@
     </div>
   </header>
 
-  <h1 class="visually-hidden">Fuji Looks : recettes Fujifilm et pellicules argentiques pour tes photos</h1>
+  <h1 class="visually-hidden">Dialed : recettes Fujifilm et pellicules argentiques pour tes photos</h1>
 
   <main class="workspace">
     <!-- Gauche : choisir un look -->
@@ -151,6 +159,16 @@
         <button type="button" class="btn btn-ghost btn-sm" data-open="importDialog" aria-label="Importer une recette (texte, code FR1, .FP1, .json, capture)">
           <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg> Importer
         </button>
+      </div>
+      <div class="camera-prompt" id="cameraPrompt" hidden>
+        <div class="camera-prompt-text">
+          <strong>Quel boîtier utilises-tu ?</strong>
+          <span>Le catalogue ne montrera que les recettes faites pour ton capteur.</span>
+        </div>
+        <div class="camera-prompt-row">
+          <select id="cameraPromptSelect" class="select select-sm" aria-label="Mon boîtier"></select>
+          <button type="button" class="btn btn-ghost btn-sm" id="cameraPromptLater">Plus tard</button>
+        </div>
       </div>
       <label class="search">
         <span class="visually-hidden">Rechercher un look</span>
@@ -234,9 +252,25 @@
           <span class="placeholder-icon" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg></span>
           <strong>Glisse une photo ici</strong>
           <span>ou touche pour en choisir une ou plusieurs (JPEG, PNG, HEIC…)</span>
-          <span class="placeholder-steps">Choisis à gauche, vois au centre, règle à droite.</span>
+          <span class="placeholder-steps">Choisis un look à gauche, règle-le à droite.</span>
         </label>
-        <button type="button" class="btn btn-secondary sample-button" id="sampleButton">Essayer avec l’image d’exemple</button>
+        <div class="sample-picker" id="sampleButton" role="group" aria-label="Photos d’exemple">
+          <span class="sample-title">Pas de photo sous la main ?</span>
+          <div class="sample-row">
+            <button type="button" class="sample-option" data-sample="bridge">
+              <img src="samples/bridge-thumb.jpg" alt="" width="36" height="36" loading="lazy">
+              <span>Pont</span>
+            </button>
+            <button type="button" class="sample-option" data-sample="pond">
+              <img src="samples/pond-thumb.jpg" alt="" width="36" height="36" loading="lazy">
+              <span>Étang</span>
+            </button>
+            <button type="button" class="sample-option" data-sample="street">
+              <img src="samples/street-thumb.jpg" alt="" width="36" height="36" loading="lazy">
+              <span>Rue · soir</span>
+            </button>
+          </div>
+        </div>
         <canvas id="photoPreview" role="img" aria-label="Aperçu de ta photo" hidden></canvas>
         <div class="drop-overlay" aria-hidden="true">Dépose ta photo ici</div>
         <span class="photo-label" id="photoLabel" hidden>ORIGINAL</span>
@@ -282,7 +316,7 @@
       <div class="inspector-tabs" role="tablist" aria-label="Panneau de réglages">
         <button type="button" role="tab" id="tabRecipe" aria-controls="recipePanel" aria-selected="true">Recette</button>
         <button type="button" role="tab" id="tabEdit" aria-controls="editSection" aria-selected="false">Retouche <span class="tab-dot" id="editMeta"></span></button>
-        <button type="button" role="tab" id="tabFrame" aria-controls="framePanel" aria-selected="false">Cadre <span class="tab-dot" id="frameMeta"></span></button>
+        <button type="button" role="tab" id="tabFrame" aria-controls="framePanel" aria-selected="false">Cadre &amp; effets <span class="tab-dot" id="frameMeta"></span></button>
       </div>
 
       <!-- RECETTE -->
@@ -670,15 +704,7 @@
           </div>
         </section>
 
-        <section class="group">
-          <h3>Effet pellicule</h3>
-          <div class="row">
-            <label for="halationEdit">Halation</label>
-            <input type="range" id="halationEdit" class="range-uni range-halation" min="0" max="100" step="1" value="0">
-            <output id="halationEditValue" for="halationEdit">0</output>
-          </div>
-        </section>
-        <p class="hint">Double-clic sur un curseur : remise à zéro. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue avant la recette. La halation ajoute le halo rouge des pellicules sans couche anti-halo autour des zones les plus claires ; elle s’ajoute à celle d’une pellicule.</p>
+        <p class="hint">Double-clic sur un curseur : remise à zéro. Hautes lumières et Ombres agissent par zones ; Blancs et Noirs calent les extrémités de l’histogramme. La balance des blancs corrige l’éclairage de la prise de vue avant la recette.</p>
       </section>
 
       <!-- CADRE -->
@@ -790,7 +816,16 @@
             <input type="date" id="dateBackInput" class="input" hidden aria-label="Date à imprimer">
           </div>
         </section>
-        <p class="hint">Visible dans l’aperçu et dans la photo exportée. Le dos dateur imprime la date en chiffres orange dans la photo, comme les compacts argentiques : la date de prise de vue (EXIF), ou aujourd’hui à défaut. Rien n’est ajouté par défaut : choisis les infos à afficher, et écris ton nom pour ajouter une signature.</p>
+        <section class="group">
+          <h3>Effet pellicule</h3>
+          <p class="hint">Halo rouge des pellicules sans couche anti-halo, autour des zones claires.</p>
+          <div class="row">
+            <label for="halationEdit">Halation</label>
+            <input type="range" id="halationEdit" class="range-uni range-halation" min="0" max="100" step="1" value="0">
+            <output id="halationEditValue" for="halationEdit">0</output>
+          </div>
+        </section>
+        <p class="hint">Tout est désactivé par défaut et visible dans l’aperçu comme dans la photo exportée. Le dos dateur imprime la date de prise de vue (EXIF) en chiffres orange.</p>
       </section>
     </aside>
   </main>
@@ -799,7 +834,6 @@
     <button type="button" data-pane="looks" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>Looks</button>
     <button type="button" data-pane="recipe"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg><span id="navRecipeLabel">Recette</span></button>
     <button type="button" data-pane="edit"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg>Retouche</button>
-    <button type="button" data-open="exportDialog"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg>Partager</button>
   </nav>
 
   <!-- Exporter et partager -->
@@ -906,7 +940,7 @@
         <label class="field"><span>Modèle</span><select id="cameraSelect" class="select"></select></label>
         <p class="hint">Les recettes impossibles sur ce boîtier sont signalées dans les looks et dans « Recette ».</p>
       </section>
-      <section class="group">
+      <section class="group" data-fuji-only>
         <h3>Réglages perso C1–C7</h3>
         <p class="hint">Range tes recettes dans les 7 emplacements, puis garde la fiche ou exporte les .FP1.</p>
         <ol class="slot-list" id="slotList"></ol>
@@ -915,7 +949,7 @@
           <button type="button" class="btn btn-secondary btn-sm" id="slotsFp1Button">Exporter les .FP1</button>
         </div>
       </section>
-      <section class="group" id="fp1Section">
+      <section class="group" id="fp1Section" data-fuji-only>
         <h3>Profil X RAW Studio (.FP1)</h3>
         <p class="hint" id="fp1Status"></p>
         <div class="btn-row">
@@ -923,7 +957,7 @@
           <input id="fp1TemplateFile" type="file" accept=".fp1,.FP1,.xml,application/xml" hidden>
           <button type="button" class="btn btn-secondary btn-sm" id="fp1Button" disabled>Profil .FP1 de la recette</button>
         </div>
-        <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Fuji Looks reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
+        <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Dialed reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
       </section>
     </div>
   </dialog>
@@ -994,11 +1028,11 @@
 
   <p id="statusMessage" class="toast" role="status" aria-live="polite"></p>
 
+  <script src="js/i18n.js"></script>
   <script src="vendor/fuji-recipe-converter/data.js"></script>
   <script src="vendor/fuji-recipe-converter/engine.js"></script>
   <script src="vendor/fuji-recipe-converter/export.js"></script>
   <script src="vendor/fuji-recipe-converter/parser.js"></script>
-  <script src="vendor/qrcode/qrcode.js"></script>
   <script src="custom-recipes.js"></script>
   <script src="js/kata-catalog.js"></script>
   <script src="vendor/nikon-np3/np3.js"></script>

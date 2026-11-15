@@ -1,4 +1,4 @@
-/* Fuji Looks — Courbes de tons : interpolation et tables, partagées par la page et le worker d'export.
+/* Dialed — Courbes de tons : interpolation et tables, partagées par la page et le worker d'export.
  *
  * Une courbe est une liste de points [x, y] (0 à 255), triés par x. Entre les points, l'interpolation
  * est monotone (Fritsch-Carlson) : la courbe ne fait pas de bosse entre deux points proches. Avant le

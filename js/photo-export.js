@@ -1,4 +1,4 @@
-/* Fuji Looks — Export de la photo : rendu pleine résolution, partage ou téléchargement. */
+/* Dialed — Export de la photo : rendu pleine résolution, partage ou téléchargement. */
 // --- Export de la photo --------------------------------------------------
 
 // --- Calcul en arrière-plan (Web Worker) ------------------------------------
@@ -122,13 +122,40 @@ async function renderExportPixels(maxPixels, maxSide = Infinity) {
   return renderRecipe(buildEditedSource(maxSide, maxPixels), workRecipe, strength, sourceSize);
 }
 
+// Surface maximale de la photo : le cadre ajoute des pixels, on garde de la marge sous la limite.
+// Demi-format à deux vues : deux photos côte à côte, chacune deux fois plus petite.
+function exportPixelBudget(limit = EXPORT_MAX_PIXELS) {
+  return frameStyle === "none" ? limit : limit * (halfPairActive() ? 0.38 : 0.8);
+}
+
+// Dimensions de la photo exportée en « Pleine résolution » (recadrage compris, cadre non compris).
+function fullExportSize(limit = EXPORT_MAX_PIXELS) {
+  if (!originalSize) return null;
+  const g = usesGeometry() ? editGeometry(originalSize.w, originalSize.h) : originalSize;
+  const k = Math.min(1, Math.sqrt(exportPixelBudget(limit) / (g.w * g.h)));
+  return { w: Math.round(g.w * k), h: Math.round(g.h * k), full: k >= 0.999 };
+}
+
+// Le bouton « Pleine résolution » dit la taille réelle, et la réduction quand l'appareil l'impose.
+function updateExportSizeLabel() {
+  const button = exportSizeOptions.querySelector('[data-size="full"]');
+  const size = fullExportSize();
+  if (!size) {
+    button.textContent = "Pleine résolution";
+    button.title = "";
+    return;
+  }
+  const dims = `${size.w} × ${size.h}`;
+  button.textContent = size.full ? `Pleine résolution · ${dims}` : `Maximum · ${dims}`;
+  button.title = size.full ? "" : "Taille maximale que cet appareil peut calculer : la photo est légèrement réduite.";
+}
+
 // Photo en cours (originalImage, sourceSize, sourceExif) → JPEG final.
-async function renderExport() {
+// limit : surface maximale (réduite en second essai si l'appareil manque de mémoire).
+async function renderExport(limit = EXPORT_MAX_PIXELS) {
   if (!originalImage) throw new Error("Aucune photo sélectionnée.");
 
-  // Le cadre ajoute des pixels : on garde de la marge sous la limite des canvas iOS.
-  // Demi-format à deux vues : deux photos côte à côte, chacune deux fois plus petite.
-  const maxPixels = frameStyle === "none" ? EXPORT_MAX_PIXELS : EXPORT_MAX_PIXELS * (halfPairActive() ? 0.38 : 0.8);
+  const maxPixels = exportPixelBudget(limit);
   const look = activeRecipe();
   const out = applyDateBack(applyHalation(await renderExportPixels(maxPixels, exportPhotoSide()), halationFor(look), halationScaleFor(look)));
   const pair = frameStyle === "film" ? renderHalfPair(out, look, getStrength(), true) : null;
@@ -153,7 +180,7 @@ async function renderExport() {
 function exportFileName(suffix = "") {
   const name = applied ? (currentFilm ? currentFilm.name : currentNikon ? currentNikon.name : recipe.name) : "original";
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "photo";
-  return `fuji-looks-${slug}${suffix}.jpg`;
+  return `dialed-${slug}${suffix}.jpg`;
 }
 
 const EXPORT_LABEL = exportButton.innerHTML;
@@ -169,7 +196,17 @@ exportButton.addEventListener("click", async () => {
   try {
     // Laisser le navigateur afficher le message avant le calcul.
     await new Promise((r) => setTimeout(r, 30));
-    const blob = await renderExport();
+    let blob;
+    try {
+      blob = await renderExport();
+    } catch (error) {
+      // Mémoire insuffisante pour la pleine taille : second essai à la taille sûre, en le disant.
+      if (EXPORT_MAX_PIXELS <= SAFE_EXPORT_PIXELS || exportSize !== "full") throw error;
+      console.warn("Export pleine taille impossible, nouvel essai réduit.", error);
+      blob = await renderExport(SAFE_EXPORT_PIXELS);
+      const size = fullExportSize(SAFE_EXPORT_PIXELS);
+      showStatus(`Photo réduite à ${size.w} × ${size.h} : mémoire insuffisante sur cet appareil.`);
+    }
     file = new File([blob], exportFileName(), { type: "image/jpeg" });
   } catch (error) {
     showStatus("Export impossible. Essaie avec une photo plus petite.");

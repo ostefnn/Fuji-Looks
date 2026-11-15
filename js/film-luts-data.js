@@ -1,4 +1,4 @@
-/* Fuji Looks — Couleurs des pellicules : LUT 3D 13³ de la collection Film-Luts
+/* Dialed — Couleurs des pellicules : LUT 3D 13³ de la collection Film-Luts
  * (https://github.com/YahiaAngelo/Film-Luts, MIT, voir vendor/THIRD-PARTY-NOTICES.md).
  * Généré par tools/build-film-luts.py : ne pas modifier à la main. */
 self.FILM_LUTS = { n: 13, keys: ["portra400","ektar100","superia400","portra160","portra800","portra160nc","portra160vc","portra400nc","portra400vc","portra400uc","elite200","elite400","pro160c","pro400h","pro800z","reala100","superia100","superia200","superia800","superia1600","xtra800","vista200","ultra100","redscale100","velvia50","velvia100","provia100f","provia400f","provia400x","astia100f","sensia100","kodachrome25","kodachrome64","kodachrome200","e100gx","e100vs","elitechrome200","elitechrome400","extracolor100","precisa100","elite100xpro","superia200xpro","xproslide200","hp5","trix400","tmax100","tmax400","tmax3200","bw400cn","hie","delta100","delta400","delta3200","fp4","panf50","hps800","xp2","acros100","neopan1600","apx25","apx100","retro80s","retro100","ortho25","ir400","kodak2383","kodak2393","fuji3510","fuji3513"],

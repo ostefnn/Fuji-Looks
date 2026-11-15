@@ -1,4 +1,4 @@
-/* Fuji Looks — Bibliothèque de recettes enregistrées sur l'appareil. */
+/* Dialed — Bibliothèque de recettes enregistrées sur l'appareil. */
 // --- Bibliothèque ------------------------------------------------------------
 
 function refreshLibrary() {
@@ -109,12 +109,19 @@ libraryFile.addEventListener("change", async () => {
   }
 });
 
-sampleButton.addEventListener("click", () => {
-  sourceExif = null;
-  setSource(drawSampleScene(), 900, 600);
-  currentFileName = "image-exemple";
-  updateFileLabel();
-  showStatus("Image d’exemple chargée.");
+sampleButton.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-sample]");
+  if (!button) return;
+  const id = button.dataset.sample;
+  try {
+    const img = await loadSamplePhoto(id);
+    sourceExif = null;
+    setSource(img, img.naturalWidth, img.naturalHeight);
+    currentFileName = SAMPLE_PHOTOS[id].file;
+    updateFileLabel();
+  } catch {
+    showStatus("Photo d’exemple indisponible hors connexion.");
+  }
 });
 
 // Ajoute plusieurs recettes d'un coup (import Open Fuji Recipe), sans doublon. Renvoie le nombre ajouté.

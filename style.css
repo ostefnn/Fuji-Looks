@@ -1,10 +1,10 @@
-/* Fuji Looks — feuille de style.
+/* Dialed — feuille de style.
  * Design system : base 4 px, gris neutres (aucune teinte bleue : on juge des couleurs), un seul accent.
  * L'accent ne marque que la sélection, le focus, l'état « modifié » et l'action principale. */
 
 /* Police manuscrite des signatures (Great Vibes, SIL OFL 1.1, vendor/fonts). */
 @font-face {
-  font-family: "Fuji Looks Script";
+  font-family: "Dialed Script";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -13,7 +13,7 @@
 }
 
 @font-face {
-  font-family: "Fuji Looks Script";
+  font-family: "Dialed Script";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -800,6 +800,42 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.camera-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, var(--line-2));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--primary) 7%, var(--card));
+}
+
+.camera-prompt[hidden] {
+  display: none;
+}
+
+.camera-prompt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.camera-prompt-text span {
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.camera-prompt-row {
+  display: flex;
+  gap: 8px;
+}
+
+.camera-prompt-row .select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .look-filters {
   display: flex;
   flex-wrap: wrap;
@@ -940,6 +976,13 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.look-desc.look-mood {
+  display: -webkit-box;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .fav-button {
@@ -1110,11 +1153,64 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   font-size: 12px !important;
 }
 
-.sample-button {
+.photo-placeholder {
+  padding-bottom: 112px; /* place pour les photos d'exemple, sans chevauchement */
+}
+
+.sample-picker {
   position: absolute;
-  bottom: 24px;
+  bottom: 20px;
   left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 32px);
   transform: translateX(-50%);
+}
+
+.sample-picker[hidden] {
+  display: none;
+}
+
+.sample-title {
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.sample-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sample-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--surface-2, var(--surface));
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.sample-option:hover,
+.sample-option:focus-visible {
+  border-color: var(--primary);
+}
+
+.sample-option img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* Taille et position calculées en JS (ajusté au cadre par défaut, puis zoom / déplacement). */
@@ -1876,7 +1972,7 @@ body:not(.has-photo) .histogram-panel {
 }
 
 .sig-chip-script {
-  font-family: "Fuji Looks Script", "Snell Roundhand", cursive;
+  font-family: "Dialed Script", "Snell Roundhand", cursive;
   font-size: 18px;
   font-weight: 400;
 }
@@ -2387,6 +2483,27 @@ body:not(.has-photo) .histogram-panel {
     border-radius: 0;
   }
 
+  /* Écran vide : pas de « gauche / droite » sur mobile, et place pour les photos d'exemple. */
+  .photo-placeholder {
+    gap: 2px;
+    padding: 12px 16px 76px;
+  }
+
+  .photo-placeholder .placeholder-steps,
+  .sample-title {
+    display: none;
+  }
+
+  .placeholder-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 4px;
+  }
+
+  .sample-picker {
+    bottom: 14px;
+  }
+
   .intensity-bar {
     flex-wrap: nowrap;
     gap: 12px;
@@ -2441,7 +2558,7 @@ body:not(.has-photo) .histogram-panel {
     left: 0;
     z-index: 25;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     height: calc(64px + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
     border-top: 1px solid var(--line);
@@ -2993,4 +3110,166 @@ body.versions-comparing .compare-button {
   height: 5px;
   border-radius: 50%;
   background: var(--sel);
+}
+
+/* --- Téléphone : les looks en bande horizontale sous la photo ---------------------------
+   La photo reste grande, une rangée de looks défile au pouce (comme une pellicule) ;
+   le curseur d'intensité passe dans les volets de réglage, les versions restent sur ordinateur. */
+@media (max-width: 699px) {
+  .versions-bar {
+    display: none !important;
+  }
+
+  body[data-pane="looks"] .intensity-bar {
+    display: none;
+  }
+
+  body[data-pane="looks"] .looks-pane {
+    gap: 8px;
+    padding: 8px 0 12px;
+  }
+
+  body[data-pane="looks"] .looks-pane > :not(.look-strip) {
+    margin: 0 12px;
+  }
+
+  .looks-pane .pane-head,
+  .film-tools .hint {
+    display: none;
+  }
+
+  /* La bande de looks juste sous la photo ; onglets, filtres et recherche en dessous. */
+  body[data-pane="looks"] .look-strip {
+    order: -1;
+  }
+
+  .film-tools {
+    gap: 6px;
+  }
+
+  .look-tabs {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .look-tabs::-webkit-scrollbar,
+  .look-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .look-tabs > button {
+    flex: none;
+    padding-inline: 12px;
+  }
+
+  .look-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 104px;
+    gap: 6px;
+    padding: 0 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 12px;
+    scrollbar-width: none;
+  }
+
+  .look-grid > * {
+    scroll-snap-align: start;
+  }
+
+  .look-grid .look-empty {
+    grid-column: auto;
+    width: calc(100vw - 24px);
+  }
+
+  .look-name {
+    font-size: 12px;
+    padding-top: 6px;
+  }
+
+  .look-desc {
+    font-size: 10px;
+  }
+
+  .look-kind {
+    display: none;
+  }
+
+  /* Avec une photo, le reste de l'écran va à la photo. */
+  body.has-photo[data-pane="looks"] .photo-frame {
+    height: calc(100svh - 56px - 45px - 64px - 290px - env(safe-area-inset-bottom));
+    min-height: 220px;
+  }
+}
+
+/* Petits téléphones (iPhone SE) : la barre du haut tient sur une ligne. */
+@media (max-width: 380px) {
+  #cameraButtonName,
+  .file-label,
+  .camera-button > .icon-sm,
+  #undoButton {
+    display: none;
+  }
+
+  .stage-toolbar {
+    flex-wrap: nowrap;
+  }
+
+  .stage-title {
+    flex: 1 1 auto;
+  }
+
+  .stage-title .badge {
+    display: none;
+  }
+}
+
+/* Barre au-dessus de la photo : un nom de look long se tronque au lieu de faire passer les boutons à la ligne. */
+@media (min-width: 700px) {
+  .stage-toolbar {
+    flex-wrap: nowrap;
+  }
+
+  .stage-title {
+    flex: 0 1 auto;
+  }
+
+  .stage-title h2 {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stage-title .badge {
+    flex: none;
+  }
+}
+
+/* Très petits écrans : les photos d'exemple en pastilles rondes (le nom reste lu par les lecteurs d'écran). */
+@media (max-width: 420px) {
+  .sample-row {
+    flex-wrap: nowrap;
+  }
+
+  .sample-option {
+    padding: 3px;
+  }
+
+  .sample-option span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sample-option img {
+    width: 44px;
+    height: 44px;
+  }
 }

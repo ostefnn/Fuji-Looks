@@ -1,4 +1,4 @@
-/* Fuji Looks — Rendu : recette -> LUT 3D -> pixels (même pipeline que Fuji Recipe Converter). */
+/* Dialed — Rendu : recette -> LUT 3D -> pixels (même pipeline que Fuji Recipe Converter). */
 // --- Moteur de rendu -----------------------------------------------------
 
 function getStrength() {
@@ -38,6 +38,40 @@ function drawToImageData(drawable, srcW, srcH, maxSide, maxPixels) {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   ctx.drawImage(drawable, 0, 0, w, h);
   return ctx.getImageData(0, 0, w, h);
+}
+
+// --- Photos d'exemple -----------------------------------------------------------
+
+// Vraies photos pour juger un look ; le pont (verts, rouge, ciel, bois) sert aussi de scène de référence.
+const SAMPLE_PHOTOS = {
+  bridge: { src: "samples/bridge.jpg", file: "exemple-pont" },
+  pond: { src: "samples/pond.jpg", file: "exemple-etang" },
+  street: { src: "samples/street.jpg", file: "exemple-rue" },
+  // Le pont en petit (900 px) : assez pour les vignettes et la fiche, chargé au démarrage.
+  ref: { src: "samples/bridge-ref.jpg", file: "exemple-pont" }
+};
+const samplePhotoCache = {};
+
+function loadSamplePhoto(id) {
+  samplePhotoCache[id] ||= new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      SAMPLE_PHOTOS[id].image = img;
+      resolve(img);
+    };
+    img.onerror = () => {
+      delete samplePhotoCache[id];
+      reject(new Error("Photo d'exemple introuvable"));
+    };
+    img.src = SAMPLE_PHOTOS[id].src;
+  });
+  return samplePhotoCache[id];
+}
+
+// Scène de référence : la photo du pont dès qu'elle est chargée, sinon la scène dessinée.
+function referenceScene() {
+  const img = SAMPLE_PHOTOS.ref.image;
+  return img ? { drawable: img, w: img.naturalWidth, h: img.naturalHeight } : { drawable: drawSampleScene(), w: 900, h: 600 };
 }
 
 // Scène d'exemple du convertisseur (paysage, patchs de couleur, rampe de gris), dessinée en code.

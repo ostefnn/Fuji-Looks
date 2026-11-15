@@ -1,4 +1,4 @@
-/* Fuji Looks — Versions : garder plusieurs essais sur la même photo et les comparer côte à côte.
+/* Dialed — Versions : garder plusieurs essais sur la même photo et les comparer côte à côte.
  *
  * Une version est un instantané de l'état (le même que l'historique) : look, réglages de la recette
  * ou de la pellicule, retouche et intensité. Elle reste attachée à la session : une nouvelle photo

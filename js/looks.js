@@ -1,4 +1,4 @@
-/* Fuji Looks — Bibliothèque de looks : onglets, filtres, cartes, vignettes, aperçu au survol. */
+/* Dialed — Bibliothèque de looks : onglets, filtres, cartes, vignettes, aperçu au survol. */
 
 // --- Favoris, recherche et filtres -------------------------------------------
 
@@ -222,25 +222,29 @@ function createLookCard(look) {
   frame.appendChild(thumb);
   // Type du look, pour ne pas confondre une recette « Tri-X 400 » et la pellicule Tri-X 400.
   const isNikon = Boolean(look.nikon || look.nikonRemote);
-  if (look.film || isNikon || look.group === "custom" || look.group === "catalog") {
+  // Les onglets séparent déjà les recettes : l'étiquette ne sert qu'aux pellicules et à Nikon.
+  if (look.film || isNikon) {
     const kind = document.createElement("span");
-    kind.className = `look-kind ${look.film ? "is-film" : isNikon ? "is-nikon" : "is-recipe"}`;
-    kind.textContent = look.film ? "Pellicule" : isNikon ? "Nikon" : "Recette";
+    kind.className = `look-kind ${look.film ? "is-film" : "is-nikon"}`;
+    kind.textContent = look.film ? "Pellicule" : "Nikon";
     frame.appendChild(kind);
   }
-  if (look.film) {
+  // Pellicule : procédé ; recette du catalogue : capteur d'origine (retiré du nom affiché).
+  const badgeText = look.film ? filmByKey.get(look.film).process : look.sensorLabel;
+  if (badgeText) {
     const badge = document.createElement("span");
     badge.className = "look-badge";
-    badge.textContent = filmByKey.get(look.film).process;
+    badge.textContent = badgeText;
     frame.appendChild(badge);
   }
 
   const name = document.createElement("span");
   name.className = "look-name";
-  name.textContent = look.name;
+  name.textContent = look.displayName || look.name;
+  name.title = look.name;
 
   const desc = document.createElement("span");
-  desc.className = "look-desc";
+  desc.className = look.group === "starter" ? "look-desc look-mood" : "look-desc";
   desc.textContent = look.desc;
 
   card.append(frame, name, desc);
@@ -298,11 +302,12 @@ function buildLookGrid() {
   const activeTab = activeTabId();
   lookTabs.textContent = "";
   lookGroups.textContent = "";
-  GROUPS = ALL_GROUPS.filter((group) => LOOKS.some((look) => look.group === group.id));
+  GROUPS = ALL_GROUPS.filter((group) => groupInMode(group.id) && LOOKS.some((look) => look.group === group.id));
+  if (nikonMode) GROUPS.sort((a, b) => (b.id === "nikon") - (a.id === "nikon")); // Picture Controls d'abord
 
   GROUPS.forEach((group) => {
     const groupLooks = LOOKS.filter((look) => look.group === group.id);
-    const looks = group.id === "sims" || group.id === "films" || group.id === "nikon" ? groupLooks : sortBySim(groupLooks);
+    const looks = ["starter", "sims", "films", "nikon"].includes(group.id) ? groupLooks : sortBySim(groupLooks);
 
     const tab = document.createElement("button");
     tab.type = "button";
@@ -340,13 +345,15 @@ function buildLookGrid() {
     lookGroups.appendChild(grid);
   });
 
-  if (GROUPS.length) showTab(GROUPS.some((g) => g.id === activeTab) ? activeTab : GROUPS[0].id);
+  // Première ouverture : « Pour commencer », ou « Recettes » si la bibliothèque contient déjà des recettes.
+  const firstTab = library.length && GROUPS.some((g) => g.id === "custom") ? "custom" : GROUPS[0]?.id;
+  if (GROUPS.length) showTab(GROUPS.some((g) => g.id === activeTab) ? activeTab : firstTab);
   markSelectedCard();
   updateCompat();
   applyLookFilter();
   observeThumbs();
 
-  lookCount.textContent = LOOKS.length - 1;
+  lookCount.textContent = "";
 }
 
 function showTab(groupId) {
@@ -432,9 +439,9 @@ let thumbPending = false;
 function thumbSourceFor(look) {
   if (look.film && filmPreview === "ref") {
     if (!refThumbData) {
-      const scene = drawSampleScene();
-      const { data: src, grainWidth } = thumbnailSource(scene, scene.width, scene.height);
-      refThumbData = { src, grainWidth, w: scene.width, h: scene.height, job: "ref" };
+      const scene = referenceScene();
+      const { data: src, grainWidth } = thumbnailSource(scene.drawable, scene.w, scene.h);
+      refThumbData = { src, grainWidth, w: scene.w, h: scene.h, job: "ref" };
     }
     return refThumbData;
   }

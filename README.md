@@ -1,18 +1,22 @@
-# Fuji Looks
+# Dialed
+
+*Find your camera recipe.* Anciennement « Fuji Looks ».
+
+L'interface est en français et en anglais (selon la langue du navigateur, ou menu **…** → Langue).
 
 Applique des recettes Fujifilm et des pellicules argentiques à tes photos, directement dans ton navigateur. Rien n'est envoyé en ligne : les photos restent sur ton appareil.
 
 **En ligne :** https://ostefnn.github.io/Fuji-Looks/
 
-![Fuji Looks sur ordinateur : la pellicule Kodak Portra 400 appliquée à l'image d'exemple](docs/screenshot.jpg)
+![Dialed sur ordinateur : la recette Kodak Gold 200 sur la photo d'exemple de rue, catalogue filtré pour un X-T5](docs/screenshot.jpg)
 
-<p align="center"><img src="docs/screenshot-mobile.jpg" width="260" alt="Fuji Looks sur iPhone, en thème clair"></p>
+<p align="center"><img src="docs/screenshot-mobile.jpg" width="260" alt="Dialed sur iPhone : la photo en haut, les looks en bande horizontale dessous"></p>
 
 ## Fonctionnalités
 
 - **Un écran en trois zones** : choisir à gauche (looks), voir au centre (photo), régler à droite (Recette ou Pellicule, Retouche, Cadre). Sur téléphone, la photo reste en haut et une barre en bas passe de Looks à Recette, Retouche ou Partager. Le menu **Exporter** regroupe la photo, les images à partager et les fichiers du look ; **Mon boîtier** est dans la barre du haut.
 - **Looks** : tes recettes, un **catalogue de 344 recettes** (340 de Kata, filtrables par capteur avec un lien vers chaque article d'origine, et les exemples du convertisseur), les 20 simulations de film Fujifilm et **72 pellicules argentiques**, avec recherche, filtre par simulation et favoris. La liste se charge au fil du défilement. Survole un look à la souris pour le voir sur ta photo avant de cliquer ; au clavier, ← → passent au look précédent ou suivant et Espace (maintenu) montre l'original.
-- **Pellicules** : 72 films rangés en quatre rayons (Négatif 25, Diapo · Cross 19, N&B 22, Cinéma 6) : Portra, Ektar, Superia, Velvia, Kodachrome, Tri-X, HP5, CineStill, Vision 2383… La couleur vient des LUT de la collection [Film-Luts](https://github.com/YahiaAngelo/Film-Luts) (69 films) ou d'un modèle propre à Fuji Looks (Gold 200, CineStill 800T et 400T) ; grain, halation et douceur dépendent de la sensibilité et du type de film, et se règlent avec l'exposition du scan et l'équilibrage (jour ou tungstène). Les miniatures montrent la même scène de référence pour comparer les films, ou ta photo. Une pellicule s'exporte en LUT 3D (.cube), pas en .FP1 : ce n'est pas une recette boîtier.
+- **Pellicules** : 72 films rangés en quatre rayons (Négatif 25, Diapo · Cross 19, N&B 22, Cinéma 6) : Portra, Ektar, Superia, Velvia, Kodachrome, Tri-X, HP5, CineStill, Vision 2383… La couleur vient des LUT de la collection [Film-Luts](https://github.com/YahiaAngelo/Film-Luts) (69 films) ou d'un modèle propre à Dialed (Gold 200, CineStill 800T et 400T) ; grain, halation et douceur dépendent de la sensibilité et du type de film, et se règlent avec l'exposition du scan et l'équilibrage (jour ou tungstène). Les miniatures montrent la même scène de référence pour comparer les films, ou ta photo. Une pellicule s'exporte en LUT 3D (.cube), pas en .FP1 : ce n'est pas une recette boîtier.
 - **Réglages de la recette** : tous les réglages sous leurs noms Fujifilm (Film Simulation, Dynamic Range, White Balance, Grain, Color Chrome, Highlight, Shadow, Clarity…), avec Annuler / Rétablir (Ctrl+Z / Ctrl+Maj+Z).
 - **Balance des blancs simulée** : le mode de la recette (Daylight, Incandescent, Kelvin…) est appliqué comme sur le boîtier, pour une photo prise en lumière du jour. Un interrupteur revient au comportement du convertisseur (décalage R/B seulement) ; l'aperçu est alors identique au sien, pixel pour pixel.
 - **Compatibilité boîtier** : choisis ton appareil (X-Trans III à V) pour savoir si une recette est reproductible.
@@ -145,11 +149,12 @@ puis ouvre http://localhost:8000/. Ouvrir `index.html` directement fonctionne au
 
 ## Licence
 
-Le code de Fuji Looks est sous licence [MIT](LICENSE). Le code tiers dans `vendor/` garde sa propre licence (voir Crédits).
+Le code de Dialed est sous licence [MIT](LICENSE). Le code tiers dans `vendor/` garde sa propre licence (voir Crédits).
 
 ## Crédits
 
-- Moteur de couleur, simulations, imports et exports : [Fuji Recipe Converter](https://github.com/sadziu/Fuji-Recipe-Converter) (MIT), copié sans modification dans `vendor/fuji-recipe-converter/`. Avec la simulation de la balance des blancs désactivée, l'aperçu de Fuji Looks est identique au sien, pixel pour pixel.
+- Photos d'exemple (`samples/` : pont, étang, rue) : photos de l'auteur du projet.
+- Moteur de couleur, simulations, imports et exports : [Fuji Recipe Converter](https://github.com/sadziu/Fuji-Recipe-Converter) (MIT), copié sans modification dans `vendor/fuji-recipe-converter/`. Avec la simulation de la balance des blancs désactivée, l'aperçu de Dialed est identique au sien, pixel pour pixel.
 - Lecture de captures d'écran : Tesseract.js (Apache-2.0). Photos HEIC : heic-to (LGPL-3.0). QR codes : QR Code Generator de Kazuhiko Arase (MIT). Police manuscrite : Great Vibes (SIL OFL 1.1). Détails dans [`vendor/THIRD-PARTY-NOTICES.md`](vendor/THIRD-PARTY-NOTICES.md).
 - Recettes Kodachrome 64, Kodachrome 25, Kodachrome II, Vintage Color v2, Fujicolor NPH et Kodak T-Max P3200 : [Fuji X Weekly](https://fujixweekly.com).
 - Recettes au format .FP1 : [quiode/fujifilm-recipes](https://github.com/quiode/fujifilm-recipes) (MIT ; recettes d'origine Fuji X Weekly).

@@ -1,4 +1,4 @@
-/* Fuji Looks — Catalogue des looks (recettes perso, de démarrage, simulations) et stockage local. */
+/* Dialed — Catalogue des looks (recettes perso, de démarrage, simulations) et stockage local. */
 // --- Catalogue des looks -------------------------------------------------
 
 const LOOKS = [{ id: "original", name: "Original", desc: "Naturel", group: "base", recipe: null }];
@@ -143,12 +143,37 @@ const SENSORS = ["X-Trans V", "X-Trans IV", "X-Trans III", "X-Trans II", "X-Tran
   LOOKS.push({
     id,
     name: recipe.name,
-    desc: `${FR.simById(recipe.filmSim).name} · ${sensors[0] || "?"}`,
+    desc: FR.simById(recipe.filmSim).name,
+    // Nom affiché sur la carte sans « (X-Trans IV) » : le capteur est en pastille sur la vignette.
+    displayName: recipe.name.replace(/\s*\((X-Trans|GFX|Bayer)[^)]*\)/, ""),
+    sensorLabel: sensors[0] || "",
     group: "catalog",
     sensors,
     sourceUrl: url,
     recipe
   });
+});
+
+// « Pour commencer » : 12 recettes connues du catalogue, avec leur ambiance en une phrase.
+// Ce sont des copies (identifiant start-…) : elles restent aussi dans le catalogue.
+const STARTER_PICKS = [
+  ["Kodak Portra 400 v2 (X-Trans IV)", "Tons chair doux, lumière chaude"],
+  ["Kodachrome 64 (X-Trans IV)", "Couleurs riches de diapo, ciel profond"],
+  ["Classic Negative (X-Trans IV)", "Contrasté, l’argentique du quotidien"],
+  ["Reggie’s Portra", "Chaud et lumineux, passe-partout"],
+  ["Kodak Gold 200 (X-Trans IV)", "Doré, souvenirs d’été"],
+  ["Fujicolor Superia 800 (X-Trans IV)", "Verts marqués, photos de tous les jours"],
+  ["Kodak Vision3 250D (X-Trans IV)", "Look cinéma, doux et naturel"],
+  ["CineStill 800T (X-Trans IV)", "Nuit et néons, tons cinéma froids"],
+  ["Pacific Blues (X-Trans IV)", "Bleus et cyans, bord de mer"],
+  ["Vintage Kodachrome", "Vieille diapo, nostalgique"],
+  ["Kodak Tri-X 400", "Noir et blanc granuleux, reportage"],
+  ["Ilford HP5 Plus 400", "Noir et blanc doux, polyvalent"]
+];
+STARTER_PICKS.forEach(([name, mood]) => {
+  const source = LOOKS.find((look) => look.group === "catalog" && look.name === name);
+  if (!source) return;
+  LOOKS.push({ ...source, id: source.id.replace(/^kata-/, "start-"), desc: mood, sensorLabel: "", group: "starter" });
 });
 
 FR.SIMS.forEach((sim) => {
@@ -177,6 +202,7 @@ FILMS.forEach((film) => {
 // Quatre onglets ; « Original » est repris en tête de chaque onglet.
 // « Recettes » : bibliothèque, puis recettes perso, puis exemples du convertisseur.
 const ALL_GROUPS = [
+  { id: "starter", title: "Pour commencer" },
   { id: "custom", title: "Recettes" },
   { id: "catalog", title: "Catalogue" },
   { id: "sims", title: "Simulations" },
@@ -216,6 +242,18 @@ function load(key) {
   } catch {
     return null;
   }
+}
+
+// --- Marque du boîtier : Fujifilm d'abord, Nikon à part -------------------------------
+
+// « Mon boîtier : Nikon Z » remplace les onglets Fujifilm par les Picture Controls ;
+// sinon l'onglet Nikon n'apparaît que si des .NP3 ont été importés.
+let nikonMode = load("fuji-looks.camera") === "nikon";
+
+function groupInMode(id) {
+  if (nikonMode) return id === "nikon" || id === "films";
+  if (id !== "nikon") return true;
+  return LOOKS.some((look) => look.group === "nikon" && look.nikon && !look.nikonRemote);
 }
 
 // Même format que la bibliothèque du convertisseur : { id, savedAt, recipe }.

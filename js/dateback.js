@@ -1,4 +1,4 @@
-/* Fuji Looks — Dos dateur : la date imprimée dans l'image, en chiffres orange à segments,
+/* Dialed — Dos dateur : la date imprimée dans l'image, en chiffres orange à segments,
  * comme les compacts argentiques qui l'exposaient sur le négatif. Fait partie de la photo :
  * fonctionne avec ou sans cadre, et ne dépend pas du look. */
 
@@ -138,6 +138,7 @@ function saveDateBack() {
 function updateDateBackOptions() {
   dateBackOptions.querySelectorAll("[data-dateback]").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.dateback === "on") === dateBack.on)));
   dateBackStyleRow.hidden = dateBackSourceRow.hidden = !dateBack.on;
+  updateFrameMeta();
   dateBackStyleOptions.querySelectorAll("[data-datestyle]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.datestyle === dateBack.style)));
   dateBackSourceOptions.querySelectorAll("[data-datesource]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.datesource === dateBack.source)));
   dateBackInput.hidden = dateBack.source !== "custom";
