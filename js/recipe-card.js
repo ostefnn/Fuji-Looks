@@ -151,11 +151,21 @@ function buildRecipeCard(cardRecipe) {
   return canvas;
 }
 
-document.getElementById("cardButton").addEventListener("click", () => {
+// Générateur de QR code : chargé à la première fiche, pas au démarrage.
+let qrLoading = null;
+function loadQrCode() {
+  qrLoading ||= loadScript("vendor/qrcode/qrcode.js").catch(() => {
+    qrLoading = null; // hors connexion et pas en cache : fiche sans QR code
+  });
+  return qrLoading;
+}
+
+document.getElementById("cardButton").addEventListener("click", async () => {
   if (!applied) {
     showStatus("Choisis d’abord un look ou une recette.");
     return;
   }
+  await loadQrCode();
   const canvas = buildRecipeCard(recipe);
   canvas.toBlob(async (blob) => {
     if (!blob) {

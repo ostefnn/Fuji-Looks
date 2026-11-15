@@ -46,7 +46,9 @@ function drawToImageData(drawable, srcW, srcH, maxSide, maxPixels) {
 const SAMPLE_PHOTOS = {
   bridge: { src: "samples/bridge.jpg", file: "exemple-pont" },
   pond: { src: "samples/pond.jpg", file: "exemple-etang" },
-  street: { src: "samples/street.jpg", file: "exemple-rue" }
+  street: { src: "samples/street.jpg", file: "exemple-rue" },
+  // Le pont en petit (900 px) : assez pour les vignettes et la fiche, chargé au démarrage.
+  ref: { src: "samples/bridge-ref.jpg", file: "exemple-pont" }
 };
 const samplePhotoCache = {};
 
@@ -68,7 +70,7 @@ function loadSamplePhoto(id) {
 
 // Scène de référence : la photo du pont dès qu'elle est chargée, sinon la scène dessinée.
 function referenceScene() {
-  const img = SAMPLE_PHOTOS.bridge.image;
+  const img = SAMPLE_PHOTOS.ref.image;
   return img ? { drawable: img, w: img.naturalWidth, h: img.naturalHeight } : { drawable: drawSampleScene(), w: 900, h: 600 };
 }
 

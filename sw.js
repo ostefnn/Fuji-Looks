@@ -8,6 +8,7 @@ const APP_SHELL = [
   "style.css",
   "manifest.webmanifest",
   "samples/bridge.jpg",
+  "samples/bridge-ref.jpg",
   "samples/bridge-thumb.jpg",
   "samples/pond.jpg",
   "samples/pond-thumb.jpg",
