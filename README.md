@@ -2,6 +2,8 @@
 
 *Find your camera recipe.* Anciennement « Fuji Looks ».
 
+L'interface est en français et en anglais (selon la langue du navigateur, ou menu **…** → Langue).
+
 Applique des recettes Fujifilm et des pellicules argentiques à tes photos, directement dans ton navigateur. Rien n'est envoyé en ligne : les photos restent sur ton appareil.
 
 **En ligne :** https://ostefnn.github.io/Fuji-Looks/

@@ -92,6 +92,13 @@
               <button type="button" class="chip" data-theme-choice="dark" aria-pressed="false">Sombre</button>
             </div>
           </div>
+          <div class="menu-theme">
+            <span id="langLabel">Langue</span>
+            <div class="pill-row" id="langOptions" role="group" aria-labelledby="langLabel">
+              <button type="button" class="chip" data-lang-choice="fr" aria-pressed="false" lang="fr">Français</button>
+              <button type="button" class="chip" data-lang-choice="en" aria-pressed="false" lang="en">English</button>
+            </div>
+          </div>
           <div class="menu-sep" role="separator"></div>
           <button type="button" class="menu-item" role="menuitem" id="installButton" hidden>Installer l’application</button>
           <a class="menu-item" role="menuitem" href="https://github.com/ostefnn/Fuji-Looks" target="_blank" rel="noopener">À propos et crédits ↗</a>
@@ -1015,6 +1022,7 @@
 
   <p id="statusMessage" class="toast" role="status" aria-live="polite"></p>
 
+  <script src="js/i18n.js"></script>
   <script src="vendor/fuji-recipe-converter/data.js"></script>
   <script src="vendor/fuji-recipe-converter/engine.js"></script>
   <script src="vendor/fuji-recipe-converter/export.js"></script>

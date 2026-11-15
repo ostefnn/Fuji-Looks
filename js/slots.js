@@ -148,7 +148,7 @@ function buildSlotsCard() {
   ctx.fillStyle = "#5f656d";
   ctx.font = `500 18px ${font}`;
   ctx.textAlign = "right";
-  ctx.fillText("FUJI LOOKS", W - pad, H - 32);
+  ctx.fillText("DIALED", W - pad, H - 32);
   ctx.textAlign = "left";
   return canvas;
 }

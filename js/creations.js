@@ -162,7 +162,7 @@ function buildContactSheet(lookIds, width) {
   ctx.fillStyle = "#5f656d";
   ctx.font = `500 ${subSize}px ${CREATION_FONT}`;
   ctx.textAlign = "right";
-  ctx.fillText("FUJI LOOKS", width - pad, canvas.height - Math.round(footer * 0.45));
+  ctx.fillText("DIALED", width - pad, canvas.height - Math.round(footer * 0.45));
   ctx.textAlign = "left";
   return canvas;
 }

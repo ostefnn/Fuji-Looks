@@ -22,6 +22,7 @@ const APP_SHELL = [
   "vendor/qrcode/qrcode.js",
   "vendor/nikon-np3/np3.js",
   "custom-recipes.js",
+  "js/i18n.js",
   "js/kata-catalog.js",
   "js/pipeline.js",
   "js/tone-curve.js",
