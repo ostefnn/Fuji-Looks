@@ -33,7 +33,9 @@ function buildFieldRow(field) {
 
   const label = document.createElement("label");
   label.htmlFor = `f-${field.key}`;
-  label.textContent = field.label + (field.unit ? ` (${field.unit})` : "");
+  // Libellés du convertisseur corrigés : orthographe des menus Fujifilm (« Color »).
+  const fieldLabel = { kelvin: "Color Temperature" }[field.key] || field.label;
+  label.textContent = fieldLabel + (field.unit ? ` (${field.unit})` : "");
   row.appendChild(label);
 
   let control;
