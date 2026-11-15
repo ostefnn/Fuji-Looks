@@ -192,8 +192,9 @@ const I18N_EN = new Map(Object.entries({
   "Choisis un look à gauche, règle-le à droite.": "Pick a look on the left, fine-tune it on the right.",
   "Pas de photo sous la main ?": "No photo at hand?",
   "Photos d’exemple": "Sample photos",
-  "Jardin · jour": "Garden · day",
-  "Ville · nuit": "City · night",
+  "Pont": "Bridge",
+  "Étang": "Pond",
+  "Rue · soir": "Street · dusk",
   "Dépose ta photo ici": "Drop your photo here",
   "ORIGINAL": "ORIGINAL",
   "Avant": "Before",
@@ -634,8 +635,9 @@ const I18N_EN = new Map(Object.entries({
   "Nom, simulation, film": "Name, simulation, film",
   "Réglages modifiés": "Changed settings",
   "Sans look": "No look",
-  "exemple-jardin": "sample-garden",
-  "exemple-nuit": "sample-night",
+  "exemple-pont": "sample-bridge",
+  "exemple-etang": "sample-pond",
+  "exemple-rue": "sample-street",
   "Courbe de tons de la photo": "Photo tone curve"
 }));
 

@@ -153,7 +153,7 @@ Le code de Dialed est sous licence [MIT](LICENSE). Le code tiers dans `vendor/` 
 
 ## Crédits
 
-- Photos d'exemple (`samples/`) : photos de l'auteur du projet.
+- Photos d'exemple (`samples/` : pont, étang, rue) : photos de l'auteur du projet.
 - Moteur de couleur, simulations, imports et exports : [Fuji Recipe Converter](https://github.com/sadziu/Fuji-Recipe-Converter) (MIT), copié sans modification dans `vendor/fuji-recipe-converter/`. Avec la simulation de la balance des blancs désactivée, l'aperçu de Dialed est identique au sien, pixel pour pixel.
 - Lecture de captures d'écran : Tesseract.js (Apache-2.0). Photos HEIC : heic-to (LGPL-3.0). QR codes : QR Code Generator de Kazuhiko Arase (MIT). Police manuscrite : Great Vibes (SIL OFL 1.1). Détails dans [`vendor/THIRD-PARTY-NOTICES.md`](vendor/THIRD-PARTY-NOTICES.md).
 - Recettes Kodachrome 64, Kodachrome 25, Kodachrome II, Vintage Color v2, Fujicolor NPH et Kodak T-Max P3200 : [Fuji X Weekly](https://fujixweekly.com).

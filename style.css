@@ -1180,6 +1180,8 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
 
 .sample-row {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -3244,5 +3246,30 @@ body.versions-comparing .compare-button {
 
   .stage-title .badge {
     flex: none;
+  }
+}
+
+/* Très petits écrans : les photos d'exemple en pastilles rondes (le nom reste lu par les lecteurs d'écran). */
+@media (max-width: 420px) {
+  .sample-row {
+    flex-wrap: nowrap;
+  }
+
+  .sample-option {
+    padding: 3px;
+  }
+
+  .sample-option span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sample-option img {
+    width: 44px;
+    height: 44px;
   }
 }

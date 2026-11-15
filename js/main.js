@@ -34,8 +34,8 @@ if (currentFilm) ensureFilmLuts();
 else (window.requestIdleCallback || ((fn) => setTimeout(fn, 1500)))(() => ensureFilmLuts());
 
 importFromHash();
-// Vignettes sur la photo du jardin tant qu'aucune photo n'est importée.
-loadSamplePhoto("garden")
+// Vignettes sur la photo du pont tant qu'aucune photo n'est importée.
+loadSamplePhoto("bridge")
   .then((img) => {
     refThumbData = null;
     if (!originalImage) renderThumbnails(img, img.naturalWidth, img.naturalHeight);

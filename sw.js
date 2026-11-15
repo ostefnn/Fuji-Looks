@@ -1,5 +1,5 @@
 /* Dialed — Service worker : l'app s'installe et fonctionne hors connexion. */
-const CACHE = "dialed-v10";
+const CACHE = "dialed-v11";
 
 // Fichiers de l'app, mis en cache dès l'installation.
 const APP_SHELL = [
@@ -7,10 +7,12 @@ const APP_SHELL = [
   "index.html",
   "style.css",
   "manifest.webmanifest",
-  "samples/garden.jpg",
-  "samples/garden-thumb.jpg",
-  "samples/night.jpg",
-  "samples/night-thumb.jpg",
+  "samples/bridge.jpg",
+  "samples/bridge-thumb.jpg",
+  "samples/pond.jpg",
+  "samples/pond-thumb.jpg",
+  "samples/street.jpg",
+  "samples/street-thumb.jpg",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/apple-touch-icon.png",

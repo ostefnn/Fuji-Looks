@@ -42,10 +42,11 @@ function drawToImageData(drawable, srcW, srcH, maxSide, maxPixels) {
 
 // --- Photos d'exemple -----------------------------------------------------------
 
-// Vraies photos (jour et nuit) pour juger un look ; le jardin sert aussi de scène de référence.
+// Vraies photos pour juger un look ; le pont (verts, rouge, ciel, bois) sert aussi de scène de référence.
 const SAMPLE_PHOTOS = {
-  garden: { src: "samples/garden.jpg", file: "exemple-jardin" },
-  night: { src: "samples/night.jpg", file: "exemple-nuit" }
+  bridge: { src: "samples/bridge.jpg", file: "exemple-pont" },
+  pond: { src: "samples/pond.jpg", file: "exemple-etang" },
+  street: { src: "samples/street.jpg", file: "exemple-rue" }
 };
 const samplePhotoCache = {};
 
@@ -65,9 +66,9 @@ function loadSamplePhoto(id) {
   return samplePhotoCache[id];
 }
 
-// Scène de référence : la photo du jardin dès qu'elle est chargée, sinon la scène dessinée.
+// Scène de référence : la photo du pont dès qu'elle est chargée, sinon la scène dessinée.
 function referenceScene() {
-  const img = SAMPLE_PHOTOS.garden.image;
+  const img = SAMPLE_PHOTOS.bridge.image;
   return img ? { drawable: img, w: img.naturalWidth, h: img.naturalHeight } : { drawable: drawSampleScene(), w: 900, h: 600 };
 }
 
