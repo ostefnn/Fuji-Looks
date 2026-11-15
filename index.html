@@ -152,6 +152,16 @@
           <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg> Importer
         </button>
       </div>
+      <div class="camera-prompt" id="cameraPrompt" hidden>
+        <div class="camera-prompt-text">
+          <strong>Quel boîtier utilises-tu ?</strong>
+          <span>Le catalogue ne montrera que les recettes faites pour ton capteur.</span>
+        </div>
+        <div class="camera-prompt-row">
+          <select id="cameraPromptSelect" class="select select-sm" aria-label="Mon boîtier"></select>
+          <button type="button" class="btn btn-ghost btn-sm" id="cameraPromptLater">Plus tard</button>
+        </div>
+      </div>
       <label class="search">
         <span class="visually-hidden">Rechercher un look</span>
         <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>

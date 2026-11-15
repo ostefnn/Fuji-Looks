@@ -18,6 +18,8 @@ addNikonCatalogLooks();
 syncNikonLooks();
 restoreDraft();
 buildCameraSelect();
+applyCameraSensorFilter();
+setupCameraPrompt();
 renderSlots();
 updateFp1Status();
 updateEditControls();

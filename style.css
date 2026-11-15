@@ -800,6 +800,42 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.camera-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, var(--line-2));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--primary) 7%, var(--card));
+}
+
+.camera-prompt[hidden] {
+  display: none;
+}
+
+.camera-prompt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.camera-prompt-text span {
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.camera-prompt-row {
+  display: flex;
+  gap: 8px;
+}
+
+.camera-prompt-row .select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .look-filters {
   display: flex;
   flex-wrap: wrap;
@@ -940,6 +976,13 @@ input[type="range"].range-tint::-webkit-slider-runnable-track {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.look-desc.look-mood {
+  display: -webkit-box;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .fav-button {
@@ -3179,5 +3222,27 @@ body.versions-comparing .compare-button {
 
   .stage-title .badge {
     display: none;
+  }
+}
+
+/* Barre au-dessus de la photo : un nom de look long se tronque au lieu de faire passer les boutons à la ligne. */
+@media (min-width: 700px) {
+  .stage-toolbar {
+    flex-wrap: nowrap;
+  }
+
+  .stage-title {
+    flex: 0 1 auto;
+  }
+
+  .stage-title h2 {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stage-title .badge {
+    flex: none;
   }
 }

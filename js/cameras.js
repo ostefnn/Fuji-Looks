@@ -142,17 +142,58 @@ function buildCameraSelect() {
   updateCameraSections();
 }
 
+// Capteur du boîtier, au format du catalogue (« X-Trans IV »), ou "" sans boîtier Fujifilm.
+function cameraSensor(id = cameraId) {
+  const camera = CAMERAS.get(id);
+  return camera ? camera.generation.split(" (")[0] : "";
+}
+
+// Le catalogue est filtré d'office sur le capteur du boîtier (le filtre reste modifiable).
+function applyCameraSensorFilter() {
+  lookSensor = cameraSensor();
+  lookSensorSelect.value = lookSensor;
+}
+
 function setCamera(id) {
   const wasNikon = nikonMode;
   cameraId = id;
   cameraSelect.value = id;
   store(CAMERA_KEY, cameraId);
   nikonMode = cameraId === NIKON_CAMERA;
+  applyCameraSensorFilter();
   if (nikonMode !== wasNikon) buildLookGrid();
+  else {
+    resetLookPaging();
+    applyLookFilter();
+  }
   updateCameraSections();
   updateCompat();
   renderSlots();
   if (typeof updateCameraButton === "function") updateCameraButton();
+}
+
+// --- Premier lancement : quel boîtier ? ---------------------------------------------------
+
+const cameraPrompt = document.getElementById("cameraPrompt");
+const cameraPromptSelect = document.getElementById("cameraPromptSelect");
+
+function setupCameraPrompt() {
+  if (load(CAMERA_KEY) !== null) return; // déjà choisi (ou « plus tard »)
+  cameraPromptSelect.innerHTML = cameraSelect.innerHTML;
+  cameraPromptSelect.options[0].textContent = "Choisir mon boîtier…";
+  cameraPromptSelect.value = "";
+  cameraPrompt.hidden = false;
+  cameraPromptSelect.addEventListener("change", () => {
+    if (!cameraPromptSelect.value) return;
+    setCamera(cameraPromptSelect.value);
+    cameraPrompt.hidden = true;
+    const camera = CAMERAS.get(cameraId);
+    showStatus(camera ? `Catalogue filtré pour ton ${camera.name} (${cameraSensor()}).` : "Picture Controls Nikon affichés.");
+  });
+  document.getElementById("cameraPromptLater").addEventListener("click", () => {
+    store(CAMERA_KEY, "");
+    cameraPrompt.hidden = true;
+  });
 }
 
 // Les réglages perso C1–C7 et le .FP1 ne concernent que Fujifilm.

@@ -3,11 +3,11 @@
 
 const fieldRows = [];
 
-// Les réglages, regroupés comme sur le boîtier. Détail et Prise de vue se replient en résumé.
+// Les réglages, regroupés comme sur le boîtier. Couleur, Détail et Prise de vue se replient en résumé.
 const FIELD_GROUPS = [
   { title: "Base", keys: ["filmSim", "dynamicRange"] },
   { title: "Tonalité", keys: ["highlight", "shadow"] },
-  { title: "Couleur", keys: ["whiteBalance", "kelvin", "wbShiftRed", "wbShiftBlue", "color", "monoWC", "monoMG", "colorChromeEffect", "colorChromeFxBlue"] },
+  { title: "Couleur", fold: true, keys: ["whiteBalance", "kelvin", "wbShiftRed", "wbShiftBlue", "color", "monoWC", "monoMG", "colorChromeEffect", "colorChromeFxBlue"] },
   { title: "Détail", fold: true, keys: ["grainEffect", "grainSize", "sharpness", "noiseReduction", "clarity"] },
   { title: "Prise de vue", fold: true, keys: ["iso", "exposureComp", "camera"] }
 ];
