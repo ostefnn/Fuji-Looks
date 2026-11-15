@@ -1,4 +1,4 @@
-/* Fuji Looks — Bibliothèque de recettes enregistrées sur l'appareil. */
+/* Dialed — Bibliothèque de recettes enregistrées sur l'appareil. */
 // --- Bibliothèque ------------------------------------------------------------
 
 function refreshLibrary() {

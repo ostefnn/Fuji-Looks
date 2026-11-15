@@ -1,4 +1,4 @@
-/* Fuji Looks — Compatibilité des recettes avec le boîtier choisi. */
+/* Dialed — Compatibilité des recettes avec le boîtier choisi. */
 
 /*
  * Données indicatives, par génération de capteur. Les mises à jour firmware ajoutent
@@ -85,7 +85,9 @@ CAMERA_GENERATIONS.forEach((generation) => {
   });
 });
 
-let cameraId = CAMERAS.has(load(CAMERA_KEY)) ? load(CAMERA_KEY) : "";
+// « nikon » : boîtier Nikon Z, les looks deviennent des Picture Controls (pas de recette Fujifilm).
+const NIKON_CAMERA = "nikon";
+let cameraId = CAMERAS.has(load(CAMERA_KEY)) || load(CAMERA_KEY) === NIKON_CAMERA ? load(CAMERA_KEY) : "";
 
 const cameraSelect = document.getElementById("cameraSelect");
 const compatList = document.getElementById("compatList");
@@ -131,13 +133,31 @@ function buildCameraSelect() {
     generation.cameras.forEach((camera) => group.appendChild(new Option(camera.name, camera.id)));
     cameraSelect.appendChild(group);
   });
+  const nikon = document.createElement("optgroup");
+  nikon.label = "Nikon";
+  nikon.appendChild(new Option("Nikon Z (Picture Control)", NIKON_CAMERA));
+  cameraSelect.appendChild(nikon);
   cameraSelect.value = cameraId;
-  cameraSelect.addEventListener("change", () => {
-    cameraId = cameraSelect.value;
-    store(CAMERA_KEY, cameraId);
-    updateCompat();
-    renderSlots();
-  });
+  cameraSelect.addEventListener("change", () => setCamera(cameraSelect.value));
+  updateCameraSections();
+}
+
+function setCamera(id) {
+  const wasNikon = nikonMode;
+  cameraId = id;
+  cameraSelect.value = id;
+  store(CAMERA_KEY, cameraId);
+  nikonMode = cameraId === NIKON_CAMERA;
+  if (nikonMode !== wasNikon) buildLookGrid();
+  updateCameraSections();
+  updateCompat();
+  renderSlots();
+  if (typeof updateCameraButton === "function") updateCameraButton();
+}
+
+// Les réglages perso C1–C7 et le .FP1 ne concernent que Fujifilm.
+function updateCameraSections() {
+  document.querySelectorAll("[data-fuji-only]").forEach((el) => { el.hidden = nikonMode; });
 }
 
 // Messages sous l'en-tête des réglages et badge ⚠ sur les looks impossibles à reproduire.

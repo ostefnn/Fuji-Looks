@@ -1,4 +1,4 @@
-/* Fuji Looks — Export de la photo : rendu pleine résolution, partage ou téléchargement. */
+/* Dialed — Export de la photo : rendu pleine résolution, partage ou téléchargement. */
 // --- Export de la photo --------------------------------------------------
 
 // --- Calcul en arrière-plan (Web Worker) ------------------------------------
@@ -180,7 +180,7 @@ async function renderExport(limit = EXPORT_MAX_PIXELS) {
 function exportFileName(suffix = "") {
   const name = applied ? (currentFilm ? currentFilm.name : currentNikon ? currentNikon.name : recipe.name) : "original";
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "photo";
-  return `fuji-looks-${slug}${suffix}.jpg`;
+  return `dialed-${slug}${suffix}.jpg`;
 }
 
 const EXPORT_LABEL = exportButton.innerHTML;

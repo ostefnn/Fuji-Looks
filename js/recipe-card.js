@@ -1,4 +1,4 @@
-/* Fuji Looks — Fiche recette en image (1080 × 1350, format 4:5) à partager. */
+/* Dialed — Fiche recette en image (1080 × 1350, format 4:5) à partager. */
 
 const CARD_W = 1080;
 const CARD_H = 1350;
@@ -33,7 +33,7 @@ function cardEntries(r) {
     .map((field) => [field.label, String(FR.formatValue(field, r))]);
 }
 
-// QR code du lien de partage : scanné avec un téléphone, il ouvre la recette dans Fuji Looks.
+// QR code du lien de partage : scanné avec un téléphone, il ouvre la recette dans Dialed.
 // Seuls les réglages de conversion sont encodés (pas les notes, ISO, exposition, boîtier) :
 // le code reste peu dense et se lit même quand la fiche est affichée en petit.
 const CARD_QR_SIZE = 300;
@@ -147,7 +147,7 @@ function buildRecipeCard(cardRecipe) {
   if (!hasQr) drawMeta(top + rows * rowH + 46, CARD_W - pad * 2);
   ctx.fillStyle = "#6f747c";
   ctx.font = `400 19px ${CARD_FONT}`;
-  ctx.fillText("Fuji Looks · aperçu approximatif, pas une reproduction exacte du traitement Fujifilm", pad, CARD_H - 34, CARD_W - pad * 2);
+  ctx.fillText("Dialed · aperçu approximatif, pas une reproduction exacte du traitement Fujifilm", pad, CARD_H - 34, CARD_W - pad * 2);
   return canvas;
 }
 

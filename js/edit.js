@@ -1,4 +1,4 @@
-/* Fuji Looks — Retouches de base : format et cadrage, rotation, redressement, lumière, balance des blancs de la photo. */
+/* Dialed — Retouches de base : format et cadrage, rotation, redressement, lumière, balance des blancs de la photo. */
 
 const RATIOS = { original: null, "1:1": 1, "4:5": 4 / 5, "3:2": 3 / 2, "16:9": 16 / 9, "9:16": 9 / 16 };
 // cropX / cropY : position du cadrage dans la marge disponible, de -1 (gauche / haut) à 1 (droite / bas).

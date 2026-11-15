@@ -1,4 +1,4 @@
-/* Fuji Looks — Import de photo (JPEG, PNG, HEIC), glisser-déposer, Avant / Après. */
+/* Dialed — Import de photo (JPEG, PNG, HEIC), glisser-déposer, Avant / Après. */
 // --- Import de photo -----------------------------------------------------
 
 // Photos iPhone (.heic / .heif) : souvent sans type MIME, on vérifie aussi le nom.

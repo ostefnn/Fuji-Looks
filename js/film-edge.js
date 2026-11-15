@@ -1,4 +1,4 @@
-/* Fuji Looks — Bande de film : la photo posée sur son négatif, au format choisi.
+/* Dialed — Bande de film : la photo posée sur son négatif, au format choisi.
  *
  * Cadre « Pellicule » : la vue est recadrée au format de la fenêtre du boîtier (24×36, demi-format,
  * panoramique, 6×4,5 à 6×9) et dessinée sur la bande, avec ses perforations (35 mm), le nom du film,

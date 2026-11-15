@@ -1,4 +1,4 @@
-/* Fuji Looks — Bibliothèque de looks : onglets, filtres, cartes, vignettes, aperçu au survol. */
+/* Dialed — Bibliothèque de looks : onglets, filtres, cartes, vignettes, aperçu au survol. */
 
 // --- Favoris, recherche et filtres -------------------------------------------
 
@@ -298,7 +298,8 @@ function buildLookGrid() {
   const activeTab = activeTabId();
   lookTabs.textContent = "";
   lookGroups.textContent = "";
-  GROUPS = ALL_GROUPS.filter((group) => LOOKS.some((look) => look.group === group.id));
+  GROUPS = ALL_GROUPS.filter((group) => groupInMode(group.id) && LOOKS.some((look) => look.group === group.id));
+  if (nikonMode) GROUPS.sort((a, b) => (b.id === "nikon") - (a.id === "nikon")); // Picture Controls d'abord
 
   GROUPS.forEach((group) => {
     const groupLooks = LOOKS.filter((look) => look.group === group.id);
@@ -346,7 +347,7 @@ function buildLookGrid() {
   applyLookFilter();
   observeThumbs();
 
-  lookCount.textContent = LOOKS.length - 1;
+  lookCount.textContent = "";
 }
 
 function showTab(groupId) {

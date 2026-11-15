@@ -1,4 +1,4 @@
-/* Fuji Looks — Pipeline de rendu partagé entre la page et le worker d'export.
+/* Dialed — Pipeline de rendu partagé entre la page et le worker d'export.
  * Recette -> LUT 3D -> pixels, avec les mêmes étapes que Fuji Recipe Converter. */
 
 const LUT_N = 33;

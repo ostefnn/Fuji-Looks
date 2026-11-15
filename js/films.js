@@ -1,8 +1,8 @@
-/* Fuji Looks — Pellicules argentiques : 72 films, leur couleur et leur texture.
+/* Dialed — Pellicules argentiques : 72 films, leur couleur et leur texture.
  *
  * Une pellicule n'est pas une recette Fujifilm : c'est un rendu. Sa couleur vient d'une LUT 3D de la
  * collection Film-Luts (69 films, js/film-luts-data.js, chargé à la demande) ou, pour les 3 films sans
- * LUT, d'un modèle paramétrique propre à Fuji Looks. Le grain, la halation et la douceur sont
+ * LUT, d'un modèle paramétrique propre à Dialed. Le grain, la halation et la douceur sont
  * modélisés ici, à partir de la sensibilité et du type de film.
  *
  * Partagé entre la page et le worker d'export : pas d'accès au DOM ici.
@@ -95,7 +95,7 @@ const FILM_LIST = [
 ];
 
 /*
- * Modèle paramétrique (films sans LUT). Valeurs choisies à l'œil pour Fuji Looks.
+ * Modèle paramétrique (films sans LUT). Valeurs choisies à l'œil pour Dialed.
  *   slope   pente de la courbe en S (par diaph), par canal
  *   offset  décalage du point milieu par canal, en diaphs (positif = canal plus sombre)
  *   black / white  densité minimale et maximale du tirage, par canal
@@ -349,7 +349,7 @@ function filmCubeText(spec, size) {
   const lut = bakeFilmLut(spec, size);
   const lines = [
     `TITLE "${spec.name.replace(/"/g, "")}"`,
-    "# Fuji Looks — pellicule (couleur seule). Entrée et sortie : sRGB.",
+    "# Dialed — pellicule (couleur seule). Entrée et sortie : sRGB.",
     `LUT_3D_SIZE ${size}`,
     "DOMAIN_MIN 0.0 0.0 0.0",
     "DOMAIN_MAX 1.0 1.0 1.0"

@@ -1,4 +1,4 @@
-/* Fuji Looks — Dos dateur : la date imprimée dans l'image, en chiffres orange à segments,
+/* Dialed — Dos dateur : la date imprimée dans l'image, en chiffres orange à segments,
  * comme les compacts argentiques qui l'exposaient sur le négatif. Fait partie de la photo :
  * fonctionne avec ou sans cadre, et ne dépend pas du look. */
 

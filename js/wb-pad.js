@@ -1,4 +1,4 @@
-/* Fuji Looks — Grille de balance des blancs : un point à déplacer sur deux axes, comme l'écran
+/* Dialed — Grille de balance des blancs : un point à déplacer sur deux axes, comme l'écran
  * « WB Shift » des boîtiers Fujifilm. Utilisée pour le décalage R / B de la recette (−9 à +9) et pour
  * la température / teinte de la retouche (−100 à +100).
  *

@@ -1,4 +1,4 @@
-/* Fuji Looks — Worker d'export : calcule les pixels pleine résolution hors du fil principal,
+/* Dialed — Worker d'export : calcule les pixels pleine résolution hors du fil principal,
  * pour que l'écran ne fige pas pendant l'export d'une grande photo. */
 self.window = self; // les scripts du convertisseur s'attachent à window.FR
 importScripts(

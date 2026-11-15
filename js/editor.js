@@ -1,4 +1,4 @@
-/* Fuji Looks — Éditeur de recette : réglages Fujifilm, brouillon. */
+/* Dialed — Éditeur de recette : réglages Fujifilm, brouillon. */
 // --- Éditeur de recette --------------------------------------------------
 
 const fieldRows = [];

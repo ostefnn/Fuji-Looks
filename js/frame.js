@@ -1,4 +1,4 @@
-/* Fuji Looks — Cadre façon tirage avec les infos de la recette. */
+/* Dialed — Cadre façon tirage avec les infos de la recette. */
 // --- Cadre façon tirage ---------------------------------------------------------
 
 // Styles de cadre. Marges en fraction du grand côté de la photo.
@@ -89,12 +89,12 @@ function wrapTokens(ctx, tokens, maxWidth) {
 
 const FRAME_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 const SERIF_FONT = 'Georgia, "Times New Roman", serif';
-const SCRIPT_FONT = '"Fuji Looks Script", "Snell Roundhand", "Apple Chancery", cursive';
+const SCRIPT_FONT = '"Dialed Script", "Snell Roundhand", "Apple Chancery", cursive';
 
 // La police manuscrite est chargée à la demande ; on redessine l'aperçu une fois prête.
 function loadScriptFont() {
   if (!document.fonts || signatureStyle !== "script") return Promise.resolve();
-  return document.fonts.load('48px "Fuji Looks Script"', signatureName || "Signature").catch(() => {});
+  return document.fonts.load('48px "Dialed Script"', signatureName || "Signature").catch(() => {});
 }
 
 // --- Signature (logo personnel) ---------------------------------------------

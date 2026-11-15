@@ -3,7 +3,7 @@
 shouryan01/Nikon-Recipes, à un commit figé.
 
 Seuls les noms, créateurs et chemins sont écrits : les fichiers eux-mêmes ne sont pas copiés dans
-Fuji Looks. L'app les télécharge depuis le dépôt d'origine (raw.githubusercontent.com) quand on les
+Dialed. L'app les télécharge depuis le dépôt d'origine (raw.githubusercontent.com) quand on les
 affiche ou qu'on les ouvre.
 
     git clone https://github.com/shouryan01/Nikon-Recipes.git /tmp/Nikon-Recipes
@@ -53,7 +53,7 @@ def main():
         items.append([sets.index(set_label), rel.as_posix(), name.strip(), creator])
     doc = {"repo": REPO, "commit": commit, "sets": sets, "items": items}
     OUT.write_text(
-        "/* Fuji Looks — Catalogue des Picture Controls Nikon (généré par tools/build-nikon-catalog.py).\n"
+        "/* Dialed — Catalogue des Picture Controls Nikon (généré par tools/build-nikon-catalog.py).\n"
         f" * Source : https://github.com/{REPO} (commit {commit[:7]}). Noms, créateurs et chemins seulement :\n"
         " * chaque .NP3 est téléchargé depuis le dépôt d'origine quand l'app en a besoin. */\n"
         f"window.NIKON_CATALOG = {json.dumps(doc, ensure_ascii=False, separators=(',', ':'))};\n",

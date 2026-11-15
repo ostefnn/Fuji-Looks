@@ -1,4 +1,4 @@
-/* Fuji Looks — Rendu : recette -> LUT 3D -> pixels (même pipeline que Fuji Recipe Converter). */
+/* Dialed — Rendu : recette -> LUT 3D -> pixels (même pipeline que Fuji Recipe Converter). */
 // --- Moteur de rendu -----------------------------------------------------
 
 function getStrength() {

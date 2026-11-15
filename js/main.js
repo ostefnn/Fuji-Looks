@@ -1,4 +1,4 @@
-/* Fuji Looks — Démarrage de l'application. */
+/* Dialed — Démarrage de l'application. */
 // --- Démarrage ---------------------------------------------------------------
 
 function restoreDraft() {
@@ -68,5 +68,5 @@ installButton.addEventListener("click", async () => {
 });
 window.addEventListener("appinstalled", () => {
   installButton.hidden = true;
-  showStatus("Fuji Looks est installée.");
+  showStatus("Dialed est installée.");
 });

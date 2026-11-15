@@ -1,4 +1,4 @@
-/* Fuji Looks — Open Fuji Recipe (OFR v1) : format JSON ouvert d'échange entre applications.
+/* Dialed — Open Fuji Recipe (OFR v1) : format JSON ouvert d'échange entre applications.
  * Spécification : https://github.com/gosku/open-fuji-recipe (version 1, brouillon).
  */
 
@@ -26,7 +26,7 @@ const OFR_DR_IN = invert(OFR_DR);
 
 const capitalize1 = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-// Recette Fuji Looks → document OFR (règles d'omission de la spécification).
+// Recette Dialed → document OFR (règles d'omission de la spécification).
 function recipeToOfrSettings(r) {
   const sim = FR.simById(r.filmSim);
   const o = {
@@ -100,7 +100,7 @@ async function recipeToOfr(r, { sensors = [], sourceUrl = "", sourceAttribution 
   return doc;
 }
 
-// Document OFR → valeurs de recette Fuji Looks (ou null si ce n'est pas de l'OFR v1).
+// Document OFR → valeurs de recette Dialed (ou null si ce n'est pas de l'OFR v1).
 function ofrToRecipe(doc) {
   if (!doc || typeof doc !== "object" || doc.v !== 1 || typeof doc.film_simulation !== "string") return null;
   const lower = (v) => String(v || "").toLowerCase();

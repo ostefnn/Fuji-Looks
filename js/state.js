@@ -1,4 +1,4 @@
-/* Fuji Looks — Références DOM, constantes et état global de l'application. */
+/* Dialed — Références DOM, constantes et état global de l'application. */
 const photoInput = document.getElementById("photoInput");
 const photoPreview = document.getElementById("photoPreview");
 const placeholder = document.getElementById("placeholder");

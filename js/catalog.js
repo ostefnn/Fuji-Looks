@@ -1,4 +1,4 @@
-/* Fuji Looks — Catalogue des looks (recettes perso, de démarrage, simulations) et stockage local. */
+/* Dialed — Catalogue des looks (recettes perso, de démarrage, simulations) et stockage local. */
 // --- Catalogue des looks -------------------------------------------------
 
 const LOOKS = [{ id: "original", name: "Original", desc: "Naturel", group: "base", recipe: null }];
@@ -216,6 +216,18 @@ function load(key) {
   } catch {
     return null;
   }
+}
+
+// --- Marque du boîtier : Fujifilm d'abord, Nikon à part -------------------------------
+
+// « Mon boîtier : Nikon Z » remplace les onglets Fujifilm par les Picture Controls ;
+// sinon l'onglet Nikon n'apparaît que si des .NP3 ont été importés.
+let nikonMode = load("fuji-looks.camera") === "nikon";
+
+function groupInMode(id) {
+  if (nikonMode) return id === "nikon" || id === "films";
+  if (id !== "nikon") return true;
+  return LOOKS.some((look) => look.group === "nikon" && look.nikon && !look.nikonRemote);
 }
 
 // Même format que la bibliothèque du convertisseur : { id, savedAt, recipe }.

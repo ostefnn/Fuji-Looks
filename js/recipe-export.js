@@ -1,4 +1,4 @@
-/* Fuji Looks — Export de recette : preset Lightroom, LUT, texte, code et lien de partage, JSON. */
+/* Dialed — Export de recette : preset Lightroom, LUT, texte, code et lien de partage, JSON. */
 // --- Export de recette -----------------------------------------------------
 
 function downloadBlob(blob, fileName) {
@@ -110,7 +110,7 @@ document.getElementById("copyCodeButton").addEventListener("click", () => {
 });
 
 document.getElementById("copyLinkButton").addEventListener("click", () => {
-  copyText(shareLink(), "Lien copié : il ouvre cette recette dans Fuji Looks.");
+  copyText(shareLink(), "Lien copié : il ouvre cette recette dans Dialed.");
 });
 
 document.getElementById("jsonButton").addEventListener("click", () => {

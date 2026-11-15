@@ -1,4 +1,4 @@
-/* Fuji Looks — Export d'une recette en profil X RAW Studio (.FP1), pour l'envoyer vers le boîtier.
+/* Dialed — Export d'une recette en profil X RAW Studio (.FP1), pour l'envoyer vers le boîtier.
  *
  * Un .FP1 contient l'identité du boîtier (modèle, version, numéro de série…), sans laquelle
  * X RAW Studio refuse le fichier. On part donc d'un « modèle » : un .FP1 enregistré une fois
@@ -70,7 +70,7 @@ function buildFp1(r) {
     el.textContent = String(value);
   }
   const notes = [];
-  group.setAttribute("label", (r.name || "Fuji Looks").slice(0, 25));
+  group.setAttribute("label", (r.name || "Dialed").slice(0, 25));
   set("FilmSimulation", sim.fp);
   // DR-Auto n'a pas de valeur connue dans ce format : on garde celle du modèle.
   if (r.dynamicRange === "auto") notes.push("Dynamic Range Auto : valeur du modèle conservée, à régler sur le boîtier.");

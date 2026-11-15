@@ -1,4 +1,4 @@
-/* Fuji Looks — Mon boîtier : préparer les 7 réglages personnalisés C1–C7. */
+/* Dialed — Mon boîtier : préparer les 7 réglages personnalisés C1–C7. */
 
 const SLOTS_KEY = "fuji-looks.slots";
 const SLOT_COUNT = 7;
@@ -159,7 +159,7 @@ document.getElementById("slotsCardButton").addEventListener("click", () => {
     return;
   }
   buildSlotsCard().toBlob((blob) => {
-    if (blob) presentResult(new File([blob], "fuji-looks-c1-c7.png", { type: "image/png" }),
+    if (blob) presentResult(new File([blob], "dialed-c1-c7.png", { type: "image/png" }),
       { title: "Fiche C1–C7 prête", savedMessage: "Fiche C1–C7 enregistrée." });
   }, "image/png");
 });

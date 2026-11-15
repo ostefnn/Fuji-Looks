@@ -1,4 +1,4 @@
-/* Fuji Looks — EXIF : copie des métadonnées de la photo d'origine dans l'export. */
+/* Dialed — EXIF : copie des métadonnées de la photo d'origine dans l'export. */
 // --- EXIF : on recopie les métadonnées de la photo d'origine dans l'export ------
 
 // Renvoie le segment APP1 « Exif » d'un JPEG (ou null).

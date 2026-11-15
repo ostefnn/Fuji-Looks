@@ -1,5 +1,5 @@
-/* Fuji Looks — Service worker : l'app s'installe et fonctionne hors connexion. */
-const CACHE = "fuji-looks-v9";
+/* Dialed — Service worker : l'app s'installe et fonctionne hors connexion. */
+const CACHE = "dialed-v10";
 
 // Fichiers de l'app, mis en cache dès l'installation.
 const APP_SHELL = [

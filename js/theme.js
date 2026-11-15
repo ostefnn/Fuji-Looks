@@ -1,4 +1,4 @@
-/* Fuji Looks — Thème de l'interface : Auto (suit l'appareil), Clair ou Sombre.
+/* Dialed — Thème de l'interface : Auto (suit l'appareil), Clair ou Sombre.
  * Le choix est appliqué dès le <head> (index.html) pour éviter un éclair au chargement. */
 
 const THEME_KEY = "fuji-looks.theme";

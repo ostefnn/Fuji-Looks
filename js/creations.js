@@ -1,4 +1,4 @@
-/* Fuji Looks — Images à partager : avant / après et planche contact. */
+/* Dialed — Images à partager : avant / après et planche contact. */
 
 const CREATION_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 const beforeAfterLayout = document.getElementById("beforeAfterLayout");
@@ -105,7 +105,7 @@ document.getElementById("beforeAfterButton").addEventListener("click", async () 
     showStatus("Choisis d’abord un look ou une recette.");
     return;
   }
-  const file = await canvasToFile(buildBeforeAfter(baLayout), `fuji-looks-avant-apres-${slugify(recipe.name)}.jpg`);
+  const file = await canvasToFile(buildBeforeAfter(baLayout), `dialed-avant-apres-${slugify(recipe.name)}.jpg`);
   if (file) presentResult(file, { title: "Avant / Après prêt", savedMessage: "Avant / Après enregistré." });
 });
 
@@ -250,7 +250,7 @@ contactExport.addEventListener("click", async () => {
   contactExport.textContent = "Création…";
   if (contactSelection.some((id) => id.startsWith("film-"))) await ensureFilmLuts();
   await new Promise((r) => setTimeout(r, 30));
-  const file = await canvasToFile(buildContactSheet(contactSelection, 2160), "fuji-looks-planche-contact.jpg");
+  const file = await canvasToFile(buildContactSheet(contactSelection, 2160), "dialed-planche-contact.jpg");
   contactExport.textContent = "Créer la planche";
   contactExport.disabled = false;
   contactDialog.close();

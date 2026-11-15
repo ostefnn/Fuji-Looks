@@ -12,17 +12,17 @@
     } catch {}
   </script>
   <meta name="description" content="Applique des recettes Fujifilm et des pellicules argentiques à tes photos, directement dans ton navigateur.">
-  <title>Fuji Looks — Photo Studio</title>
+  <title>Dialed — find your camera recipe</title>
   <!-- Aperçu des liens partagés (messageries, réseaux) -->
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Fuji Looks">
-  <meta property="og:title" content="Fuji Looks — recettes Fujifilm et pellicules argentiques">
+  <meta property="og:site_name" content="Dialed">
+  <meta property="og:title" content="Dialed — recettes Fujifilm et pellicules argentiques">
   <meta property="og:description" content="Applique des recettes Fujifilm et 72 pellicules argentiques à tes photos, directement dans ton navigateur. Rien n’est envoyé en ligne.">
   <meta property="og:url" content="https://ostefnn.github.io/Fuji-Looks/">
   <meta property="og:image" content="https://ostefnn.github.io/Fuji-Looks/docs/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Fuji Looks : une photo sur une bande de film Kodak Portra 400">
+  <meta property="og:image:alt" content="Dialed : une photo sur une bande de film Kodak Portra 400">
   <meta property="og:locale" content="fr_FR">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="manifest" href="manifest.webmanifest">
@@ -31,7 +31,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Fuji Looks">
+  <meta name="apple-mobile-web-app-title" content="Dialed">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-pane="looks">
@@ -57,9 +57,9 @@
   </svg>
 
   <header class="topbar">
-    <a class="brand" href="./" aria-label="Fuji Looks, accueil">
-      <span class="brand-mark" aria-hidden="true">F.</span>
-      <span class="brand-name">Fuji Looks</span>
+    <a class="brand" href="./" aria-label="Dialed, accueil">
+      <span class="brand-mark" aria-hidden="true">D.</span>
+      <span class="brand-name">Dialed</span>
     </a>
     <span class="topbar-sep" aria-hidden="true"></span>
     <button type="button" class="btn btn-ghost camera-button" id="cameraButton" aria-haspopup="dialog">
@@ -139,7 +139,7 @@
     </div>
   </header>
 
-  <h1 class="visually-hidden">Fuji Looks : recettes Fujifilm et pellicules argentiques pour tes photos</h1>
+  <h1 class="visually-hidden">Dialed : recettes Fujifilm et pellicules argentiques pour tes photos</h1>
 
   <main class="workspace">
     <!-- Gauche : choisir un look -->
@@ -917,7 +917,7 @@
         <label class="field"><span>Modèle</span><select id="cameraSelect" class="select"></select></label>
         <p class="hint">Les recettes impossibles sur ce boîtier sont signalées dans les looks et dans « Recette ».</p>
       </section>
-      <section class="group">
+      <section class="group" data-fuji-only>
         <h3>Réglages perso C1–C7</h3>
         <p class="hint">Range tes recettes dans les 7 emplacements, puis garde la fiche ou exporte les .FP1.</p>
         <ol class="slot-list" id="slotList"></ol>
@@ -926,7 +926,7 @@
           <button type="button" class="btn btn-secondary btn-sm" id="slotsFp1Button">Exporter les .FP1</button>
         </div>
       </section>
-      <section class="group" id="fp1Section">
+      <section class="group" id="fp1Section" data-fuji-only>
         <h3>Profil X RAW Studio (.FP1)</h3>
         <p class="hint" id="fp1Status"></p>
         <div class="btn-row">
@@ -934,7 +934,7 @@
           <input id="fp1TemplateFile" type="file" accept=".fp1,.FP1,.xml,application/xml" hidden>
           <button type="button" class="btn btn-secondary btn-sm" id="fp1Button" disabled>Profil .FP1 de la recette</button>
         </div>
-        <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Fuji Looks reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
+        <p class="hint">Dans X RAW Studio, appareil connecté, enregistre un profil puis charge-le ici une fois : Dialed reprend l’identité de ton boîtier. Ensuite, ouvre le .FP1 exporté dans X RAW Studio et envoie-le vers un emplacement C1–C7.</p>
       </section>
     </div>
   </dialog>

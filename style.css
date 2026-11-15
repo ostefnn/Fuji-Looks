@@ -1,10 +1,10 @@
-/* Fuji Looks — feuille de style.
+/* Dialed — feuille de style.
  * Design system : base 4 px, gris neutres (aucune teinte bleue : on juge des couleurs), un seul accent.
  * L'accent ne marque que la sélection, le focus, l'état « modifié » et l'action principale. */
 
 /* Police manuscrite des signatures (Great Vibes, SIL OFL 1.1, vendor/fonts). */
 @font-face {
-  font-family: "Fuji Looks Script";
+  font-family: "Dialed Script";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -13,7 +13,7 @@
 }
 
 @font-face {
-  font-family: "Fuji Looks Script";
+  font-family: "Dialed Script";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -1927,7 +1927,7 @@ body:not(.has-photo) .histogram-panel {
 }
 
 .sig-chip-script {
-  font-family: "Fuji Looks Script", "Snell Roundhand", cursive;
+  font-family: "Dialed Script", "Snell Roundhand", cursive;
   font-size: 18px;
   font-weight: 400;
 }

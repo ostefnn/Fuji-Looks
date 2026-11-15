@@ -1,4 +1,4 @@
-/* Fuji Looks — Historique : Annuler / Rétablir. */
+/* Dialed — Historique : Annuler / Rétablir. */
 // --- Historique (Annuler / Rétablir) ----------------------------------------
 
 const HISTORY_MAX = 100;

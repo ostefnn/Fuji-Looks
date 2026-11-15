@@ -1,4 +1,4 @@
-/* Fuji Looks — Interface : onglets du panneau, menus, dialogues, navigation mobile, raccourcis. */
+/* Dialed — Interface : onglets du panneau, menus, dialogues, navigation mobile, raccourcis. */
 
 // --- Onglets du panneau de droite (Recette / Pellicule, Retouche, Cadre) -----------
 
@@ -196,7 +196,7 @@ viewSplit.addEventListener("click", () => { setSplitView(true); updateViewButton
 function updateCameraButton() {
   const camera = CAMERAS.get(cameraId);
   const generation = camera && CAMERA_GENERATIONS.find((g) => g.cameras.some((c) => c.id === camera.id));
-  document.getElementById("cameraButtonName").textContent = camera ? camera.name : "aucun";
+  document.getElementById("cameraButtonName").textContent = camera ? camera.name : cameraId === NIKON_CAMERA ? "Nikon Z" : "aucun";
   document.getElementById("cameraButtonSensor").textContent = generation ? `· ${generation.name}` : "";
 }
 document.getElementById("cameraButton").addEventListener("click", () => openDialog("cameraDialog"));

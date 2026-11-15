@@ -1,4 +1,4 @@
-/* Fuji Looks — Série de photos : même recette et même retouche, export de toute la série. */
+/* Dialed — Série de photos : même recette et même retouche, export de toute la série. */
 
 const seriesStrip = document.getElementById("seriesStrip");
 const seriesList = document.getElementById("seriesList");
