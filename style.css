@@ -1935,6 +1935,11 @@ body:not(.has-photo) .histogram-panel {
   box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 12px #6b7a8f;
 }
 
+.swatch-print {
+  background: #6b7a8f;
+  box-shadow: inset 0 0 0 2px #f3f1ec;
+}
+
 .swatch-polaroid {
   background: linear-gradient(to bottom, #6b7a8f 0 55%, #fbfaf6 55%);
   box-shadow: inset 0 0 0 2px #fbfaf6;

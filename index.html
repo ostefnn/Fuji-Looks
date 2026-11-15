@@ -713,16 +713,20 @@
           <h3>Style</h3>
           <div class="pill-row" id="frameOptions" role="group" aria-label="Style de cadre">
             <button type="button" class="chip" data-frame="none" aria-pressed="true">Aucun</button>
-            <button type="button" class="chip" data-frame="white" aria-pressed="false"><span class="swatch" style="background:#f5f3ee"></span>Blanc</button>
-            <button type="button" class="chip" data-frame="cream" aria-pressed="false"><span class="swatch" style="background:#ece2cc"></span>Crème</button>
-            <button type="button" class="chip" data-frame="black" aria-pressed="false"><span class="swatch" style="background:#111214"></span>Noir</button>
-            <button type="button" class="chip" data-frame="thin" aria-pressed="false"><span class="swatch swatch-thin"></span>Fin</button>
-            <button type="button" class="chip" data-frame="polaroid" aria-pressed="false"><span class="swatch swatch-polaroid"></span>Polaroid</button>
-            <button type="button" class="chip" data-frame="film" aria-pressed="false"><span class="swatch swatch-film"></span>Pellicule</button>
+            <button type="button" class="chip" data-frame="print" aria-pressed="false"><span class="swatch swatch-print"></span>Tirage</button>
+            <button type="button" class="chip" data-frame="film" aria-pressed="false"><span class="swatch swatch-film"></span>Scan de négatif</button>
+          </div>
+          <div class="sub-row" id="framePaperRow" hidden>
+            <span class="sub-label">Papier</span>
+            <div class="pill-row" id="framePaperOptions" role="group" aria-label="Papier du tirage">
+              <button type="button" class="chip" data-paper="white" aria-pressed="true"><span class="swatch" style="background:#f3f1ec"></span>Blanc</button>
+              <button type="button" class="chip" data-paper="black" aria-pressed="false"><span class="swatch" style="background:#141414"></span>Noir</button>
+            </div>
+          </div>
           </div>
         </section>
         <section class="group" id="filmEdgeRow" hidden>
-          <h3>Bande de film</h3>
+          <h3>Négatif</h3>
           <div class="sub-row">
             <span class="sub-label">Format</span>
             <div class="pill-row" id="filmFormatOptions" role="group" aria-label="Format du négatif">
@@ -755,30 +759,22 @@
             <label class="sub-label" for="frameNumberInput">N° de vue</label>
             <input type="number" id="frameNumberInput" class="input input-num" min="0" max="99" step="1" value="24" inputmode="numeric">
           </div>
-          <p class="hint">La photo est recadrée au format de la vue ; fais-la glisser pour choisir le cadrage. Perforations en 35 mm, marges et numéros du 120. En demi-format, « Deux vues » met deux photos sur une même vue 24×36.</p>
-        </section>
-        <section class="group" id="frameInfoRow" hidden>
-          <h3>Infos</h3>
-          <div class="pill-row" id="frameInfoOptions" role="group" aria-label="Informations affichées">
-            <button type="button" class="chip" data-info="none" aria-pressed="true">Aucune</button>
-            <button type="button" class="chip" data-info="name" aria-pressed="false">Nom seul</button>
-            <button type="button" class="chip" data-info="full" aria-pressed="false">Complètes</button>
-          </div>
+          <p class="hint">La photo est recadrée au format de la vue ; fais-la glisser pour choisir le cadrage. Le marquage en bordure reprend la pellicule du look. En demi-format, « Deux vues » met deux photos sur une même vue 24×36.</p>
         </section>
         <section class="group" id="signatureRow" hidden>
-          <h3><label for="signatureInput">Signature</label></h3>
-          <input type="text" id="signatureInput" class="input" maxlength="32" placeholder="Ton nom ou tes initiales" autocomplete="off">
+          <h3><label for="signatureInput">Légende</label></h3>
+          <input type="text" id="signatureInput" class="input" maxlength="32" placeholder="Lieu, date ou ton nom" autocomplete="off">
           <div class="sub-row" id="signatureStyleRow" hidden>
             <span class="sub-label">Style</span>
-            <div class="pill-row" id="signatureStyleOptions" role="group" aria-label="Style de signature">
-              <button type="button" class="chip" data-signature="logo" aria-pressed="false"><span class="sig-chip-logo">F.</span>Logo</button>
-              <button type="button" class="chip" data-signature="monogram" aria-pressed="true"><span class="sig-chip-mono">F</span>Monogramme</button>
+            <div class="pill-row" id="signatureStyleOptions" role="group" aria-label="Style de la légende">
+              <button type="button" class="chip" data-signature="text" aria-pressed="true">Texte</button>
+              <button type="button" class="chip" data-signature="monogram" aria-pressed="false"><span class="sig-chip-mono">D</span>Monogramme</button>
               <button type="button" class="chip sig-chip-script" data-signature="script" aria-pressed="false">Manuscrit</button>
             </div>
           </div>
           <div class="sub-row" id="signatureSizeRow" hidden>
             <span class="sub-label">Taille</span>
-            <div class="pill-row" id="signatureSizeOptions" role="group" aria-label="Taille de la signature">
+            <div class="pill-row" id="signatureSizeOptions" role="group" aria-label="Taille de la légende">
               <button type="button" class="chip" data-size="small" aria-pressed="true">Petite</button>
               <button type="button" class="chip" data-size="medium" aria-pressed="false">Moyenne</button>
               <button type="button" class="chip" data-size="large" aria-pressed="false">Grande</button>
@@ -786,7 +782,7 @@
           </div>
           <div class="sub-row" id="signaturePositionRow" hidden>
             <span class="sub-label">Position</span>
-            <div class="pill-row" id="signaturePositionOptions" role="group" aria-label="Position de la signature">
+            <div class="pill-row" id="signaturePositionOptions" role="group" aria-label="Position de la légende">
               <button type="button" class="chip" data-position="left" aria-pressed="false">Gauche</button>
               <button type="button" class="chip" data-position="center" aria-pressed="false">Centre</button>
               <button type="button" class="chip" data-position="right" aria-pressed="true">Droite</button>

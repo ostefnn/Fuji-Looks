@@ -1,22 +1,36 @@
 /* Dialed — Cadre façon tirage avec les infos de la recette. */
 // --- Cadre façon tirage ---------------------------------------------------------
 
-// Styles de cadre. Marges en fraction du grand côté de la photo.
+// Deux cadres seulement : le tirage (marge de papier égale, un peu plus large en bas)
+// et le scan de négatif (js/film-edge.js). Le nom de la recette n'est jamais imprimé
+// sur la photo : il a sa place sur la fiche recette.
 const FRAME_STYLES = {
-  white: { bg: "#f5f3ee", text: "#1c1c1c", muted: "#6f6c66", side: 0.035, top: 0.035, bottom: 0.035 },
-  cream: { bg: "#ece2cc", text: "#3b3127", muted: "#86775f", side: 0.035, top: 0.035, bottom: 0.035 },
-  black: { bg: "#111214", text: "#f1f0ec", muted: "#9b9a96", side: 0.035, top: 0.035, bottom: 0.035 },
-  thin: { bg: "#ffffff", text: "#1c1c1c", muted: "#6f6c66", side: 0.012, top: 0.012, bottom: 0.012 },
-  polaroid: { bg: "#fbfaf6", text: "#2a2a2a", muted: "#77746d", side: 0.05, top: 0.05, bottom: 0.2, center: true },
-  film: { bg: "#0e0d0c", text: "#efe9dc", muted: "#9b958a", side: 0.02, top: 0, bottom: 0, film: true }
+  print: { margin: 0.06, bottom: 0.075 },
+  film: { film: true }
 };
-const FRAME_INFO_KEY = "fuji-looks.frame-info";
+const PRINT_PAPERS = {
+  white: { bg: "#f3f1ec", text: "#2a2925", muted: "#8a867e" },
+  black: { bg: "#141414", text: "#e9e7e2", muted: "#8f8c86" }
+};
+const FRAME_PAPER_KEY = "fuji-looks.frame-paper";
 
 const frameMeta = document.getElementById("frameMeta");
-let frameStyle = FRAME_STYLES[load(FRAME_KEY)] ? load(FRAME_KEY) : "none";
-// Infos affichées : full (nom + simulation + réglages), name (nom + simulation) ou none.
-// Par défaut tout est désactivé : pas de cadre, pas d'infos, pas de signature.
-let frameInfo = ["full", "name", "none"].includes(load(FRAME_INFO_KEY)) ? load(FRAME_INFO_KEY) : "none";
+// Anciens cadres (Blanc, Crème, Noir, Fin, Polaroid) : convertis en tirage.
+const LEGACY_FRAMES = { white: "white", cream: "white", thin: "white", polaroid: "white", black: "black" };
+let framePaper = PRINT_PAPERS[load(FRAME_PAPER_KEY)] ? load(FRAME_PAPER_KEY) : "white";
+let frameStyle = (() => {
+  const saved = load(FRAME_KEY);
+  if (FRAME_STYLES[saved]) return saved;
+  if (LEGACY_FRAMES[saved]) {
+    framePaper = LEGACY_FRAMES[saved];
+    store(FRAME_KEY, "print");
+    store(FRAME_PAPER_KEY, framePaper);
+    return "print";
+  }
+  return "none";
+})();
+// Infos de la recette sur la photo : supprimées (gardé pour la signature des fonctions).
+const frameInfo = "none";
 
 function signedValue(v, decimals = 0) {
   const n = Number(v);
@@ -102,7 +116,8 @@ function loadScriptFont() {
 const SIGNATURE_KEY = "fuji-looks.signature";
 const savedSignature = load(SIGNATURE_KEY) || {};
 let signatureName = typeof savedSignature.name === "string" ? savedSignature.name.slice(0, 32) : "";
-let signatureStyle = ["logo", "monogram", "script"].includes(savedSignature.style) ? savedSignature.style : "monogram";
+// « Texte » : la légende en petites capitales espacées (l'ancien « Logo » y est ramené).
+let signatureStyle = ["text", "monogram", "script"].includes(savedSignature.style) ? savedSignature.style : "text";
 // Taille relative au grand côté de la photo : [sous les infos, seule dans le cadre].
 // Volontairement discrète : la signature ne doit pas concurrencer la photo.
 const SIGNATURE_SIZES = { small: [0.017, 0.021], medium: [0.023, 0.028], large: [0.03, 0.037] };
@@ -170,8 +185,12 @@ function drawSignature(ctx, x, y, size, theme, measureOnly = false) {
     const spacing = labelSize * 0.32;
     ctx.font = `500 ${labelSize}px ${FRAME_FONT}`;
     const labelW = spacedWidth(ctx, label, spacing);
-    width = size + gap + labelW;
-    if (!measureOnly) {
+    const plain = signatureStyle === "text";
+    width = plain ? labelW : size + gap + labelW;
+    if (!measureOnly && plain) {
+      ctx.fillStyle = theme.muted;
+      drawSpaced(ctx, label, x, y + size / 2, spacing);
+    } else if (!measureOnly) {
       if (signatureStyle === "logo") {
         ctx.globalAlpha = 0.85;
         ctx.fillStyle = "#e45b52";
@@ -203,86 +222,36 @@ function drawSignature(ctx, x, y, size, theme, measureOnly = false) {
   return width;
 }
 
-// Bordure façon tirage, avec selon l'option le nom de la recette, la simulation et les réglages.
-// Toutes les tailles sont proportionnelles à la photo : l'aperçu et l'export sont identiques.
-// pair : seconde vue du demi-format (ImageData), dessinée à côté sur la bande de film.
+// Tirage : la photo sur son papier, marges égales et un peu plus de place en bas,
+// avec au plus une légende discrète. Tailles proportionnelles : aperçu et export identiques.
+// pair : seconde vue du demi-format (ImageData), pour le scan de négatif.
 function composeFrame(imageData, style, frameRecipe, info = frameInfo, pair = null) {
   const cfg = FRAME_STYLES[style];
-  // Pellicule : la photo est posée sur une vraie bande de film (js/film-edge.js).
   if (cfg.film) return composeFilmEdge(imageData, frameRecipe, info, pair);
+  const paper = PRINT_PAPERS[framePaper];
   const W = imageData.width;
   const H = imageData.height;
   const long = Math.max(W, H);
-  const side = Math.round(long * cfg.side);
-  const top = Math.round(long * cfg.top);
-  const pad = Math.round(long * 0.035);
-  const titleSize = Math.max(10, Math.round(long * (cfg.center ? 0.03 : 0.024)));
-  const textSize = Math.max(8, Math.round(long * 0.0145));
+  const margin = Math.round(long * cfg.margin);
+  const caption = signatureName.trim();
+  const sigSize = Math.max(10, Math.round(long * SIGNATURE_SIZES[signatureSize][0]));
+  const bottom = Math.round(long * cfg.bottom) + (caption ? Math.round(sigSize * 1.6) : 0);
 
   const canvas = document.createElement("canvas");
+  canvas.width = W + margin * 2;
+  canvas.height = margin + H + bottom;
   const ctx = canvas.getContext("2d");
-  const showTitle = Boolean(frameRecipe) && info !== "none";
-  let lines = [];
-  if (frameRecipe && info === "full") {
-    ctx.font = `${textSize}px ${FRAME_FONT}`;
-    lines = wrapTokens(ctx, frameTokens(frameRecipe), W);
-    if (frameRecipe.author) lines.push(`Recette : ${frameRecipe.author}`);
-  }
-  // Signature : sur sa propre ligne en bas du cartouche.
-  const hasSignature = Boolean(signatureName.trim());
-  // Seule dans le cadre, la signature est un peu plus grande (elle est alors centrée).
-  const [withInfo, alone] = SIGNATURE_SIZES[signatureSize];
-  const sigSize = Math.max(12, Math.round(long * (showTitle || lines.length ? withInfo : alone)));
-  const sigBlock = hasSignature ? sigSize + (showTitle || lines.length ? Math.round(textSize * 1.2) : 0) : 0;
-  const content = (showTitle ? titleSize * 1.25 : 0) + (showTitle && lines.length ? titleSize * 0.25 : 0) +
-    lines.length * textSize * 1.55 + sigBlock;
-  const band = content ? Math.round(pad * 0.9 * 2 + content) : 0;
-  const bottom = Math.max(Math.round(long * cfg.bottom), band);
-
-  canvas.width = W + side * 2;
-  canvas.height = top + H + bottom;
-  ctx.fillStyle = cfg.bg;
+  ctx.fillStyle = paper.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(imageDataToCanvas(imageData), margin, margin);
+  canvas.photoX = margin; // position de la photo dans le cadre (pipette, recadrage)
+  canvas.photoY = margin;
 
-  const photo = document.createElement("canvas");
-  photo.width = W;
-  photo.height = H;
-  photo.getContext("2d").putImageData(imageData, 0, 0);
-  ctx.drawImage(photo, side, top);
-  canvas.photoX = side; // position de la photo dans le cadre (pipette, recadrage)
-  canvas.photoY = top;
-  ctx.textBaseline = "alphabetic";
-
-  if (content) {
-    const bandTop = top + H;
-    const bandHeight = bottom;
-    // Cartouche centré verticalement dans la bordure du bas (utile pour le Polaroid).
-    let y = Math.round(bandTop + (bandHeight - content) / 2);
-    if (showTitle) {
-      y += titleSize;
-      ctx.fillStyle = cfg.text;
-      ctx.font = `600 ${titleSize}px ${FRAME_FONT}`;
-      ctx.textAlign = "left";
-      ctx.fillText(frameRecipe.name || "Recette", side, y, W * 0.62);
-      ctx.fillStyle = cfg.muted;
-      ctx.font = `500 ${Math.round(titleSize * 0.8)}px ${FRAME_FONT}`;
-      ctx.textAlign = "right";
-      ctx.fillText(frameSubtitle(frameRecipe), side + W, y, W * 0.36);
-      y += Math.round(titleSize * 0.25);
-    }
-    ctx.textAlign = "left";
-    ctx.font = `${textSize}px ${FRAME_FONT}`;
-    lines.forEach((line, i) => {
-      y += Math.round(textSize * 1.55);
-      ctx.fillStyle = frameRecipe.author && i === lines.length - 1 ? cfg.muted : cfg.text;
-      ctx.fillText(line, side, y);
-    });
-    if (sigBlock) {
-      const sigW = measureSignature(ctx, sigSize);
-      const sigX = signaturePosition === "left" ? side : signaturePosition === "center" ? side + (W - sigW) / 2 : side + W - sigW;
-      const sigY = Math.round(bandTop + (bandHeight - content) / 2 + content - sigSize);
-      drawSignature(ctx, sigX, sigY, sigSize, cfg);
-    }
+  if (caption) {
+    const sigW = measureSignature(ctx, sigSize);
+    const x = signaturePosition === "left" ? margin : signaturePosition === "center" ? margin + (W - sigW) / 2 : margin + W - sigW;
+    const y = Math.round(margin + H + (bottom - sigSize) / 2);
+    drawSignature(ctx, x, y, sigSize, paper);
   }
   return canvas;
 }
@@ -298,13 +267,14 @@ function updateFrameOptions() {
   frameOptions.querySelectorAll("[data-frame]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.frame === frameStyle));
   });
-  frameInfoOptions.querySelectorAll("[data-info]").forEach((button) => {
-    button.setAttribute("aria-pressed", String(button.dataset.info === frameInfo));
+  framePaperOptions.querySelectorAll("[data-paper]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.paper === framePaper));
   });
+  framePaperRow.hidden = frameStyle !== "print";
   updateFrameMeta();
-  frameInfoRow.hidden = frameStyle === "none";
-  signatureRow.hidden = frameStyle === "none";
-  signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();
+  // La légende va sur le papier du tirage, pas sur un négatif.
+  signatureRow.hidden = frameStyle !== "print";
+  signatureStyleRow.hidden = frameStyle !== "print" || !signatureName.trim();
   signatureInput.value = signatureName;
   signatureStyleOptions.querySelectorAll("[data-signature]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.signature === signatureStyle));
@@ -354,7 +324,7 @@ function saveSignature() {
 signatureInput.addEventListener("input", () => {
   signatureName = signatureInput.value.slice(0, 32);
   saveSignature();
-  signatureStyleRow.hidden = frameStyle === "none" || !signatureName.trim();
+  signatureStyleRow.hidden = frameStyle !== "print" || !signatureName.trim();
   signatureSizeRow.hidden = signatureStyleRow.hidden;
   signaturePositionRow.hidden = signatureStyleRow.hidden;
   schedulePreview();
@@ -383,11 +353,11 @@ frameOptions.addEventListener("click", (event) => {
   if (!originalImage && frameStyle !== "none") showStatus("Importe une photo pour voir le cadre.");
 });
 
-frameInfoOptions.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-info]");
+framePaperOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-paper]");
   if (!button) return;
-  frameInfo = button.dataset.info;
-  store(FRAME_INFO_KEY, frameInfo);
+  framePaper = button.dataset.paper;
+  store(FRAME_PAPER_KEY, framePaper);
   updateFrameOptions();
   schedulePreview();
 });
